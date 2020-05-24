@@ -15,13 +15,13 @@
 GameServiceKit Android sample code encapsulates APIs of the HUAWEI GameSevice Kit. It provides many sample programs for your reference or usage.
 The following describes packages of Android sample code.
 
-achievement:    Sample code of achievement feature.
-archive:        Sample code of archive feature.
-event:          Sample code of event feature.
-gamematadata:   Sample code of game matadata feature.
-playerstats:    Sample code of playerstats feature.
-ranking:        Sample code of ranking feature.
-common:         Common components and utils
+1. achievement:    Sample code of achievement feature.
+2. archive:        Sample code of archive feature.
+3. event:          Sample code of event feature.
+4. gamematadata:   Sample code of game matadata feature.
+5. playerstats:    Sample code of playerstats feature.
+6. ranking:        Sample code of ranking feature.
+7. common:         Common components and utils
 
 ## Installation
 Before using this sample code, check whether the Android studio development environment is ready. open the sample code project directory with file "build.gradle" in Android Studio.Run TestApp on your divice or simulator which have installed latest Huawei Mobile Service(HMS).
