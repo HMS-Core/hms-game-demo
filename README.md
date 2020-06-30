@@ -16,11 +16,17 @@ GameServiceKit Android sample code encapsulates APIs of the HUAWEI GameSevice Ki
 The following describes packages of Android sample code.
 
 achievement:    Sample code of achievement feature.
+
 archive:        Sample code of archive feature.
+
 event:          Sample code of event feature.
+
 gamematadata:   Sample code of game matadata feature.
+
 playerstats:    Sample code of playerstats feature.
+
 ranking:        Sample code of ranking feature.
+
 common:         Common components and utils
 
 ## Installation
