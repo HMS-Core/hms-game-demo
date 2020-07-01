@@ -17,13 +17,6 @@
 
 package com.huawei.hms.game.ranking;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.text.TextUtils;
-import android.widget.EditText;
-import android.widget.Toast;
-
 import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
 import com.huawei.hmf.tasks.Task;
@@ -33,6 +26,13 @@ import com.huawei.hms.game.common.BaseActivity;
 import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.RankingsClient;
 import com.huawei.hms.jos.games.ranking.ScoreSubmissionInfo;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -45,7 +45,6 @@ public class RankingActivity extends BaseActivity {
         setContentView(R.layout.activity_ranking);
         ButterKnife.bind(this);
     }
-
 
     @OnClick(R.id.btn_get_ranking_intent)
     public void onClickGetRankingIntent() {
@@ -62,9 +61,15 @@ public class RankingActivity extends BaseActivity {
         startActivity(new Intent(this, RankingMetaActivity.class));
     }
 
+    /**
+     * Get the leaderboard switch status. Whether the player agrees to report his data to the
+     * leaderboard,the switch is off when logging in for the first time.
+     * *
+     * 获取排行榜开关状态。即玩家是否同意将自己的数据上报到排行榜，首次登录时开关为关。
+     */
     @OnClick(R.id.btn_get_ranking_switch)
     public void onClickGetStatus() {
-        RankingsClient rankingsClient = Games.getRankingsClient(this, getAuthHuaweiId());
+        RankingsClient rankingsClient = Games.getRankingsClient(this);
         Task<Integer> task = rankingsClient.getRankingSwitchStatus();
         task.addOnSuccessListener(new OnSuccessListener<Integer>() {
             @Override
@@ -83,10 +88,15 @@ public class RankingActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Set the leaderboard switch status.
+     * *
+     * 设置排行榜开关状态。
+     */
     @OnClick(R.id.btn_set_ranking_switch)
     public void onClickSetStatus() {
         EditText editText = findViewById(R.id.ranking_status_input);
-        RankingsClient rankingsClient = Games.getRankingsClient(this, getAuthHuaweiId());
+        RankingsClient rankingsClient = Games.getRankingsClient(this);
         String numText = editText.getText().toString();
         if (TextUtils.isEmpty(numText)) {
             Toast.makeText(this, "Demo Input empty", Toast.LENGTH_SHORT).show();
@@ -118,13 +128,22 @@ public class RankingActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Asynchronously submit scores without custom units.
+     * *
+     * 以异步方式提交无自定义单位的分数。
+     */
     @OnClick(R.id.btn_submitScore)
     public void onClickSubmitScore() {
         String rankingId = getRankingId();
         int score = getScores();
-        RankingsClient rankingsClient = Games.getRankingsClient(this, getAuthHuaweiId());
+        RankingsClient rankingsClient = Games.getRankingsClient(this);
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Demo call submitScore(").append(getShortRankingId(rankingId)).append(",").append(score).append(")");
+        buffer.append("Demo call submitScore(")
+            .append(getShortRankingId(rankingId))
+            .append(",")
+            .append(score)
+            .append(")");
         showLog(buffer.toString());
         rankingsClient.submitRankingScore(rankingId, score);
     }
@@ -136,25 +155,45 @@ public class RankingActivity extends BaseActivity {
         return rankingId;
     }
 
+    /**
+     * Asynchronously submit scores with current custom units.
+     * *
+     * 以异步方式提交当前有自定义单位的分数。
+     */
     @OnClick(R.id.btn_submitScoreTag)
     public void onClickSubmitScoreTag() {
         String rankingId = getRankingId();
         int score = getScores();
         String scoreTag = getScoreTag();
-        RankingsClient rankingsClient = Games.getRankingsClient(this, getAuthHuaweiId());
+        RankingsClient rankingsClient = Games.getRankingsClient(this);
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Demo call submitScore(").append(getShortRankingId(rankingId)).append(",").append(score).append(",").append(scoreTag).append(")");
+        buffer.append("Demo call submitScore(")
+            .append(getShortRankingId(rankingId))
+            .append(",")
+            .append(score)
+            .append(",")
+            .append(scoreTag)
+            .append(")");
         showLog(buffer.toString());
         rankingsClient.submitRankingScore(rankingId, score, scoreTag);
     }
 
+    /**
+     * Synchronously submit scores without custom units.
+     * *
+     * 以同步方式提交无自定义单位的分数。
+     */
     @OnClick(R.id.btn_submitScoreImmediate)
     public void onClickSubmitScoreImmediate() {
         String rankingId = getRankingId();
         int score = getScores();
-        RankingsClient rankingsClient = Games.getRankingsClient(this, getAuthHuaweiId());
+        RankingsClient rankingsClient = Games.getRankingsClient(this);
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Demo call submitScoreImmediate(").append(getShortRankingId(rankingId)).append(",").append(score).append(")");
+        buffer.append("Demo call submitScoreImmediate(")
+            .append(getShortRankingId(rankingId))
+            .append(",")
+            .append(score)
+            .append(")");
         showLog(buffer.toString());
 
         Task<ScoreSubmissionInfo> submissionDataTask = rankingsClient.submitScoreWithResult(rankingId, score);
@@ -175,14 +214,25 @@ public class RankingActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Synchronously submit scores with custom units.
+     * *
+     * 以同步方式提交有自定义单位的分数。
+     */
     @OnClick(R.id.btn_submitScoreImmediateTag)
     public void onClickSubmitScoreImmediateTag() {
         String rankingId = getRankingId();
         int score = getScores();
         String scoreTag = getScoreTag();
-        RankingsClient rankingsClient = Games.getRankingsClient(this, getAuthHuaweiId());
+        RankingsClient rankingsClient = Games.getRankingsClient(this);
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Demo call submitScoreImmediate(").append(getShortRankingId(rankingId)).append(",").append(score).append(",").append(scoreTag).append(")");
+        buffer.append("Demo call submitScoreImmediate(")
+            .append(getShortRankingId(rankingId))
+            .append(",")
+            .append(score)
+            .append(",")
+            .append(scoreTag)
+            .append(")");
         showLog(buffer.toString());
 
         Task<ScoreSubmissionInfo> submissionDataTask = rankingsClient.submitScoreWithResult(rankingId, score, scoreTag);
@@ -213,7 +263,11 @@ public class RankingActivity extends BaseActivity {
             if (result != null) {
                 buf.append("ScoreSubmissionInfo.Result->").append(i).append("\n");
                 buf.append("displayScore:").append(result.displayScore).append(",isBest:").append(result.isBest);
-                buf.append(",playerRawScore:").append(result.playerRawScore).append(",scoreTips:").append(result.scoreTips).append("\n");
+                buf.append(",playerRawScore:")
+                    .append(result.playerRawScore)
+                    .append(",scoreTips:")
+                    .append(result.scoreTips)
+                    .append("\n");
             } else {
                 buf.append("ScoreSubmissionInfo.Result->").append(i).append(" is null");
             }

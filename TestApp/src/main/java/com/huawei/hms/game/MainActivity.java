@@ -18,7 +18,6 @@
 package com.huawei.hms.game;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -30,11 +29,8 @@ import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
 import com.huawei.hmf.tasks.Task;
 import com.huawei.hms.R;
-import com.huawei.hms.api.HuaweiApiClient;
 import com.huawei.hms.common.ApiException;
-import com.huawei.hms.game.autotest.AutomatedTestActivity;
 import com.huawei.hms.game.common.BaseActivity;
-import com.huawei.hms.game.common.ConnectClientSupport;
 import com.huawei.hms.game.common.SignInCenter;
 import com.huawei.hms.jos.AppUpdateClient;
 import com.huawei.hms.jos.JosApps;
@@ -45,26 +41,13 @@ import com.huawei.hms.jos.games.PlayersClient;
 import com.huawei.hms.jos.games.player.Player;
 import com.huawei.hms.jos.games.player.PlayerExtraInfo;
 import com.huawei.hms.jos.games.player.PlayersClientImpl;
-import com.huawei.hms.jos.product.ProductClient;
-import com.huawei.hms.jos.product.ProductOrderInfo;
-import com.huawei.hms.support.api.client.PendingResult;
-import com.huawei.hms.support.api.client.ResultCallback;
-import com.huawei.hms.support.api.client.Status;
-import com.huawei.hms.support.api.entity.core.CommonCode;
-import com.huawei.hms.support.api.game.CertificateIntentResult;
-import com.huawei.hms.support.api.game.HardwareCapabilityResult;
-import com.huawei.hms.support.api.game.HuaweiGame;
-import com.huawei.hms.support.api.game.PlayerCertificationInfo;
-import com.huawei.hms.support.api.game.TemperatureResult;
 import com.huawei.hms.support.hwid.HuaweiIdAuthManager;
 import com.huawei.hms.support.hwid.result.AuthHuaweiId;
 import com.huawei.hms.support.hwid.result.HuaweiIdAuthResult;
 import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo;
 import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -78,10 +61,6 @@ public class MainActivity extends BaseActivity {
     public static final String TAG = "MainActivity";
 
     private final static int SIGN_IN_INTENT = 3000;
-
-    private final static int PAY_PROTOCOL_INTENT = 3001;
-
-    private final static int PAY_INTENT = 3002;
 
     private final static int HEARTBEAT_TIME = 15 * 60 * 1000;
 
@@ -132,42 +111,37 @@ public class MainActivity extends BaseActivity {
         Log.e(TAG, "onResume");
     }
 
+    /**
+     * Initialization of SDK, this method should be called while the main page of your application starting.
+     * Then you can use functions of Game Setvice SDK and notice will show(if there is a notice).
+     * *
+     * SDK初始化，需要在应用首页启动时调用, 调用后才能正常使用SDK其他功能和展示公告。
+     */
     @OnClick(R.id.btn_init)
     public void init() {
-        JosAppsClient appsClient = JosApps.getJosAppsClient(this, getAuthHuaweiId());
+        JosAppsClient appsClient = JosApps.getJosAppsClient(this);
         appsClient.init();
         showLog("init success");
         hasInit = true;
+        /**
+         * Games released in the Chinese mainland: The update API provided by Huawei must be called upon game launch.
+         * Games released outside the Chinese mainland: It is optional for calling the update API provided by Huawei
+         * upon
+         * game launch.
+         * *
+         * 检测应用新版本，中国大陆发布的应用：应用启动时必须使用华为升级接口进行应用升级。
+         * 中国大陆以外发布的应用：不强制要求。
+         */
+        checkUpdate();
     }
 
-    @OnClick(R.id.btn_get_miss_product)
-    public void getMissProductList() {
-        ProductClient appsClient = JosApps.getProductClient(this);
-        Task<List<ProductOrderInfo>> task = appsClient.getMissProductOrder(this);
-        task.addOnSuccessListener(new OnSuccessListener<List<ProductOrderInfo>>() {
-            @Override
-            public void onSuccess(List<ProductOrderInfo> productOrderInfos) {
-                if (productOrderInfos != null) {
-                    for (ProductOrderInfo productOrderInfo : productOrderInfos) {
-                        String productNo = productOrderInfo.getProductNo();
-                        String tradeId = productOrderInfo.getTradeId();
-                        showLog("productNo：" + productNo + ",tradeId：" + tradeId);
-                    }
-                } else {
-                    showLog("product list is null");
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(Exception e) {
-                if (e instanceof ApiException) {
-                    ApiException apiException = (ApiException) e;
-                    showLog("get miss product info failed:" + apiException.getStatusCode());
-                }
-            }
-        });
-    }
-
+    /**
+     * Log in ,and return the login information (or error message) of the Huawei account that has
+     * logged in to this application. During this process, the authorization interface will not be
+     * displayed to Huawei account users.
+     * *
+     * 登录，返回已登录此应用的华为帐号登录信息(或者错误信息)，在此过程中不会展现授权界面给华为帐号用户。
+     */
     @OnClick(R.id.btn_sign_in)
     public void signIn() {
         Task<AuthHuaweiId> authHuaweiIdTask = HuaweiIdAuthManager.getService(this, getHuaweiIdParams()).silentSignIn();
@@ -177,6 +151,7 @@ public class MainActivity extends BaseActivity {
                 showLog("signIn success");
                 showLog("display:" + authHuaweiId.getDisplayName());
                 SignInCenter.get().updateAuthHuaweiId(authHuaweiId);
+                getCurrentPlayer();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -191,6 +166,13 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Obtain the Intent of the Huawei account login authorization page, and open the Huawei account
+     * login authorization page by calling startActivityForResult(Intent, int).
+     * *
+     * 获取到华为帐号登录授权页面的Intent，并通过调用startActivityForResult(Intent, int)打开华为帐号登录授
+     * 权页面。
+     */
     public void signInNewWay() {
         Intent intent = HuaweiIdAuthManager.getService(MainActivity.this, getHuaweiIdParams()).getSignInIntent();
         startActivityForResult(intent, SIGN_IN_INTENT);
@@ -206,6 +188,13 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Login authorization result response processing method.
+     * *
+     * 登录授权的结果响应处理方法
+     *
+     * @param data Data
+     */
     private void handleSignInResult(Intent data) {
         if (null == data) {
             showLog("signIn inetnt is null");
@@ -223,6 +212,7 @@ public class MainActivity extends BaseActivity {
                 showLog("Sign in success.");
                 showLog("Sign in result: " + signInResult.toJson());
                 SignInCenter.get().updateAuthHuaweiId(signInResult.getHuaweiId());
+                getCurrentPlayer();
             } else {
                 showLog("Sign in failed: " + signInResult.getStatus().getStatusCode());
             }
@@ -231,9 +221,14 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Get the currently logged in player object and get player information from the ‘Player’ object.
+     * *
+     * 获取当前登录的玩家对象，从Player对象中获取玩家信息。
+     */
     @OnClick(R.id.btn_get_player)
     public void getCurrentPlayer() {
-        PlayersClientImpl client = (PlayersClientImpl) Games.getPlayersClient(this, getAuthHuaweiId());
+        PlayersClientImpl client = (PlayersClientImpl) Games.getPlayersClient(this);
 
         Task<Player> task = client.getCurrentPlayer();
         task.addOnSuccessListener(new OnSuccessListener<Player>() {
@@ -271,13 +266,19 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Save user's game character information to Huawei game server, such as district server, level,
+     * character, etc.
+     * *
+     * 保存用户的游戏角色信息到华为游戏服务器，如区服、等级、角色等。
+     */
     @OnClick(R.id.btn_save_player)
     public void savePlayerInfo() {
         if (TextUtils.isEmpty(playerId)) {
             showLog("GetCurrentPlayer first.");
             return;
         }
-        PlayersClient client = Games.getPlayersClient(this, getAuthHuaweiId());
+        PlayersClient client = Games.getPlayersClient(this);
         AppPlayerInfo appPlayerInfo = new AppPlayerInfo();
         appPlayerInfo.area = "20";
         appPlayerInfo.rank = "level 56";
@@ -301,6 +302,11 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Enter the game,report the player's behavior when entering the game.
+     * *
+     * 进入游戏，上报玩家进入游戏时的行为事件。
+     */
     @OnClick(R.id.btn_game_begin)
     public void gameBegin() {
         if (TextUtils.isEmpty(playerId)) {
@@ -308,7 +314,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
         String uid = UUID.randomUUID().toString();
-        PlayersClient client = Games.getPlayersClient(this, getAuthHuaweiId());
+        PlayersClient client = Games.getPlayersClient(this);
         Task<String> task = client.submitPlayerEvent(playerId, uid, "GAMEBEGIN");
         task.addOnSuccessListener(new OnSuccessListener<String>() {
             @Override
@@ -337,6 +343,11 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Quit the game, report the behavior event when the player quit the game.
+     * *
+     * 退出游戏，上报玩家退出游戏时的行为事件。
+     */
     @OnClick(R.id.btn_game_end)
     public void gameEnd() {
         if (TextUtils.isEmpty(playerId)) {
@@ -347,7 +358,7 @@ public class MainActivity extends BaseActivity {
             showLog("SessionId is empty.");
             return;
         }
-        PlayersClient client = Games.getPlayersClient(this, getAuthHuaweiId());
+        PlayersClient client = Games.getPlayersClient(this);
         Task<String> task = client.submitPlayerEvent(playerId, sessionId, "GAMEEND");
         task.addOnSuccessListener(new OnSuccessListener<String>() {
             @Override
@@ -365,13 +376,18 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Get additional player information.
+     * *
+     * 获取玩家附加信息。
+     */
     @OnClick(R.id.btn_play_extra)
     public void gamePlayExtra() {
         if (TextUtils.isEmpty(playerId)) {
             showLog("GetCurrentPlayer first.");
             return;
         }
-        PlayersClient client = Games.getPlayersClient(this, getAuthHuaweiId());
+        PlayersClient client = Games.getPlayersClient(this);
         Task<PlayerExtraInfo> task = client.getPlayerExtraInfo(sessionId);
         task.addOnSuccessListener(new OnSuccessListener<PlayerExtraInfo>() {
             @Override
@@ -394,124 +410,11 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    @OnClick(R.id.btn_test)
-    public void jumpTestActivity() {
-        startActivity(new Intent(this, AutomatedTestActivity.class));
-    }
-
-    @OnClick(R.id.btn_get_certificate_info)
-    public void getCertificateInfo() {
-        ConnectClientSupport.get().connect(this, new ConnectClientSupport.IConnectCallBack() {
-            @Override
-            public void onResult(HuaweiApiClient apiClient) {
-                if (apiClient != null) {
-                    PendingResult<PlayerCertificationInfo> pendingRst =
-                        HuaweiGame.HuaweiGameApi.getPlayerCertificationInfo(apiClient);
-                    pendingRst.setResultCallback(new ResultCallback<PlayerCertificationInfo>() {
-                        @Override
-                        public void onResult(PlayerCertificationInfo result) {
-                            if (result == null || result.getStatus() == null) {
-                                showLog("result is null");
-                                return;
-                            }
-                            Status status = result.getStatus();
-                            int rstCode = status.getStatusCode();
-                            if (rstCode == CommonCode.OK) {
-                                showLog("User is Adault:" + result.hasAdault());
-                            } else {
-                                showLog("result:" + rstCode);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    @OnClick(R.id.btn_get_certificate_intent)
-    public void getCertificateIntent() {
-        ConnectClientSupport.get().connect(this, new ConnectClientSupport.IConnectCallBack() {
-            @Override
-            public void onResult(HuaweiApiClient apiClient) {
-                if (apiClient != null) {
-                    PendingResult<CertificateIntentResult> pendingRst =
-                        HuaweiGame.HuaweiGameApi.getPlayerCertificationIntent(apiClient);
-                    pendingRst.setResultCallback(new ResultCallback<CertificateIntentResult>() {
-                        @Override
-                        public void onResult(CertificateIntentResult result) {
-                            if (result == null || result.getStatus() == null) {
-                                showLog("result is null");
-                                return;
-                            }
-                            int rstCode = result.getStatus().getStatusCode();
-                            if (rstCode == CommonCode.OK) {
-                                Intent intent = result.getCertificationIntent();
-                                if (intent != null) {
-                                    startActivity(intent);
-                                }
-                            } else {
-                                showLog("result:" + rstCode);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    @OnClick(R.id.btn_register_game)
-    public void registerGame() {
-        ConnectClientSupport.get().connect(this, new ConnectClientSupport.IConnectCallBack() {
-            @Override
-            public void onResult(HuaweiApiClient apiClient) {
-                if (apiClient != null) {
-                    PendingResult<HardwareCapabilityResult> pendingRst =
-                        HuaweiGame.HuaweiGameApi.registerHardwareCapability(apiClient);
-                    pendingRst.setResultCallback(new ResultCallback<HardwareCapabilityResult>() {
-                        @Override
-                        public void onResult(HardwareCapabilityResult result) {
-                            if (result == null || result.getStatus() == null) {
-                                showLog("result is null");
-                                return;
-                            }
-                            Status status = result.getStatus();
-                            int rstCode = status.getStatusCode();
-                            showLog("register result:" + rstCode);
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    @OnClick(R.id.btn_get_phone_info)
-    public void getPhoneInfo() {
-        ConnectClientSupport.get().connect(this, new ConnectClientSupport.IConnectCallBack() {
-            @Override
-            public void onResult(HuaweiApiClient apiClient) {
-                if (apiClient != null) {
-                    PendingResult<TemperatureResult> pendingRst = HuaweiGame.HuaweiGameApi.getTemperature(apiClient);
-                    pendingRst.setResultCallback(new ResultCallback<TemperatureResult>() {
-                        @Override
-                        public void onResult(TemperatureResult result) {
-                            if (result == null || result.getStatus() == null) {
-                                showLog("result is null");
-                                return;
-                            }
-                            int rstCode = result.getStatus().getStatusCode();
-                            if (rstCode == CommonCode.OK) {
-                                String phoneInfo = result.getTemperature();
-                                showLog("get phone result:" + phoneInfo);
-                            } else {
-                                showLog("get phone result:" + rstCode);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
+    /**
+     * Show the game buoy.
+     * *
+     * 显示游戏浮标。
+     */
     private void showFloatWindowNewWay() {
         if (!hasInit) {
             init();
@@ -519,34 +422,27 @@ public class MainActivity extends BaseActivity {
         Games.getBuoyClient(this).showFloatWindow();
     }
 
+    /**
+     * Hide the displayed game buoy.
+     * *
+     * 隐藏已经显示的游戏浮标。
+     */
     private void hideFloatWindowNewWay() {
         Games.getBuoyClient(this).hideFloatWindow();
     }
 
-    private void startActivityForResult(Activity activity, Status status, int reqCode) {
-        if (status.hasResolution()) {
-            try {
-                status.startResolutionForResult(activity, reqCode);
-            } catch (IntentSender.SendIntentException exp) {
-                showLog(exp.getMessage());
-            }
-        } else {
-            showLog("intent is null");
-        }
-    }
-
-    private ApkUpgradeInfo apkUpgradeInfo;
-
+    /**
+     * Games released in the Chinese mainland: The update API provided by Huawei must be called upon game launch.
+     * Games released outside the Chinese mainland: It is optional for calling the update API provided by Huawei upon
+     * game launch.
+     * *
+     * 检测应用新版本，中国大陆发布的应用：应用启动时必须使用华为升级接口进行应用升级。
+     * 中国大陆以外发布的应用：不强制要求。
+     */
     @OnClick(R.id.btn_check_update)
     public void checkUpdate() {
         AppUpdateClient client = JosApps.getAppUpdateClient(this);
         client.checkAppUpdate(this, new UpdateCallBack(this));
-    }
-
-    @OnClick(R.id.btn_check_update_pop)
-    public void checkUpdatePop() {
-        AppUpdateClient client = JosApps.getAppUpdateClient(this);
-        client.showUpdateDialog(this, apkUpgradeInfo, false);
     }
 
     private static class UpdateCallBack implements CheckUpdateCallBack {
@@ -556,30 +452,50 @@ public class MainActivity extends BaseActivity {
             this.apiActivity = apiActivity;
         }
 
+        /**
+         * Get update info from appmarket
+         * *
+         * 从应用市场获取的更新状态信息
+         *
+         * @param intent see detail:
+         *        https://developer.huawei.com/consumer/cn/doc/development/HMS-References/appupdateclient#intent
+         */
         @Override
         public void onUpdateInfo(Intent intent) {
             if (intent != null) {
                 Serializable info = intent.getSerializableExtra("updatesdk_update_info");
                 if (info instanceof ApkUpgradeInfo) {
                     apiActivity.showLog("check update success");
-                    apiActivity.apkUpgradeInfo = (ApkUpgradeInfo) info;
+                    AppUpdateClient client = JosApps.getAppUpdateClient(apiActivity);
+                    /**
+                     * show update dialog
+                     * *
+                     * 弹出升级提示框
+                     */
+                    client.showUpdateDialog(apiActivity, (ApkUpgradeInfo) info, false);
                 } else {
                     apiActivity.showLog("check update failed");
                 }
             }
         }
 
+        // ignored
+        // 预留, 无需处理
         @Override
         public void onMarketInstallInfo(Intent intent) {
             Log.w("AppUpdateManager", "info not instanceof ApkUpgradeInfo");
             apiActivity.showLog("check update failed");
         }
 
+        // ignored
+        // 预留, 无需处理
         @Override
         public void onMarketStoreError(int responseCode) {
             apiActivity.showLog("check update failed");
         }
 
+        // ignored
+        // 预留, 无需处理
         @Override
         public void onUpdateStoreError(int responseCode) {
             apiActivity.showLog("check update failed");

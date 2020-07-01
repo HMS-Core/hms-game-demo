@@ -17,10 +17,8 @@
 
 package com.huawei.hms.game.archive;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
@@ -28,14 +26,15 @@ import com.huawei.hmf.tasks.Task;
 import com.huawei.hms.R;
 import com.huawei.hms.common.ApiException;
 import com.huawei.hms.game.common.BaseActivity;
-import com.huawei.hms.game.common.SignInCenter;
 import com.huawei.hms.jos.games.ArchivesClient;
 import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.GamesStatusCodes;
 import com.huawei.hms.jos.games.archive.ArchiveSummary;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,12 +46,14 @@ public class ArchiveListActivity extends BaseActivity implements ArchiveListAdap
     public RecyclerView recyclerView;
 
     private ArrayList<ArchiveSummary> archiveSummaries = new ArrayList<>();
+
     private ArchivesClient client;
+
     private ArchiveListAdapter adapter;
 
     private synchronized ArchivesClient getClient() {
         if (client == null) {
-            client = Games.getArchiveClient(this, SignInCenter.get().getAuthHuaweiId());
+            client = Games.getArchiveClient(this);
         }
         return client;
     }
@@ -77,6 +78,11 @@ public class ArchiveListActivity extends BaseActivity implements ArchiveListAdap
         super.onResume();
     }
 
+    /**
+     * Get all the archive metadata of the current player, realtime or from cache.
+     * *
+     * 获取当前玩家的所有存档元数据，支持从本地缓存获取。
+     */
     private synchronized void requestData() {
         boolean isRealTime = getIntent().getBooleanExtra("isRealTime", false);
         Task<List<ArchiveSummary>> task = getClient().getArchiveSummaryList(isRealTime);
@@ -84,7 +90,7 @@ public class ArchiveListActivity extends BaseActivity implements ArchiveListAdap
             @Override
             public void onSuccess(List<ArchiveSummary> buffer) {
                 archiveSummaries.clear();
-                if (buffer == null){
+                if (buffer == null) {
                     showLog("archives is null");
                     adapter.notifyDataSetChanged();
                     return;
@@ -117,6 +123,11 @@ public class ArchiveListActivity extends BaseActivity implements ArchiveListAdap
 
     private long lastClickTime;
 
+    /**
+     * Refresh
+     * *
+     * 刷新
+     */
     @OnClick(R.id.iv_refresh)
     public synchronized void refresh() {
         if (lastClickTime == 0) {
@@ -130,9 +141,15 @@ public class ArchiveListActivity extends BaseActivity implements ArchiveListAdap
         }
     }
 
-
+    /**
+     * Open archive metadata details activity.
+     * *
+     * 跳转存档元数据详情界面
+     *
+     * @param position Click position
+     */
     @Override
-    public synchronized  void onItemClick(int position) {
+    public synchronized void onItemClick(int position) {
         Intent intent = new Intent(this, ArchiveMetadataDetailActivity.class);
         if (archiveSummaries.size() > 0) {
             ArchiveSummary archiveSummary = archiveSummaries.get(position);

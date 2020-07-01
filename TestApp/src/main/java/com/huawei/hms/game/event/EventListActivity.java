@@ -17,6 +17,23 @@
 
 package com.huawei.hms.game.event;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.json.JSONException;
+
+import com.huawei.hmf.tasks.OnFailureListener;
+import com.huawei.hmf.tasks.OnSuccessListener;
+import com.huawei.hmf.tasks.Task;
+import com.huawei.hms.R;
+import com.huawei.hms.common.ApiException;
+import com.huawei.hms.game.achievement.AchievementDetailActivity;
+import com.huawei.hms.jos.games.EventsClient;
+import com.huawei.hms.jos.games.Games;
+import com.huawei.hms.jos.games.event.Event;
+import com.huawei.hms.support.hwid.result.AuthHuaweiId;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,23 +43,6 @@ import android.text.TextUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.huawei.hmf.tasks.OnFailureListener;
-import com.huawei.hmf.tasks.OnSuccessListener;
-import com.huawei.hmf.tasks.Task;
-import com.huawei.hms.R;
-import com.huawei.hms.common.ApiException;
-import com.huawei.hms.jos.games.EventsClient;
-import com.huawei.hms.jos.games.Games;
-import com.huawei.hms.jos.games.event.Event;
-import com.huawei.hms.game.achievement.AchievementDetailActivity;
-import com.huawei.hms.support.hwid.result.AuthHuaweiId;
-
-import org.json.JSONException;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -51,13 +51,18 @@ public class EventListActivity extends Activity implements EventListAdapter.OnBt
 
     @BindView(R.id.recycler_view)
     public RecyclerView recyclerView;
+
     @BindView(R.id.tv_title)
     public TextView tvTitle;
 
     private ArrayList<Event> events = new ArrayList<>();
+
     private EventsClient client;
+
     private EventListActivity mContext;
-    AuthHuaweiId AuthHuaweiId =null;
+
+    AuthHuaweiId AuthHuaweiId = null;
+
     private boolean forceReload;
 
     @Override
@@ -70,21 +75,26 @@ public class EventListActivity extends Activity implements EventListAdapter.OnBt
         initData();
     }
 
+    /**
+     * Obtain the corresponding event data according to the incoming data.
+     * *
+     * 根据传入的数据获取对应的事件数据。
+     */
     private void initData() {
         Intent intent = getIntent();
         forceReload = intent.getBooleanExtra("forceReload", false);
-        String mSignString =intent.getStringExtra("mSign");
-        String idsString =intent.getStringExtra("idsString");
+        String mSignString = intent.getStringExtra("mSign");
+        String idsString = intent.getStringExtra("idsString");
 
         try {
-            AuthHuaweiId =AuthHuaweiId.fromJson(mSignString);
+            AuthHuaweiId = AuthHuaweiId.fromJson(mSignString);
         } catch (JSONException e) {
         }
-        client = Games.getEventsClient(this, AuthHuaweiId);
-        Task<List<Event>> task =null;
+        client = Games.getEventsClient(this);
+        Task<List<Event>> task = null;
         if (TextUtils.isEmpty(idsString)) {
             task = client.getEventList(forceReload);
-        }else {
+        } else {
             String[] eventIds = idsString.split(",");
             task = client.getEventListByIds(forceReload, eventIds);
         }
@@ -92,7 +102,9 @@ public class EventListActivity extends Activity implements EventListAdapter.OnBt
     }
 
     private void addResultListener(Task<List<Event>> task) {
-        if (task == null){ return;}
+        if (task == null) {
+            return;
+        }
         task.addOnSuccessListener(new OnSuccessListener<List<Event>>() {
             @Override
             public void onSuccess(List<Event> data) {
@@ -131,16 +143,16 @@ public class EventListActivity extends Activity implements EventListAdapter.OnBt
     }
 
     private void showLog(String result) {
-        Toast.makeText(this,result,Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onItemClick(int postion) {
         Intent intent = new Intent(this, AchievementDetailActivity.class);
         Event event = events.get(postion);
-        intent.putExtra("achievementName",event.getName());
-        intent.putExtra("achievementDes",event.getDescription());
-        intent.putExtra("unlockedImageUri",event.getThumbnailUri());
+        intent.putExtra("achievementName", event.getName());
+        intent.putExtra("achievementDes", event.getDescription());
+        intent.putExtra("unlockedImageUri", event.getThumbnailUri());
         startActivity(intent);
 
     }

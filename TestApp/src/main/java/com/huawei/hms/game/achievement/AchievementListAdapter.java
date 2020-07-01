@@ -176,7 +176,7 @@ public class AchievementListAdapter extends RecyclerView.Adapter<AchievementList
         }
 
     public interface OnBtnClickListener {
-        void onItemClick(int postion);
+        void onItemClick(int position);
 
         void Unlock(String achievementId, boolean isChecked);
         void reveal(String achievementId, boolean isChecked);

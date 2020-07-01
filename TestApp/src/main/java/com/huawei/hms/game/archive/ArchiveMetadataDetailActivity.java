@@ -17,15 +17,7 @@
 
 package com.huawei.hms.game.archive;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.support.annotation.Nullable;
-import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.io.IOException;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -36,7 +28,6 @@ import com.huawei.hmf.tasks.Task;
 import com.huawei.hms.R;
 import com.huawei.hms.common.ApiException;
 import com.huawei.hms.game.common.BaseActivity;
-import com.huawei.hms.game.common.SignInCenter;
 import com.huawei.hms.game.common.TimeUtil;
 import com.huawei.hms.jos.games.ArchivesClient;
 import com.huawei.hms.jos.games.Games;
@@ -44,7 +35,15 @@ import com.huawei.hms.jos.games.archive.Archive;
 import com.huawei.hms.jos.games.archive.ArchiveSummary;
 import com.huawei.hms.jos.games.archive.OperationResult;
 
-import java.io.IOException;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,40 +72,60 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
     public TextView playedTimeTV;
 
     private String archiveId;
+
     private String description;
+
     private long playedTime;
+
     private long progress;
 
     private ArchivesClient archivesClient;
+
     private ArchiveSummary archiveSummary;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
-        archivesClient = Games.getArchiveClient(this, SignInCenter.get().getAuthHuaweiId());
+        archivesClient = Games.getArchiveClient(this);
     }
 
     private ArchivesClient getArchivesClient() {
         if (archivesClient == null) {
-            archivesClient = Games.getArchiveClient(this, SignInCenter.get().getAuthHuaweiId());
+            archivesClient = Games.getArchiveClient(this);
         }
         return archivesClient;
     }
 
+    /**
+     * Open archive metadata
+     * *
+     * 打开存档元数据
+     */
     @OnClick(R.id.btn_archive_open)
     public void openArchive() {
         int conflictPolicy = getConflictPolicy();
         Task<OperationResult> task;
         if (conflictPolicy == -1) {
+            /*
+             * Use archive ID to open archive metadata, does not support the specified conflict
+             * strategy.
+             * 使用存档ID打开存档元数据，不支持指定冲突策略。
+             */
             task = getArchivesClient().loadArchiveDetails(archiveId);
         } else {
+            /*
+             * Use archive ID to open archive metadata and support specifying conflict strategies.
+             * *
+             * 使用存档ID打开存档元数据，支持指定冲突策略。
+             */
             task = getArchivesClient().loadArchiveDetails(archiveId, conflictPolicy);
         }
 
         task.addOnSuccessListener(new OnSuccessListener<OperationResult>() {
             @Override
             public void onSuccess(OperationResult archiveDataOrConflict) {
-                showLog("isDifference:" + ((archiveDataOrConflict == null) ? "" : archiveDataOrConflict.isDifference()));
+                showLog(
+                    "isDifference:" + ((archiveDataOrConflict == null) ? "" : archiveDataOrConflict.isDifference()));
                 if (archiveDataOrConflict != null && !archiveDataOrConflict.isDifference()) {
                     Archive archive = archiveDataOrConflict.getArchive();
                     if (archive != null && archive.getSummary() != null) {
@@ -123,21 +142,28 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
                         showLog("ModifiedTimestamp:" + TimeUtil.longToUTC(archive.getSummary().getRecentUpdateTime()));
                         showLog("CoverImageAspectRatio:" + archive.getSummary().getThumbnailRatio());
                         showLog("hasThumbnail:" + archive.getSummary().hasThumbnail());
-                        final RequestOptions options = new RequestOptions()
-                                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                .skipMemoryCache(true);
+                        final RequestOptions options =
+                            new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true);
                         if (archive.getSummary().hasThumbnail()) {
-                            Task<Bitmap> coverImageTask = getArchivesClient().getThumbnail(archive.getSummary().getId());
+                            Task<Bitmap> coverImageTask =
+                                getArchivesClient().getThumbnail(archive.getSummary().getId());
                             coverImageTask.addOnSuccessListener(new OnSuccessListener<Bitmap>() {
                                 @Override
                                 public void onSuccess(Bitmap bitmap) {
-                                    Glide.with(getApplicationContext()).load(bitmap).apply(options).into(archiveCoverImage);
+                                    Glide.with(getApplicationContext())
+                                        .load(bitmap)
+                                        .apply(options)
+                                        .into(archiveCoverImage);
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(Exception e) {
                                     if (e instanceof ApiException) {
-                                        Toast.makeText(getApplicationContext(),"load image failed"+ ((ApiException) e).getStatusCode(),Toast.LENGTH_SHORT).show();
+                                        Toast
+                                            .makeText(getApplicationContext(),
+                                                "load image " + "failed" + ((ApiException) e).getStatusCode(),
+                                                Toast.LENGTH_SHORT)
+                                            .show();
                                     }
                                 }
                             });
@@ -145,7 +171,6 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
                         showPlayerAndGame(archive.getSummary());
                     }
                 } else {
-                   
                     handleConflict(archiveDataOrConflict);
                 }
             }
@@ -158,6 +183,13 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Handle conflict.
+     * *
+     * 处理冲突
+     *
+     * @param archiveDataOrConflict
+     */
     private void handleConflict(OperationResult archiveDataOrConflict) {
         if (archiveDataOrConflict != null) {
             OperationResult.Difference archiveConflict = archiveDataOrConflict.getDifference();
@@ -169,20 +201,25 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
                     if (archive == null) {
                         return;
                     }
-
+                    /*
+                     * Use archived data to resolve data conflicts in an asynchronous
+                     * process. This method will replace conflicted archived data with the
+                     * specified Archive.
+                     * *
+                     * 使用存档数据以异步方式解决数据冲突，此方法将使用指定的Archive替换冲突的存档数据。
+                     */
                     Task<OperationResult> task = getArchivesClient().updateArchive(archive);
                     task.addOnSuccessListener(new OnSuccessListener<OperationResult>() {
                         @Override
                         public void onSuccess(OperationResult archiveDataOrConflict) {
                             showLog("isDifference:"
-                                    + ((archiveDataOrConflict == null) ? "" : archiveDataOrConflict.isDifference()));
+                                + ((archiveDataOrConflict == null) ? "" : archiveDataOrConflict.isDifference()));
                             if (archiveDataOrConflict != null && !archiveDataOrConflict.isDifference()) {
                                 Archive archive = archiveDataOrConflict.getArchive();
                                 if (archive != null && archive.getSummary() != null) {
                                     showLog("ArchiveId:" + archive.getSummary().getId());
                                     try {
-                                        showLog(
-                                                "content:" + new String(archive.getDetails().get(), "UTF-8"));
+                                        showLog("content:" + new String(archive.getDetails().get(), "UTF-8"));
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -191,24 +228,32 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
                                     showLog("PlayedTime:" + archive.getSummary().getActiveTime());
                                     showLog("ProgressValue:" + archive.getSummary().getCurrentProgress());
                                     showLog("ModifiedTimestamp:" + archive.getSummary().getRecentUpdateTime());
-                                    showLog(
-                                            "CoverImageAspectRatio:" + archive.getSummary().getThumbnailRatio());
+                                    showLog("CoverImageAspectRatio:" + archive.getSummary().getThumbnailRatio());
                                     showLog("hasThumbnail:" + archive.getSummary().hasThumbnail());
-                                    final RequestOptions options = new RequestOptions()
-                                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    final RequestOptions options =
+                                        new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)
                                             .skipMemoryCache(true);
                                     if (archive.getSummary().hasThumbnail()) {
-                                        Task<Bitmap> coverImageTask = getArchivesClient().getThumbnail(archive.getSummary().getId());
+                                        Task<Bitmap> coverImageTask =
+                                            getArchivesClient().getThumbnail(archive.getSummary().getId());
                                         coverImageTask.addOnSuccessListener(new OnSuccessListener<Bitmap>() {
                                             @Override
                                             public void onSuccess(Bitmap bitmap) {
-                                                Glide.with(getApplicationContext()).load(bitmap).apply(options).into(archiveCoverImage);
+                                                Glide.with(getApplicationContext())
+                                                    .load(bitmap)
+                                                    .apply(options)
+                                                    .into(archiveCoverImage);
                                             }
                                         }).addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(Exception e) {
                                                 if (e instanceof ApiException) {
-                                                    Toast.makeText(getApplicationContext(),"load image failed"+ ((ApiException) e).getStatusCode(),Toast.LENGTH_SHORT).show();
+                                                    Toast
+                                                        .makeText(getApplicationContext(),
+                                                            "load" + " image failed"
+                                                                + ((ApiException) e).getStatusCode(),
+                                                            Toast.LENGTH_SHORT)
+                                                        .show();
                                                 }
                                             }
                                         });
@@ -216,7 +261,7 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
                                     showPlayerAndGame(archive.getSummary());
                                 }
                             } else {
-                                
+
                                 handleConflict(archiveDataOrConflict);
                             }
                         }
@@ -237,14 +282,22 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
     }
 
     private String getArchiveMessage(Archive archive) {
-        return "PlayedTime:" + archive.getSummary().getActiveTime()
-                + "\n" + "Progress:" + archive.getSummary().getCurrentProgress()
-                + "\n" + "Description:" + archive.getSummary().getDescInfo()
-                + "\n" + "ModifyTime:" + archive.getSummary().getRecentUpdateTime();
+        return "PlayedTime:" + archive.getSummary().getActiveTime() + "\n" + "Progress:"
+            + archive.getSummary().getCurrentProgress() + "\n" + "Description:" + archive.getSummary().getDescInfo()
+            + "\n" + "ModifyTime:" + archive.getSummary().getRecentUpdateTime();
     }
 
+    /**
+     * Show conflict dialog
+     * *
+     * 显示冲突提示弹窗
+     *
+     * @param openArchive The Archive object to be modified when a conflict occurs.
+     * @param serverArchive Archive data that already exists in the game server.
+     * @param callback Resolve conflict callback
+     */
     private void showConflictDialog(final Archive openArchive, final Archive serverArchive,
-                                    final ConflictResolveCallback callback) {
+        final ConflictResolveCallback callback) {
 
         if (openArchive == null || serverArchive == null) {
             return;
@@ -256,32 +309,44 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
         String serverMessage = getArchiveMessage(serverArchive);
 
         dialog.setRecentMessage(recentMessage)
-                .setServerMessage(serverMessage)
-                .setTitle("ResolveConflict")
-                .setOnClickBottomListener(new ConflictDialog.OnClickBottomListener() {
-                    @Override
-                    public void onPositiveClick(int type) {
-                        if (type == ConflictDialog.TYPE_ARCHIVE_RECENT) {
-                            callback.onResult(openArchive);
-                            Toast.makeText(ArchiveMetadataDetailActivity.this, "chose opened archive", Toast.LENGTH_SHORT)
-                                    .show();
-                        } else if (type == ConflictDialog.TYPE_ARCHIVE_SERVER) {
-                            callback.onResult(serverArchive);
-                            Toast.makeText(ArchiveMetadataDetailActivity.this, "chose server archive", Toast.LENGTH_SHORT)
-                                    .show();
-                        }
-                        dialog.dismiss();
+            .setServerMessage(serverMessage)
+            .setTitle("ResolveConflict")
+            .setOnClickBottomListener(new ConflictDialog.OnClickBottomListener() {
+                @Override
+                public void onPositiveClick(int type) {
+                    if (type == ConflictDialog.TYPE_ARCHIVE_RECENT) {
+                        callback.onResult(openArchive);
+                        Toast
+                            .makeText(ArchiveMetadataDetailActivity.this, "chose opened " + "archive",
+                                Toast.LENGTH_SHORT)
+                            .show();
+                    } else if (type == ConflictDialog.TYPE_ARCHIVE_SERVER) {
+                        callback.onResult(serverArchive);
+                        Toast
+                            .makeText(ArchiveMetadataDetailActivity.this, "chose server " + "archive",
+                                Toast.LENGTH_SHORT)
+                            .show();
                     }
+                    dialog.dismiss();
+                }
 
-                    @Override
-                    public void onNegativeClick() {
-                        callback.onResult(null);
-                        dialog.dismiss();
-                    }
-                })
-                .show();
+                @Override
+                public void onNegativeClick() {
+                    callback.onResult(null);
+                    dialog.dismiss();
+                }
+            })
+            .show();
     }
 
+    /**
+     * Delete archive records, including Huawei game servers and locally cached archive records.
+     * The Huawei game server side is deleted according to the ID of the archive record, and the
+     * local cache is deleted according to the name of the archive record.
+     * *
+     * 删除存档记录，包括华为游戏服务器和本地缓存的存档记录。华为游戏服务器侧根据存档记录的ID删除，本地缓存根据
+     * 存档记录的名称删除。
+     */
     @OnClick(R.id.btn_delete)
     public void delete() {
         Task<String> task = getArchivesClient().removeArchive(archiveSummary);
@@ -289,8 +354,8 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
         task.addOnSuccessListener(new OnSuccessListener<String>() {
             @Override
             public void onSuccess(String s) {
-                Toast.makeText(ArchiveMetadataDetailActivity.this, "removeArchive success: "
-                        + s, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ArchiveMetadataDetailActivity.this, "removeArchive success: " + s, Toast.LENGTH_SHORT)
+                    .show();
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -298,14 +363,21 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
             public void onFailure(Exception e) {
                 if (e instanceof ApiException) {
                     ApiException apiException = (ApiException) e;
-                    Toast.makeText(ArchiveMetadataDetailActivity.this, "removeArchive failed, rtnCode:" + apiException.getStatusCode(), Toast.LENGTH_SHORT)
-                            .show();
+                    Toast
+                        .makeText(ArchiveMetadataDetailActivity.this,
+                            "removeArchive failed, " + "rtnCode:" + apiException.getStatusCode(), Toast.LENGTH_SHORT)
+                        .show();
                     finish();
                 }
             }
         });
     }
 
+    /**
+     * Open commit archive activity to update
+     * *
+     * 跳转提交档案界面进行更新
+     */
     @OnClick(R.id.btn_update)
     public void update() {
         Intent intent = new Intent(this, CommitArchiveActivity.class);
@@ -344,9 +416,12 @@ public class ArchiveMetadataDetailActivity extends BaseActivity {
                 descriptionTv.setText(String.format("Description:%s", description));
                 progressTv.setText(String.format("ProgressValue:%s", progress + ""));
                 playedTimeTV.setText(String.format("PlayedTime:%s", playedTime + ""));
-                modifyTimeTv.setText(String.format("LastModifyTime:%s", TimeUtil.longToUTC(archiveSummary.getRecentUpdateTime())));
-                modifyTimeTv.setText(String.format("PlayerId:%s", archiveSummary.getGamePlayer() != null ? archiveSummary.getGamePlayer().getPlayerId() : ""));
-                modifyTimeTv.setText(String.format("DisplayName:%s", archiveSummary.getGamePlayer() != null ? archiveSummary.getGamePlayer().getDisplayName() : ""));
+                modifyTimeTv.setText(
+                    String.format("LastModifyTime:%s", TimeUtil.longToUTC(archiveSummary.getRecentUpdateTime())));
+                modifyTimeTv.setText(String.format("PlayerId:%s",
+                    archiveSummary.getGamePlayer() != null ? archiveSummary.getGamePlayer().getPlayerId() : ""));
+                modifyTimeTv.setText(String.format("DisplayName:%s",
+                    archiveSummary.getGamePlayer() != null ? archiveSummary.getGamePlayer().getDisplayName() : ""));
             }
         }
     }

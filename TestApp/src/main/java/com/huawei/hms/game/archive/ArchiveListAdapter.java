@@ -17,15 +17,7 @@
 
 package com.huawei.hms.game.archive;
 
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.util.List;
 
 import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
@@ -38,18 +30,32 @@ import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.archive.ArchiveSummary;
 import com.huawei.hms.support.hwid.result.AuthHuaweiId;
 
-import java.util.List;
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class ArchiveListAdapter extends RecyclerView.Adapter<ArchiveListAdapter.ViewHolder> {
     private final Activity context;
+
     private OnBtnClickListener mBtnClickListener;
+
     private List<ArchiveSummary> archiveSummaries;
+
     ArchivesClient client;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView archiveCoverImage;
+
         TextView id;
+
         TextView name;
+
         TextView description;
 
         ViewHolder(View view) {
@@ -62,9 +68,9 @@ public class ArchiveListAdapter extends RecyclerView.Adapter<ArchiveListAdapter.
     }
 
     ArchiveListAdapter(Activity mContext, List<ArchiveSummary> archiveSummaries, OnBtnClickListener btnClickListener) {
-        this.context = mContext;
+        context = mContext;
         this.archiveSummaries = archiveSummaries;
-        this.mBtnClickListener = btnClickListener;
+        mBtnClickListener = btnClickListener;
     }
 
     @Override
@@ -97,7 +103,10 @@ public class ArchiveListAdapter extends RecyclerView.Adapter<ArchiveListAdapter.
                 @Override
                 public void onFailure(Exception e) {
                     if (e instanceof ApiException) {
-                        Toast.makeText(context,"load image failed"+ ((ApiException) e).getStatusCode(),Toast.LENGTH_SHORT).show();
+                        Toast
+                            .makeText(context, "load image failed" + ((ApiException) e).getStatusCode(),
+                                Toast.LENGTH_SHORT)
+                            .show();
                     }
                 }
             });
@@ -128,7 +137,7 @@ public class ArchiveListAdapter extends RecyclerView.Adapter<ArchiveListAdapter.
 
     private ArchivesClient getArchivesClient() {
         if (client == null) {
-            client = Games.getArchiveClient(context, getAuthHuaweiId());
+            client = Games.getArchiveClient(context);
         }
         return client;
     }

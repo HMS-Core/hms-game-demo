@@ -48,11 +48,21 @@ public class EventActivity extends BaseActivity {
         super.onResume();
     }
 
+    /**
+     * Get the event data of the current player from the server
+     * *
+     * 从服务器端获取当前玩家的事件数据。
+     */
     @OnClick(R.id.btn_load_event)
     public void loadEvent() {
         loadEvent(true, "");
     }
 
+    /**
+     * Get the event data of the current player from the local cache.
+     * *
+     * 从本地缓存获取当前玩家的事件数据。
+     */
     @OnClick(R.id.btn_load_event_off)
     public void loadEventOff() {
         loadEvent(false, "");
@@ -76,6 +86,12 @@ public class EventActivity extends BaseActivity {
         startActivity(intent);
     }
 
+    /**
+     * Obtain the event data specified by the current player from the server. It can support one
+     * or more event data.
+     * *
+     * 从服务器端获取当前玩家指定事件数据，可支持获取一个或多个事件数据。
+     */
     @OnClick(R.id.btn_load_some_event)
     public void loadSomeEvent() {
         String idsString = etEventId.getText().toString().trim();
@@ -86,6 +102,12 @@ public class EventActivity extends BaseActivity {
         loadEvent(true, idsString);
     }
 
+    /**
+     * Get the event data specified by the current player from the local cache, which can support
+     * one or more event data.
+     * *
+     * 从本地缓存获取当前玩家指定事件数据，可支持获取一个或多个事件数据。
+     */
     @OnClick(R.id.btn_load_some_event_off)
     public void loadSomeEventOff() {
         String idsString = etEventId.getText().toString().trim();

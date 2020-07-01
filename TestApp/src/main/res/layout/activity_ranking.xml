@@ -22,7 +22,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="To Get Intent"
+                android:text="@string/rank_intent"
                 android:textAllCaps="false"
                 android:textSize="12sp" />
 
@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="To Get Rank Data"
+                android:text="@string/rank_data"
                 android:textAllCaps="false"
                 android:textSize="12sp" />
 
@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="To Rank Metadata"
+                android:text="@string/rank_metadata"
                 android:textAllCaps="false"
                 android:textSize="12sp" />
 

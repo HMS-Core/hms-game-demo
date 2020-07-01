@@ -16,11 +16,9 @@
  */
 
 package com.huawei.hms.game.ranking;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.Spinner;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.huawei.hmf.tasks.OnCanceledListener;
 import com.huawei.hmf.tasks.OnFailureListener;
@@ -34,8 +32,11 @@ import com.huawei.hms.jos.games.ranking.Ranking;
 import com.huawei.hms.jos.games.ranking.RankingScore;
 import com.huawei.hms.jos.games.ranking.RankingVariant;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,18 +46,24 @@ public class RankingDataActivity extends BaseActivity {
 
     @BindView(R.id.et_ranking_id)
     EditText etRankingId;
+
     @BindView(R.id.sp_time_dimension)
     Spinner timeSpinner;
+
     @BindView(R.id.ed_offsetPlayerRank)
     EditText etOffsetPlayerRank;
+
     @BindView(R.id.ed_maxResults)
     EditText etMaxResults;
+
     @BindView(R.id.ed_pageDirection)
     EditText etPageDirection;
+
     @BindView(R.id.sp_isRealTime)
     Spinner spIsRealTimeSpinner;
 
     private ArrayAdapter<String> adapter;
+
     private RankingsClient rankingsClient;
 
     private int getMaxResults() {
@@ -93,25 +100,41 @@ public class RankingDataActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking_data);
         ButterKnife.bind(this);
-        rankingsClient = Games.getRankingsClient(this, getAuthHuaweiId());
+        rankingsClient = Games.getRankingsClient(this);
         initTimeDimensionSpinner();
         initIsRealTimeSpinner();
     }
 
+    /**
+     * Init spinner for time dimension.
+     * *
+     * 初始化时间维度的下拉列表。
+     */
     private void initTimeDimensionSpinner() {
-        String[] ctype = new String[]{"day", "week", "all", "default", "invalid value"};
+        String[] ctype = new String[] {"day", "week", "all", "default", "invalid value"};
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ctype);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         timeSpinner.setAdapter(adapter);
     }
 
+    /**
+     * Init spinner for realtime.
+     * *
+     * 初始即时性选择的下拉列表
+     */
     private void initIsRealTimeSpinner() {
-        String[] ctype = new String[]{"true", "false",};
+        String[] ctype = new String[] {"true", "false",};
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ctype);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spIsRealTimeSpinner.setAdapter(adapter);
     }
 
+    /**
+     * Get the score information of the currently logged in player in the specified leaderboard,
+     * and support the specified time dimension.
+     * *
+     * 获取当前登录玩家在指定排行榜中的分数信息，支持指定时间维度。
+     */
     @OnClick(R.id.bnt_current_player_ranking_score)
     public void loadCurrentPlayerRankingScore() {
         String rankingId = etRankingId.getText().toString();
@@ -124,6 +147,11 @@ public class RankingDataActivity extends BaseActivity {
         addRankingScoreListener(task, buffer.toString());
     }
 
+    /**
+     * Get the score information of a leaderboard by page, and support the specified time dimension.
+     * *
+     * 分页获取某个排行榜的分数信息，支持指定时间维度。
+     */
     @OnClick(R.id.bnt_loadMoreScores)
     public void loadMoreScores() {
         String rankingId = etRankingId.getText().toString();
@@ -138,11 +166,20 @@ public class RankingDataActivity extends BaseActivity {
         buffer.append(",").append(pageDirection);
         buffer.append(",").append(timeDimension).append(")\n");
 
-        Task<RankingsClient.RankingScores> task
-                = rankingsClient.getMoreRankingScores(rankingId, offsetPlayerRank, maxResults, pageDirection, timeDimension);
+        Task<RankingsClient.RankingScores> task =
+            rankingsClient.getMoreRankingScores(rankingId, offsetPlayerRank, maxResults, pageDirection, timeDimension);
         addClientRankingScoresListener(task, buffer.toString());
     }
 
+    /**
+     * Get the score information in the player-centric leaderboard, support to get from the local
+     * cache. For example, if the player is currently ranked 5th in the leaderboard, then this
+     * method supports obtaining a specified number of points of information before and after the
+     * player.
+     * *
+     * 获取以玩家为中心的排行榜中的分数信息，支持从本地缓存获取。例如玩家当前在排行榜中排名第5，则本方法支持获取
+     * 排名在玩家前后的指定数量的分数信息。
+     */
     @OnClick(R.id.bnt_loadPlayerCenteredScores_suppor_cache)
     public void loadPlayerCenteredScoresSupporCache() {
         String rankingId = etRankingId.getText().toString();
@@ -156,11 +193,17 @@ public class RankingDataActivity extends BaseActivity {
         buffer.append(",").append(maxResults);
         buffer.append(",").append(bRealTime).append(")\n");
 
-        Task<RankingsClient.RankingScores> task
-                = rankingsClient.getPlayerCenteredRankingScores(rankingId, timeDimension, maxResults, bRealTime);
+        Task<RankingsClient.RankingScores> task =
+            rankingsClient.getPlayerCenteredRankingScores(rankingId, timeDimension, maxResults, bRealTime);
         addClientRankingScoresListener(task, buffer.toString());
     }
 
+    /**
+     * Obtaining score information in the player-centric leaderboard can only be obtained
+     * directly from the game server.
+     * *
+     * 获取以玩家为中心的排行榜中的分数信息，只支持直接从游戏服务器获取。
+     */
     @OnClick(R.id.bnt_loadPlayerCenteredScores)
     public void loadPlayerCenteredScores() {
         String rankingId = etRankingId.getText().toString();
@@ -175,19 +218,25 @@ public class RankingDataActivity extends BaseActivity {
         buffer.append(",").append(offsetPlayerRank);
         buffer.append(",").append(pageDirection).append(")\n");
 
-        Task<RankingsClient.RankingScores> task
-                = rankingsClient.getPlayerCenteredRankingScores(rankingId, timeDimension, maxResults, offsetPlayerRank, pageDirection);
+        Task<RankingsClient.RankingScores> task = rankingsClient.getPlayerCenteredRankingScores(rankingId,
+            timeDimension, maxResults, offsetPlayerRank, pageDirection);
         addClientRankingScoresListener(task, buffer.toString());
     }
 
+    /**
+     * Get the score information on the top page of the leaderboard, support to get from the
+     * local cache.
+     * *
+     * 获取排行榜首页的分数信息，支持从本地缓存获取。
+     */
     @OnClick(R.id.bnt_loadTopScores_support_cache)
     public void loadTopScoresSupportCache() {
         String rankingId = etRankingId.getText().toString();
         int timeDimension = timeSpinner.getSelectedItemPosition();
         int maxResults = getMaxResults();
         boolean bRealTime = isRealTime();
-        Task<RankingsClient.RankingScores> task
-                = rankingsClient.getRankingTopScores(rankingId, timeDimension, maxResults, bRealTime);
+        Task<RankingsClient.RankingScores> task =
+            rankingsClient.getRankingTopScores(rankingId, timeDimension, maxResults, bRealTime);
         StringBuffer buffer = new StringBuffer();
         buffer.append("getRankingTopScores(").append(getShortRankingId(rankingId));
         buffer.append(",").append(timeDimension);
@@ -198,6 +247,11 @@ public class RankingDataActivity extends BaseActivity {
 
     }
 
+    /**
+     * Get score information on the top page of the leaderboard, only directly from the game server.
+     * *
+     * 获取排行榜首页的分数信息，只支持直接从游戏服务器获取。
+     */
     @OnClick(R.id.btn_loadTopScores)
     public void loadTopScores() {
         String rankingId = etRankingId.getText().toString();
@@ -205,8 +259,8 @@ public class RankingDataActivity extends BaseActivity {
         int maxResults = getMaxResults();
         long offsetPlayerRank = getOffsetPlayerRank();
         int pageDirection = getPageDirection();
-        Task<RankingsClient.RankingScores> task
-                = rankingsClient.getRankingTopScores(rankingId, timeDimension, maxResults, offsetPlayerRank, pageDirection);
+        Task<RankingsClient.RankingScores> task =
+            rankingsClient.getRankingTopScores(rankingId, timeDimension, maxResults, offsetPlayerRank, pageDirection);
         StringBuffer buffer = new StringBuffer();
         buffer.append("getRankingTopScores(").append(getShortRankingId(rankingId));
         buffer.append(",").append(timeDimension);

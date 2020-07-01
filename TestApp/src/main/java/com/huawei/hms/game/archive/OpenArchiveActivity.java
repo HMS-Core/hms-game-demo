@@ -16,6 +16,23 @@
 
 package com.huawei.hms.game.archive;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.charset.Charset;
+
+import com.bumptech.glide.Glide;
+import com.huawei.hmf.tasks.OnFailureListener;
+import com.huawei.hmf.tasks.OnSuccessListener;
+import com.huawei.hmf.tasks.Task;
+import com.huawei.hms.R;
+import com.huawei.hms.common.ApiException;
+import com.huawei.hms.jos.games.ArchivesClient;
+import com.huawei.hms.jos.games.Games;
+import com.huawei.hms.jos.games.archive.ArchiveDetails;
+import com.huawei.hms.jos.games.archive.ArchiveSummary;
+import com.huawei.hms.jos.games.archive.ArchiveSummaryUpdate;
+import com.wildma.pictureselector.PictureSelector;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -30,27 +47,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.huawei.hmf.tasks.OnFailureListener;
-import com.huawei.hmf.tasks.OnSuccessListener;
-import com.huawei.hmf.tasks.Task;
-import com.huawei.hms.R;
-import com.huawei.hms.common.ApiException;
-import com.huawei.hms.game.common.SignInCenter;
-import com.huawei.hms.jos.games.ArchivesClient;
-import com.huawei.hms.jos.games.Games;
-import com.huawei.hms.jos.games.archive.ArchiveDetails;
-import com.huawei.hms.jos.games.archive.ArchiveSummary;
-import com.huawei.hms.jos.games.archive.ArchiveSummaryUpdate;
-import com.wildma.pictureselector.PictureSelector;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.nio.charset.Charset;
-
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
 
 public class OpenArchiveActivity extends Activity {
     private static final String TAG = "CommitArchiveActivity";
@@ -64,12 +62,22 @@ public class OpenArchiveActivity extends Activity {
         ButterKnife.bind(this);
     }
 
+    /**
+     * Select cover image.
+     * *
+     * 选择封面图片
+     */
     @OnClick(R.id.add_cover_image)
     public void addImageCover() {
         PictureSelector.create(OpenArchiveActivity.this, PictureSelector.SELECT_REQUEST_CODE)
             .selectPicture(true, 200, 200, 1, 1);
     }
 
+    /**
+     * Asynchronously submit archive records, only add archives.
+     * *
+     * 异步方式提交存档记录，只增加存档。
+     */
     @OnClick(R.id.commit)
     public void commit() {
         EditText descriptionEdit = findViewById(R.id.metadata_description);
@@ -90,9 +98,8 @@ public class OpenArchiveActivity extends Activity {
                 .setThumbnailMimeType("png")
                 .build();
             ArchiveDetails archiveContents = new ArchiveDetails.Builder().build();
-            archiveContents
-                .set((description + "," + progress + "," + playedTime).getBytes(Charset.forName("UTF-8")));
-            ArchivesClient archivesClient = Games.getArchiveClient(OpenArchiveActivity.this, SignInCenter.get().getAuthHuaweiId());
+            archiveContents.set((description + "," + progress + "," + playedTime).getBytes(Charset.forName("UTF-8")));
+            ArchivesClient archivesClient = Games.getArchiveClient(OpenArchiveActivity.this);
             Task<ArchiveSummary> task = archivesClient.addArchive(archiveContents, archiveMetadataChange, false);
             task.addOnSuccessListener(new OnSuccessListener<ArchiveSummary>() {
                 @Override
@@ -100,7 +107,7 @@ public class OpenArchiveActivity extends Activity {
                     if (archiveSummary != null) {
                         String content = "archiveId:" + archiveSummary.getId();
                         Toast.makeText(OpenArchiveActivity.this, content, Toast.LENGTH_LONG).show();
-                }
+                    }
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -122,8 +129,9 @@ public class OpenArchiveActivity extends Activity {
                     String picturePath = data.getStringExtra(PictureSelector.PICTURE_PATH);
                     FileInputStream fs = new FileInputStream(picturePath);
                     bitmap = BitmapFactory.decodeStream(fs);
-                    Uri imageUri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(),bitmap , null,null));
-                    ImageView imageView =  findViewById(R.id.image_cover);
+                    Uri imageUri =
+                        Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, null, null));
+                    ImageView imageView = findViewById(R.id.image_cover);
                     Glide.with(OpenArchiveActivity.this).load(imageUri).into(imageView);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();

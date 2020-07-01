@@ -6,7 +6,7 @@
  * [安装](#安装)
  * [环境要求](#环境要求)
  * [配置](#配置 )
- * [示例代码](#示例代码)
+ * [结果](#结果)
  * [开源协议](#开源协议)
 
 
@@ -31,8 +31,8 @@
 	使用实例代码提供的功能之前，你需要在AppGallery Connect上配置您的应用信息。
   详情请见: [HUAWEI Game Service Development Preparation](https://developer.huawei.com/consumer/en/doc/development/HMS-Guides/game-preparation)
 
-## 示例代码
-  示例代码文档请见: [HUAWEI Game Service Introduction](https://developer.huawei.com/consumer/en/doc/development/HMS-Guides/game-introduction)
+## 结果
+   <img src="images/result_1.png" width = 20% height = 20%>
   
 ##  开源协议
   游戏服务SDK示例代码遵循以下开源协议: [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).

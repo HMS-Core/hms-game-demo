@@ -10,7 +10,6 @@
         android:name=".game.MyApplication"
         android:icon="@drawable/demoicon"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/demoicon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
@@ -34,10 +33,7 @@
             android:name=".game.achievement.AchievementActivity"
             android:label="@string/title_activity_achievement"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".game.autotest.AutomatedTestActivity"
-            android:label="@string/title_activity_autotest"
-            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".game.event.EventActivity"
             android:label="@string/title_activity_achievement"

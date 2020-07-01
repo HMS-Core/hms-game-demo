@@ -25,6 +25,8 @@ import android.app.Activity;
 
 /**
  * ConnectClientSupport is a sample of supportor that helps to connect to HMS.
+ * *
+ * 用于连接HMS的支持类
  */
 public class ConnectClientSupport {
     private HuaweiApiClient mApiClient;
@@ -41,6 +43,7 @@ public class ConnectClientSupport {
 
     /**
      * connect to HMS and callback
+     ** 连接HMS并执行回调
      *
      * @param activity current activity
      * @param callback callback after connect successed

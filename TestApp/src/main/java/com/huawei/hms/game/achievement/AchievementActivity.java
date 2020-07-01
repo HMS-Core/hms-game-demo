@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020. Huawei Technologies Co., Ltd. All rights reserved.
  *
@@ -17,8 +16,7 @@
 
 package com.huawei.hms.game.achievement;
 
-import android.content.Intent;
-import android.os.Bundle;
+import org.json.JSONException;
 
 import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
@@ -29,7 +27,8 @@ import com.huawei.hms.game.common.BaseActivity;
 import com.huawei.hms.jos.games.AchievementsClient;
 import com.huawei.hms.jos.games.Games;
 
-import org.json.JSONException;
+import android.content.Intent;
+import android.os.Bundle;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -47,9 +46,15 @@ public class AchievementActivity extends BaseActivity {
         super.onResume();
     }
 
+    /**
+     * Get a data interface that contains a list of all game achievements of the current player.
+     * Called only when the user views the list of achievements.
+     * *
+     * 获取包含当前玩家的所有游戏成就列表的数据界面。仅在用户查看成就列表时调用。
+     */
     @OnClick(R.id.btn_get_achieve_intent)
     public void getAchievementIntent() {
-        AchievementsClient client = Games.getAchievementsClient(this, getAuthHuaweiId());
+        AchievementsClient client = Games.getAchievementsClient(this);
         Task<Intent> task = client.getShowAchievementListIntent();
         task.addOnSuccessListener(new OnSuccessListener<Intent>() {
             @Override
@@ -75,11 +80,21 @@ public class AchievementActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Open the achievement list activity, the data comes from the server.
+     * *
+     * 开启成就列表界面，数据来自服务器端。
+     */
     @OnClick(R.id.btn_load_achievement)
     public void loadAchievement() {
         loadAchievement(true);
     }
 
+    /**
+     * Open the achievement list activity, the data comes from the local client.
+     * *
+     * 开启成就列表界面，数据来自本地客户端。
+     */
     @OnClick(R.id.btn_load_achievement_off)
     public void loadAchievementOff() {
         loadAchievement(false);

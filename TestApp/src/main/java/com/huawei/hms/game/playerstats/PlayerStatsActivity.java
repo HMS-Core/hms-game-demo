@@ -17,8 +17,6 @@
 
 package com.huawei.hms.game.playerstats;
 
-import android.os.Bundle;
-import android.widget.CheckBox;
 import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
 import com.huawei.hmf.tasks.Task;
@@ -30,10 +28,22 @@ import com.huawei.hms.jos.games.PlayersClient;
 import com.huawei.hms.jos.games.playerstats.GamePlayerStatistics;
 import com.huawei.hms.jos.games.playerstats.GamePlayerStatisticsClient;
 
+import android.os.Bundle;
+import android.widget.CheckBox;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class PlayerStatsActivity extends BaseActivity {
+
+    /**
+     * true : Retrieve data from the game server.
+     * false : Retrieve data from the local cache. The local cache time is 5 minutes. If there is no
+     * local cache or the cache times out, it is obtained from the game server.
+     * *
+     * true：表示从游戏服务器获取数据。
+     * false：表示从本地缓存获取数据。本地缓存时间为5分钟，如果本地无缓存或缓存超时，则从游戏服务器获取。
+     */
     private static boolean ISREALTIME = false;
 
     @Override
@@ -43,10 +53,16 @@ public class PlayerStatsActivity extends BaseActivity {
         ButterKnife.bind(this);
     }
 
+    /**
+     * Get statistics of current players, such as online duration, online ranking, etc. Support
+     * obtaining from local cache or game server.
+     * *
+     * 获取当前玩家的统计信息，例如在线时长、在线名次等。支持从本地缓存或游戏服务器获取。
+     */
     @OnClick(R.id.btn_get_player_stats)
     public void getCurrentPlayerStats() {
         initIsRealTime();
-        GamePlayerStatisticsClient playerStatsClient = Games.getGamePlayerStatsClient(this, getAuthHuaweiId());
+        GamePlayerStatisticsClient playerStatsClient = Games.getGamePlayerStatsClient(this);
         Task<GamePlayerStatistics> task = playerStatsClient.getGamePlayerStatistics(ISREALTIME);
         task.addOnSuccessListener(new OnSuccessListener<GamePlayerStatistics>() {
             @Override
@@ -80,9 +96,14 @@ public class PlayerStatsActivity extends BaseActivity {
         ISREALTIME = checkBox.isChecked();
     }
 
+    /**
+     * Get the locally cached playerId of the currently logged in player.
+     * *
+     * 获取本地缓存的当前登录玩家的playerId。
+     */
     @OnClick(R.id.btn_get_player_id)
     public void getPlayerId() {
-        PlayersClient client = Games.getPlayersClient(this, getAuthHuaweiId());
+        PlayersClient client = Games.getPlayersClient(this);
         Task<String> task = client.getCachePlayerId();
         task.addOnSuccessListener(new OnSuccessListener<String>() {
             @Override

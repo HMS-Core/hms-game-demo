@@ -63,10 +63,16 @@ public class RankingMetaActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking_meta);
         ButterKnife.bind(this);
-        rankingsClient = Games.getRankingsClient(this, getAuthHuaweiId());
+        rankingsClient = Games.getRankingsClient(this);
         initIsRealTimeSpinner();
     }
 
+    /**
+     * To obtain data for a leaderboard, you can specify whether to obtain it from the game
+     * server or from the local cache.
+     * *
+     * 获取某个排行榜的数据，可以指定从游戏服务器获取还是从本地缓存获取。
+     */
     @OnClick(R.id.btn_get_ranking_meta)
     public void onClickLoadRankingMetadata() {
         String rankingId = etRankingId.getText().toString();
@@ -76,6 +82,12 @@ public class RankingMetaActivity extends BaseActivity {
         addRankingListener(task, buffer.toString());
     }
 
+    /**
+     * To obtain all current leaderboard data, you can specify whether to obtain it from the game
+     * server or from the local cache.
+     * *
+     * 获取当前所有排行榜数据，可以指定从游戏服务器获取还是从本地缓存获取。
+     */
     @OnClick(R.id.btn_get_ranking_meta2)
     public void onClickLoadRankingMetadata2() {
         Task<List<Ranking>> task = rankingsClient.getRankingSummary(isRealTime);
@@ -84,6 +96,11 @@ public class RankingMetaActivity extends BaseActivity {
         addRankingBufferListener(task, buffer.toString());
     }
 
+    /**
+     * Clear the displayed data.
+     * *
+     * 清除显示的数据。
+     */
     @OnClick(R.id.meta_clear_bt)
     public void onClickClearLog() {
         runOnUiThread(new Runnable() {

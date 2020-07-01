@@ -17,6 +17,32 @@
 
 package com.huawei.hms.game.archive;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.huawei.hmf.tasks.OnFailureListener;
+import com.huawei.hmf.tasks.OnSuccessListener;
+import com.huawei.hmf.tasks.Task;
+import com.huawei.hms.R;
+import com.huawei.hms.common.ApiException;
+import com.huawei.hms.game.common.BaseActivity;
+import com.huawei.hms.game.common.TimeUtil;
+import com.huawei.hms.jos.games.ArchivesClient;
+import com.huawei.hms.jos.games.Games;
+import com.huawei.hms.jos.games.GamesStatusCodes;
+import com.huawei.hms.jos.games.archive.Archive;
+import com.huawei.hms.jos.games.archive.ArchiveDetails;
+import com.huawei.hms.jos.games.archive.ArchiveSummary;
+import com.huawei.hms.jos.games.archive.ArchiveSummaryUpdate;
+import com.huawei.hms.jos.games.archive.OperationResult;
+import com.wildma.pictureselector.PictureSelector;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,33 +56,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
-import com.huawei.hmf.tasks.OnFailureListener;
-import com.huawei.hmf.tasks.OnSuccessListener;
-import com.huawei.hmf.tasks.Task;
-import com.huawei.hms.R;
-import com.huawei.hms.common.ApiException;
-import com.huawei.hms.game.common.BaseActivity;
-import com.huawei.hms.game.common.SignInCenter;
-import com.huawei.hms.game.common.TimeUtil;
-import com.huawei.hms.jos.games.ArchivesClient;
-import com.huawei.hms.jos.games.Games;
-import com.huawei.hms.jos.games.GamesStatusCodes;
-import com.huawei.hms.jos.games.archive.Archive;
-import com.huawei.hms.jos.games.archive.ArchiveDetails;
-import com.huawei.hms.jos.games.archive.ArchiveSummary;
-import com.huawei.hms.jos.games.archive.ArchiveSummaryUpdate;
-import com.huawei.hms.jos.games.archive.OperationResult;
-import com.wildma.pictureselector.PictureSelector;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -105,6 +104,7 @@ public class CommitArchiveActivity extends BaseActivity {
 
     @BindView(R.id.et_image_type)
     public EditText editTextImageType;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,9 +142,8 @@ public class CommitArchiveActivity extends BaseActivity {
         }
 
         if (hasThumbnail) {
-            final RequestOptions options = new RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true);
+            final RequestOptions options =
+                new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true);
             Task<Bitmap> coverImageTask = getArchivesClient().getThumbnail(id);
             coverImageTask.addOnSuccessListener(new OnSuccessListener<Bitmap>() {
                 @Override
@@ -156,7 +155,10 @@ public class CommitArchiveActivity extends BaseActivity {
                 @Override
                 public void onFailure(Exception e) {
                     if (e instanceof ApiException) {
-                        Toast.makeText(getApplicationContext(),"load image failed"+ ((ApiException) e).getStatusCode(),Toast.LENGTH_SHORT).show();
+                        Toast
+                            .makeText(getApplicationContext(), "load image failed" + ((ApiException) e).getStatusCode(),
+                                Toast.LENGTH_SHORT)
+                            .show();
                     }
                 }
             });
@@ -167,11 +169,16 @@ public class CommitArchiveActivity extends BaseActivity {
 
     private synchronized ArchivesClient getArchivesClient() {
         if (archivesClient == null) {
-            archivesClient = Games.getArchiveClient(CommitArchiveActivity.this, SignInCenter.get().getAuthHuaweiId());
+            archivesClient = Games.getArchiveClient(CommitArchiveActivity.this);
         }
         return archivesClient;
     }
 
+    /**
+     * Add cover image.
+     * *
+     * 添加封面图片
+     */
     @OnClick(R.id.add_cover_image)
     public void addImageCover() {
         PictureSelector.create(CommitArchiveActivity.this, PictureSelector.SELECT_REQUEST_CODE)
@@ -192,6 +199,10 @@ public class CommitArchiveActivity extends BaseActivity {
 
     public Bitmap returnBitMap() throws InterruptedException {
         if (hasThumbnail) {
+            /*
+             * When there is a cover image in the archive, use this method to obtain cover image data.
+             * 当存档存在封面图时，使用此方法获取封面图片数据。
+             */
             Task<Bitmap> coverImageTask = getArchivesClient().getThumbnail(id);
             coverImageTask.addOnSuccessListener(new OnSuccessListener<Bitmap>() {
                 @Override
@@ -203,7 +214,10 @@ public class CommitArchiveActivity extends BaseActivity {
                 @Override
                 public void onFailure(Exception e) {
                     if (e instanceof ApiException) {
-                        Toast.makeText(getApplicationContext(),"load image failed"+ ((ApiException) e).getStatusCode(),Toast.LENGTH_SHORT).show();
+                        Toast
+                            .makeText(getApplicationContext(), "load image failed" + ((ApiException) e).getStatusCode(),
+                                Toast.LENGTH_SHORT)
+                            .show();
                     }
                 }
             });
@@ -212,6 +226,11 @@ public class CommitArchiveActivity extends BaseActivity {
         return bitmap;
     }
 
+    /**
+     * Commit archive.
+     * *
+     * 提交档案
+     */
     @OnClick(R.id.commit)
     public void commit() {
         String description = editTextDescription.getText().toString();
@@ -236,8 +255,8 @@ public class CommitArchiveActivity extends BaseActivity {
 
             String imageType = editTextImageType.getText().toString();
             ArchiveSummaryUpdate.Builder builder = new ArchiveSummaryUpdate.Builder().setActiveTime(playedTime)
-                    .setCurrentProgress(progress)
-                    .setDescInfo(description);
+                .setCurrentProgress(progress)
+                .setDescInfo(description);
             if (supportImage) {
                 builder.setThumbnail(bitmap).setThumbnailMimeType(imageType);
             }
@@ -246,7 +265,13 @@ public class CommitArchiveActivity extends BaseActivity {
             archiveContents.set((progress + description + playedTime).getBytes());
 
             if (TextUtils.isEmpty(archiveId)) {
-                Task<ArchiveSummary> task = getArchivesClient().addArchive(archiveContents, archiveMetadataChange, support);
+                /*
+                 * Asynchronously submit archive records, only add archives.
+                 * *
+                 * 以异步方式提交存档记录，只增加存档。
+                 */
+                Task<ArchiveSummary> task =
+                    getArchivesClient().addArchive(archiveContents, archiveMetadataChange, support);
                 task.addOnSuccessListener(new OnSuccessListener<ArchiveSummary>() {
                     @Override
                     public void onSuccess(ArchiveSummary archiveSummary) {
@@ -275,8 +300,14 @@ public class CommitArchiveActivity extends BaseActivity {
                     }
                 });
             } else {
+                /*
+                 * Use modified archive metadata and archive file contents to resolve data
+                 * conflicts asynchronously.
+                 * *
+                 * 使用修改后的存档元数据和存档文件内容以异步方式解决数据冲突。
+                 */
                 Task<OperationResult> task =
-                        getArchivesClient().updateArchive(archiveId, archiveMetadataChange, archiveContents);
+                    getArchivesClient().updateArchive(archiveId, archiveMetadataChange, archiveContents);
 
                 task.addOnSuccessListener(new OnSuccessListener<OperationResult>() {
                     @Override
@@ -335,9 +366,8 @@ public class CommitArchiveActivity extends BaseActivity {
                     Uri imageUri =
                         Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, null, null));
 
-                    RequestOptions options = new RequestOptions()
-                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-                            .skipMemoryCache(true);
+                    RequestOptions options =
+                        new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true);
                     Glide.with(CommitArchiveActivity.this).load(imageUri).apply(options).into(coverImage);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -362,8 +392,17 @@ public class CommitArchiveActivity extends BaseActivity {
             + "\n" + "ModifyTime:" + archive.getSummary().getRecentUpdateTime();
     }
 
+    /**
+     * Show conflict dialog
+     * *
+     * 显示冲突提示弹窗
+     *
+     * @param openArchive The Archive object to be modified when a conflict occurs.
+     * @param serverArchive Archive data that already exists in the game server.
+     * @param callback Resolve conflict callback
+     */
     private void showConflictDialog(final Archive openArchive, final Archive serverArchive,
-                                    final ArchiveMetadataDetailActivity.ConflictResolveCallback callback) {
+        final ArchiveMetadataDetailActivity.ConflictResolveCallback callback) {
 
         if (openArchive == null || serverArchive == null) {
             return;
@@ -399,13 +438,19 @@ public class CommitArchiveActivity extends BaseActivity {
             .show();
     }
 
+    /**
+     * Handle conflict.
+     * *
+     * 处理冲突
+     *
+     * @param archiveDataOrConflict Conflicting data
+     */
     private void handleConflict(OperationResult archiveDataOrConflict) {
         if (archiveDataOrConflict != null) {
             OperationResult.Difference archiveConflict = archiveDataOrConflict.getDifference();
             Archive openedArchive = archiveConflict.getRecentArchive();
             Archive serverArchive = archiveConflict.getServerArchive();
-            showConflictDialog(openedArchive,
-                serverArchive,
+            showConflictDialog(openedArchive, serverArchive,
                 new ArchiveMetadataDetailActivity.ConflictResolveCallback() {
                     @Override
                     public void onResult(Archive archive) {
@@ -413,8 +458,14 @@ public class CommitArchiveActivity extends BaseActivity {
                             return;
                         }
 
-                        Task<OperationResult> task =
-                            getArchivesClient().updateArchive(archive);
+                        /*
+                         * Use archived data to resolve data conflicts in an asynchronous
+                         * manner. This method will replace conflicted archived data with the
+                         * specified Archive.
+                         * *
+                         * 使用存档数据以异步方式解决数据冲突，此方法将使用指定的Archive替换冲突的存档数据。
+                         */
+                        Task<OperationResult> task = getArchivesClient().updateArchive(archive);
                         task.addOnSuccessListener(new OnSuccessListener<OperationResult>() {
                             @Override
                             public void onSuccess(OperationResult archiveDataOrConflict) {
@@ -425,8 +476,7 @@ public class CommitArchiveActivity extends BaseActivity {
                                     if (archive != null && archive.getSummary() != null) {
                                         showLog("ArchiveId:" + archive.getSummary().getId());
                                         try {
-                                            showLog("content:"
-                                                + new String(archive.getDetails().get(), "UTF-8"));
+                                            showLog("content:" + new String(archive.getDetails().get(), "UTF-8"));
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }
@@ -434,10 +484,8 @@ public class CommitArchiveActivity extends BaseActivity {
                                         showLog("UniqueName:" + archive.getSummary().getFileName());
                                         showLog("PlayedTime:" + archive.getSummary().getActiveTime());
                                         showLog("ProgressValue:" + archive.getSummary().getCurrentProgress());
-                                        showLog(
-                                            "ModifiedTimestamp:" + archive.getSummary().getRecentUpdateTime());
-                                        showLog("CoverImageAspectRatio:"
-                                            + archive.getSummary().getThumbnailRatio());
+                                        showLog("ModifiedTimestamp:" + archive.getSummary().getRecentUpdateTime());
+                                        showLog("CoverImageAspectRatio:" + archive.getSummary().getThumbnailRatio());
                                         showLog("hasThumbnail:" + archive.getSummary().hasThumbnail());
 
                                         showPlayerAndGame(archive.getSummary());

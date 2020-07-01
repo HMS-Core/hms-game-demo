@@ -17,7 +17,6 @@
 
 package com.huawei.hms.game.gamesummary;
 
-import android.os.Bundle;
 import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
 import com.huawei.hmf.tasks.Task;
@@ -27,6 +26,9 @@ import com.huawei.hms.game.common.BaseActivity;
 import com.huawei.hms.jos.games.GameSummaryClient;
 import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.gamesummary.GameSummary;
+
+import android.os.Bundle;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -38,9 +40,14 @@ public class GameSummaryActivity extends BaseActivity {
         ButterKnife.bind(this);
     }
 
+    /**
+     * Get the current game information from the local cache asynchronously.
+     * *
+     * 以异步方式从本地缓存获取当前游戏信息。
+     */
     @OnClick(R.id.btn_get_local_gamesummary)
     public void getLocalGameSummary() {
-        GameSummaryClient client = Games.getGameSummaryClient(this, getAuthHuaweiId());
+        GameSummaryClient client = Games.getGameSummaryClient(this);
         Task<GameSummary> task = client.getLocalGameSummary();
         task.addOnSuccessListener(new OnSuccessListener<GameSummary>() {
             @Override
@@ -66,9 +73,15 @@ public class GameSummaryActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Obtain the current game information from the game server asynchronously, and try to obtain it
+     * from the local cache if the acquisition fails.
+     * *
+     * 以异步方式从游戏服务器获取当前游戏信息，获取失败时再尝试从本地缓存获取。
+     */
     @OnClick(R.id.btn_get_gamesummary)
     public void getGameSummary() {
-        GameSummaryClient client = Games.getGameSummaryClient(this, getAuthHuaweiId());
+        GameSummaryClient client = Games.getGameSummaryClient(this);
         Task<GameSummary> task = client.getGameSummary();
         task.addOnSuccessListener(new OnSuccessListener<GameSummary>() {
             @Override

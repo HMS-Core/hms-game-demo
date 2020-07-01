@@ -17,21 +17,9 @@
 
 package com.huawei.hms.game.common;
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import com.huawei.hms.R;
 import com.huawei.hms.game.MainActivity;
@@ -48,12 +36,23 @@ import com.huawei.hms.support.hwid.request.HuaweiIdAuthParams;
 import com.huawei.hms.support.hwid.request.HuaweiIdAuthParamsHelper;
 import com.huawei.hms.support.hwid.result.AuthHuaweiId;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.ScrollView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import butterknife.OnClick;
-
 
 public abstract class BaseActivity extends Activity {
     StringBuffer sbLog = new StringBuffer();
@@ -65,21 +64,23 @@ public abstract class BaseActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,  WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        getWindow()
+            .setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().getDecorView()
+            .setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
     @OnClick(R.id.btn_main)
     public void clickMainMenu() {
         startActivity(new Intent(this, MainActivity.class));
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         finish();
     }
 
     @OnClick(R.id.btn_achievement)
     public void clickAchievementMenu() {
         startActivity(new Intent(this, AchievementActivity.class));
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         finish();
     }
 
@@ -93,21 +94,21 @@ public abstract class BaseActivity extends Activity {
     @OnClick(R.id.btn_game_save)
     public void clickGameSave() {
         startActivity(new Intent(this, ArchiveActivity.class));
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         finish();
     }
 
     @OnClick(R.id.btn_event)
     public void clickEventMenu() {
         startActivity(new Intent(this, EventActivity.class));
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         finish();
     }
 
     @OnClick(R.id.btn_GameSummary)
     public void clickGameSummaryMenu() {
         startActivity(new Intent(this, GameSummaryActivity.class));
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         finish();
     }
 

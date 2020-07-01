@@ -17,12 +17,10 @@
 
 package com.huawei.hms.game.archive;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.widget.CheckBox;
-import android.widget.EditText;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONException;
 
 import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
@@ -46,10 +44,12 @@ import com.huawei.hms.support.hwid.request.HuaweiIdAuthParamsHelper;
 import com.huawei.hms.support.hwid.result.AuthHuaweiId;
 import com.huawei.hms.support.hwid.result.HuaweiIdAuthResult;
 
-import org.json.JSONException;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.widget.CheckBox;
+import android.widget.EditText;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,7 +69,7 @@ public class ArchiveActivity extends BaseActivity {
 
     private ArchivesClient getArchivesClient() {
         if (client == null) {
-            client = Games.getArchiveClient(this, getAuthHuaweiId());
+            client = Games.getArchiveClient(this);
         }
         return client;
     }
@@ -86,20 +86,26 @@ public class ArchiveActivity extends BaseActivity {
         super.onResume();
     }
 
+    @Override
     public HuaweiIdAuthParams getHuaweiIdParams() {
         List<Scope> scopes = new ArrayList<>();
         scopes.add(GameScopes.DRIVE_APP_DATA);
-        return new HuaweiIdAuthParamsHelper(HuaweiIdAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).setScopeList(scopes).createParams();
+        return new HuaweiIdAuthParamsHelper(HuaweiIdAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).setScopeList(scopes)
+            .createParams();
     }
 
+    /**
+     * Initialization of SDK，and log in.
+     * *
+     * SDK初始化并登录
+     */
     @OnClick(R.id.btn_signin_drive)
     public void init() {
-        JosAppsClient appsClient = JosApps.getJosAppsClient(this, getAuthHuaweiId());
+        JosAppsClient appsClient = JosApps.getJosAppsClient(this);
         appsClient.init();
         showLog("init success");
 
-        Task<AuthHuaweiId> AuthHuaweiIdTask =
-                HuaweiIdAuthManager.getService(this, getHuaweiIdParams()).silentSignIn();
+        Task<AuthHuaweiId> AuthHuaweiIdTask = HuaweiIdAuthManager.getService(this, getHuaweiIdParams()).silentSignIn();
         AuthHuaweiIdTask.addOnSuccessListener(new OnSuccessListener<AuthHuaweiId>() {
             @Override
             public void onSuccess(AuthHuaweiId AuthHuaweiId) {
@@ -120,11 +126,26 @@ public class ArchiveActivity extends BaseActivity {
     }
 
     private final static int SIGN_IN_INTENT = 3000;
+
+    /**
+     * Obtain the Intent of the Huawei account login authorization page, and open the Huawei account
+     * login authorization page by calling startActivityForResult(Intent, int).
+     * *
+     * 获取到华为帐号登录授权页面的Intent，并通过调用startActivityForResult(Intent, int)打开华为帐号登录授
+     * 权页面。
+     */
     public void signInNewWay() {
         Intent intent = HuaweiIdAuthManager.getService(ArchiveActivity.this, getHuaweiIdParams()).getSignInIntent();
         startActivityForResult(intent, SIGN_IN_INTENT);
     }
 
+    /**
+     * Login authorization result response processing method.
+     * *
+     * 登录授权的结果响应处理方法
+     *
+     * @param data Data
+     */
     private void handleSignInResult(Intent data) {
         if (null == data) {
             showLog("signIn inetnt is null");
@@ -149,17 +170,32 @@ public class ArchiveActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Guide to agree to drive protocol.
+     * *
+     * 引导同意云空间协议
+     */
     @OnClick(R.id.btn_guide_drive_protocol)
     public void agreeDriveProtocol() {
-         guideToAgreeDriveProtocol();
+        guideToAgreeDriveProtocol();
     }
 
+    /**
+     * Open the archive committing activity.
+     * *
+     * 跳转添加档案界面
+     */
     @OnClick(R.id.btn_archive_add)
     public void addArchive() {
         Intent intent = new Intent(this, CommitArchiveActivity.class);
         startActivityForResult(intent, 1000);
     }
 
+    /**
+     * Get the maximum size of the cover file allowed by the server.
+     * *
+     * 获取服务器允许的封面文件的最大大小。
+     */
     @OnClick(R.id.btn_archive_get_max_image_size)
     public void getMaxImageSize() {
         Task<Integer> task = getArchivesClient().getLimitThumbnailSize();
@@ -176,6 +212,12 @@ public class ArchiveActivity extends BaseActivity {
             }
         });
     }
+
+    /**
+     * Get the maximum size of the archive file allowed by the server.
+     * *
+     * 获取服务器允许的存档文件的最大大小。
+     */
     @OnClick(R.id.btn_archive_get_max_content_size)
     public void getMaxFileSize() {
         Task<Integer> task = getArchivesClient().getLimitDetailsSize();
@@ -193,6 +235,11 @@ public class ArchiveActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Get all the archived metadata of the current player from the game server.
+     * *
+     * 从游戏服务器获取当前玩家的所有存档元数据。
+     */
     @OnClick(R.id.btn_archive_load)
     public void loadArchive() {
         Intent intent = new Intent(this, ArchiveListActivity.class);
@@ -200,6 +247,13 @@ public class ArchiveActivity extends BaseActivity {
         startActivityForResult(intent, 1000);
     }
 
+    /**
+     * Get all the archive metadata of the current player from the local cache. The local cache
+     * time is 5 minutes. If there is no local cache or the cache times out, it will be obtained
+     * from the game server.
+     * *
+     * 从本地缓存获取当前玩家的所有存档元数据，本地缓存时间为5分钟，如果本地无缓存或缓存超时，则从游戏服务器获取。
+     */
     @OnClick(R.id.btn_archive_load_cache)
     public void loadArchiveCache() {
         Intent intent = new Intent(this, ArchiveListActivity.class);
@@ -215,14 +269,21 @@ public class ArchiveActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Get the intent of the archive record selection page.
+     * *
+     * 获取指向存档记录选择页面的Intent.
+     */
     @OnClick(R.id.btn_archive_get_select_intent)
     public void selectArchiveFromAppAssistant() {
-        getArchiveIntent(this.getResources().getString(R.string.app_name), checkBoxAdd.isChecked(), checkBoxDelete.isChecked(),getMaxSize());
+        getArchiveIntent(getResources().getString(R.string.app_name), checkBoxAdd.isChecked(),
+            checkBoxDelete.isChecked(), getMaxSize());
     }
 
     public void getArchiveIntent(String title, boolean allowAddBtn, boolean allowDeleteBtn, int maxArchive) {
 
-        Task<Intent> task = getArchivesClient().getShowArchiveListIntent(title, allowAddBtn, allowDeleteBtn, maxArchive);
+        Task<Intent> task =
+            getArchivesClient().getShowArchiveListIntent(title, allowAddBtn, allowDeleteBtn, maxArchive);
         task.addOnSuccessListener(new OnSuccessListener<Intent>() {
             @Override
             public void onSuccess(Intent intent) {
@@ -258,11 +319,16 @@ public class ArchiveActivity extends BaseActivity {
                 handleSignInResult(data);
             } else if (requestCode == 5000) {
                 if (data == null) {
-                   return;
+                    return;
                 }
 
                 if (data.hasExtra(ArchiveConstants.ARCHIVE_SELECT)) {
                     Bundle bundle = data.getParcelableExtra(ArchiveConstants.ARCHIVE_SELECT);
+                    /*
+                     * Get archive metadata from the Bundle object.
+                     * *
+                     * 从Bundle对象中获取存档元数据。
+                     */
                     Task<ArchiveSummary> task = getArchivesClient().parseSummary(bundle);
                     task.addOnSuccessListener(new OnSuccessListener<ArchiveSummary>() {
                         @Override
@@ -289,7 +355,7 @@ public class ArchiveActivity extends BaseActivity {
                             }
                         }
                     });
-                } else if(data.hasExtra(ArchiveConstants.ARCHIVE_ADD)) {
+                } else if (data.hasExtra(ArchiveConstants.ARCHIVE_ADD)) {
                     addArchive();
                 }
             }

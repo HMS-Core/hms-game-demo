@@ -10,20 +10,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <Button
             android:id="@+id/btn_signin_drive"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="driveSignIn"/>
+            android:text="@string/drive_signin" />
+
         <Button
             android:id="@+id/btn_guide_drive_protocol"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="toAgreeDriveProtocol"/>
+            android:text="@string/agree_drive_protocol" />
     </LinearLayout>
 
     <Button
@@ -37,40 +39,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <Button
             android:id="@+id/btn_archive_get_max_content_size"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="@string/archive_get_max_file_size"/>
+            android:text="@string/archive_get_max_file_size" />
+
         <Button
             android:id="@+id/btn_archive_get_max_image_size"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="@string/archive_get_max_image_size"/>
+            android:text="@string/archive_get_max_image_size" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <Button
             android:id="@+id/btn_archive_load"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="@string/archive_load"/>
+            android:text="@string/archive_load" />
+
         <Button
             android:id="@+id/btn_archive_load_cache"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="@string/archive_load_cache"/>
+            android:text="@string/archive_load_cache" />
     </LinearLayout>
 
     <LinearLayout
