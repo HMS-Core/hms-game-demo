@@ -1,13 +1,12 @@
 # Game Service Kit
-[中文](https://github.com/HMS-Core/hms-game-demo/blob/master/README_ZH.md)
+English | [中文](https://github.com/HMS-Core/hms-game-demo/blob/master/README_ZH.md)
 ## Table of Contents
 
- * [Introduction](#Introduction)
- * [Getting Started](#Getting Started)
- * [Supported Environments](#Supported Environments)
- * [Result](#Result)
- * [License](#License)
-
+ * [Introduction](#introduction)
+ * [Getting Started](#getting-started)
+ * [Supported Environments](#supported-environments)
+ * [Result](#result)
+ * [License](#license)
 
 ## Introduction
    GameServiceKit Android sample code encapsulates APIs of the HUAWEI GameSevice Kit. It provides many sample programs for your reference or usage.
@@ -22,7 +21,6 @@ The following describes packages of Android sample code.
    common:         Common components and utils
 
 ## Getting Started
-
    1. Check whether the Android studio development environment is ready. Open the sample code project directory with file "build.gradle" in Android Studio. Run TestApp on your divice or simulator which have installed latest Huawei Mobile Service(HMS).
    2. Register a [HUAWEI account](https://developer.huawei.com/consumer/en/).
    3. Create an app and configure the app information in AppGallery Connect.
