@@ -18,6 +18,7 @@
 package com.huawei.hms.game.ranking;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.huawei.hmf.tasks.OnCanceledListener;
@@ -441,7 +442,7 @@ public class RankingDataActivity extends BaseActivity {
             showLog(task.getException().getLocalizedMessage());
             showLog(task.getException().getMessage());
             showLog("task.getException().getCause() " + task.getException().getCause());
-            showLog("task.getException().getStackTrace() " + task.getException().getStackTrace().toString());
+            showLog("task.getException().getStackTrace() " + Arrays.toString(task.getException().getStackTrace()));
             showLog("task.getException().getClass()" + task.getException().getClass());
         }
     }
@@ -452,7 +453,7 @@ public class RankingDataActivity extends BaseActivity {
             showLog(task.getException().getLocalizedMessage());
             showLog(task.getException().getMessage());
             showLog("task.getException().getCause() " + task.getException().getCause());
-            showLog("task.getException().getStackTrace() " + task.getException().getStackTrace().toString());
+            showLog("task.getException().getStackTrace() " + Arrays.toString(task.getException().getStackTrace()));
             showLog("task.getException().getClass()" + task.getException().getClass());
         }
     }

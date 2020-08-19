@@ -230,13 +230,12 @@ public class MainActivity extends BaseActivity {
     public void getCurrentPlayer() {
         PlayersClientImpl client = (PlayersClientImpl) Games.getPlayersClient(this);
 
-        Task<Player> task = client.getCurrentPlayer();
+        Task<Player> task = client.getGamePlayer();
         task.addOnSuccessListener(new OnSuccessListener<Player>() {
             @Override
             public void onSuccess(Player player) {
-                String result = "display:" + player.getDisplayName() + "\n" + "playerId:" + player.getPlayerId() + "\n"
-                    + "playerLevel:" + player.getLevel() + "\n" + "timestamp:" + player.getSignTs() + "\n"
-                    + "playerSign:" + player.getPlayerSign();
+                String result = "display:" + player.getDisplayName() + "\n" + "openId:" + player.getOpenId() + "\n"
+                    + "unionId:" + player.getUnionId() + "\n" + "accessToken:" + player.getAccessToken();
                 showLog(result);
                 playerId = player.getPlayerId();
                 gameBegin();

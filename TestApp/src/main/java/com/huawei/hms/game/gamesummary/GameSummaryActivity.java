@@ -56,8 +56,8 @@ public class GameSummaryActivity extends BaseActivity {
                 showLog("appId:" + gameSummary.getAppId());
                 showLog("descInfo:" + gameSummary.getDescInfo());
                 showLog("gameName:" + gameSummary.getGameName());
-                showLog("gameHdImgUri:" + gameSummary.getGameHdImgUri().toString());
-                showLog("gameIconUri:" + gameSummary.getGameIconUri().toString());
+                showLog("gameHdImgUri:" + gameSummary.getGameHdImgUri());
+                showLog("gameIconUri:" + gameSummary.getGameIconUri());
                 showLog("rankingCount:" + gameSummary.getRankingCount());
                 showLog("firstKind:" + gameSummary.getFirstKind());
                 showLog("secondKind:" + gameSummary.getSecondKind());
@@ -90,8 +90,8 @@ public class GameSummaryActivity extends BaseActivity {
                 showLog("appId:" + gameSummary.getAppId());
                 showLog("descInfo:" + gameSummary.getDescInfo());
                 showLog("gameName:" + gameSummary.getGameName());
-                showLog("gameHdImgUri:" + gameSummary.getGameHdImgUri().toString());
-                showLog("gameIconUri:" + gameSummary.getGameIconUri().toString());
+                showLog("gameHdImgUri:" + gameSummary.getGameHdImgUri());
+                showLog("gameIconUri:" + gameSummary.getGameIconUri());
                 showLog("rankingCount:" + gameSummary.getRankingCount());
                 showLog("firstKind:" + gameSummary.getFirstKind());
                 showLog("secondKind:" + gameSummary.getSecondKind());
