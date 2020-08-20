@@ -2,11 +2,11 @@
 
 ## Table of Contents
 
- * [Introduction](#Introduction)
- * [Getting Started](#Getting Started)
- * [Supported Environments](#Supported Environments)
- * [Result](#Result)
- * [License](#License)
+ * [Introduction](#introduction)
+ * [Getting Started](#getting-started)
+ * [Supported Environments](#supported-environments)
+ * [Result](#result)
+ * [License](#license)
 
 
 ## Introduction
