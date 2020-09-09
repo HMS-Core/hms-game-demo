@@ -47,7 +47,7 @@ common:         公共组件和工具类
 - 开发过程遇到问题上[Stack Overflow](https://stackoverflow.com/questions/tagged/huawei-mobile-services)，在**huawei-mobile-services**标签下提问，有华为研发专家在线一对一解决您的问题。
 - 到[华为开发者论坛](https://developer.huawei.com/consumer/cn/forum/blockdisplay?fid=18) HMS Core板块与其他开发者进行交流。
 
-如果您在尝试示例代码中遇到问题，请向仓库提交[issue](https://github.com/HMS-Core/hms-nearby-demo/issues)，也欢迎您提交[Pull Request](https://github.com/HMS-Core/hms-nearby-demo/pulls)。
+如果您在尝试示例代码中遇到问题，请向仓库提交[issue](https://github.com/HMS-Core/hms-game-demo/issues)，也欢迎您提交[Pull Request](https://github.com/HMS-Core/hms-game-demo/pulls)。
 
 ##  开源协议
   游戏服务SDK示例代码遵循以下开源协议: [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
