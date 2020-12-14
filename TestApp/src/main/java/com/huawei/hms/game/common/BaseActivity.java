@@ -161,7 +161,7 @@ public abstract class BaseActivity extends Activity {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Uri uri = Uri.parse("https://lfcloudtestbedportal.hwcloudtest.cn:18447/");
+                Uri uri = Uri.parse("https://cloud.huawei.com/");
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
                 dialog.dismiss();
