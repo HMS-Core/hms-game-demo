@@ -21,6 +21,7 @@ The following describes packages of Android sample code.
    playerstats:    Sample code of playerstats feature.
    ranking:        Sample code of ranking feature.
    common:         Common components and utils
+   
    You also can use HMS Toolkit to quickly integrate the kit and run the demo project, as well as debug the app using a remote device for free. For details, please visit https://developer.huawei.com/consumer/en/doc/development/Tools-Guides/getting-started-0000001077381096
 
 ## Getting Started
