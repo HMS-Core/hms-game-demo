@@ -1,5 +1,5 @@
 # Game Service Kit
-English | [中文](https://github.com/HMS-Core/hms-game-demo/blob/master/README_ZH.md)
+English | [中文](README_ZH.md)
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ The following describes packages of Android sample code.
    playerstats:    Sample code of playerstats feature.
    ranking:        Sample code of ranking feature.
    common:         Common components and utils
-   
+
    You also can use HMS Toolkit to quickly integrate the kit and run the demo project, as well as debug the app using a remote device for free. For details, please visit https://developer.huawei.com/consumer/en/doc/development/Tools-Guides/getting-started-0000001077381096
 
 ## Getting Started
@@ -29,11 +29,11 @@ The following describes packages of Android sample code.
    1. Check whether the Android studio development environment is ready. Open the sample code project directory with file "build.gradle" in Android Studio. Run TestApp on your divice or simulator which have installed latest Huawei Mobile Service(HMS).
    2. Register a [HUAWEI account](https://developer.huawei.com/consumer/en/).
    3. Create an app and configure the app information in AppGallery Connect.
-   See details: [HUAWEI Game Service Development Preparation](https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides-V5/config-agc-0000001050166285-V5)
+      See details: [HUAWEI Game Service Development Preparation](https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides-V5/config-agc-0000001050166285-V5)
    4. To build this demo, please first import the demo in the Android Studio (3.x+).
    5. Configure the sample code:
-   (1) Download the file "agconnect-services.json" of the app on AGC, and add the file to the app root directory(\app) of the demo.
-   (2) Change the value of applicationid in the app-level build.gradle file of the sample project to the package name of your app.
+      (1) Download the file "agconnect-services.json" of the app on AGC, and add the file to the app root directory(\app) of the demo.
+      (2) Change the value of applicationid in the app-level build.gradle file of the sample project to the package name of your app.
    6. Run the sample on your Android device or emulator.
 
 ## Supported Environments
@@ -47,7 +47,7 @@ If you want to evaluate more about HMS Core,
 [r/HMSCore on Reddit](https://www.reddit.com/r/HuaweiDevelopers/) is for you to keep up with latest news about HMS Core, and to exchange insights with other developers.
 
 If you have questions about how to use HMS samples, try the following options:
-- [Stack Overflow](https://stackoverflow.com/questions/tagged/huawei-mobile-services) is the best place for any programming questions. Be sure to tag your question with 
+- [Stack Overflow](https://stackoverflow.com/questions/tagged/huawei-mobile-services?tab=Votes) is the best place for any programming questions. Be sure to tag your question with 
 `huawei-mobile-services`.
 - [Huawei Developer Forum](https://forums.developer.huawei.com/forumPortal/en/home?fid=0101187876626530001) HMS Core Module is great for general questions, or seeking recommendations and opinions.
 

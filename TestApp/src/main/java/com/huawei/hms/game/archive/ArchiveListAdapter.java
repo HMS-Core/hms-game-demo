@@ -28,7 +28,7 @@ import com.huawei.hms.game.common.SignInCenter;
 import com.huawei.hms.jos.games.ArchivesClient;
 import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.archive.ArchiveSummary;
-import com.huawei.hms.support.hwid.result.AuthHuaweiId;
+import com.huawei.hms.support.account.result.AuthAccount;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -131,8 +131,8 @@ public class ArchiveListAdapter extends RecyclerView.Adapter<ArchiveListAdapter.
         void onItemClick(int position);
     }
 
-    protected AuthHuaweiId getAuthHuaweiId() {
-        return SignInCenter.get().getAuthHuaweiId();
+    protected AuthAccount getAuthAccount() {
+        return SignInCenter.get().getAuthAccount();
     }
 
     private ArchivesClient getArchivesClient() {

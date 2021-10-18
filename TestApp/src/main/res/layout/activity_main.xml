@@ -60,40 +60,6 @@
         android:layout_marginTop="10dp"
         android:background="#11000000">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/anti_addiction" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btn_game_begin"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textAllCaps="false"
-                android:text="@string/game_begin" />
-
-            <Button
-                android:id="@+id/btn_game_end"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textAllCaps="false"
-                android:text="@string/game_end" />
-
-            <Button
-                android:id="@+id/btn_play_extra"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textAllCaps="false"
-                android:text="@string/play_extra" />
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

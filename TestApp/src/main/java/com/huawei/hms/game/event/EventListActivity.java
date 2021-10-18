@@ -32,7 +32,7 @@ import com.huawei.hms.game.achievement.AchievementDetailActivity;
 import com.huawei.hms.jos.games.EventsClient;
 import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.event.Event;
-import com.huawei.hms.support.hwid.result.AuthHuaweiId;
+import com.huawei.hms.support.account.result.AuthAccount;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -61,7 +61,7 @@ public class EventListActivity extends Activity implements EventListAdapter.OnBt
 
     private EventListActivity mContext;
 
-    AuthHuaweiId AuthHuaweiId = null;
+    AuthAccount AuthAccount = null;
 
     private boolean forceReload;
 
@@ -87,7 +87,7 @@ public class EventListActivity extends Activity implements EventListAdapter.OnBt
         String idsString = intent.getStringExtra("idsString");
 
         try {
-            AuthHuaweiId = AuthHuaweiId.fromJson(mSignString);
+            AuthAccount = AuthAccount.fromJson(mSignString);
         } catch (JSONException e) {
         }
         client = Games.getEventsClient(this);

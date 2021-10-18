@@ -31,7 +31,7 @@ import com.huawei.hms.common.ApiException;
 import com.huawei.hms.jos.games.AchievementsClient;
 import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.achievement.Achievement;
-import com.huawei.hms.support.hwid.result.AuthHuaweiId;
+import com.huawei.hms.support.account.result.AuthAccount;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -55,7 +55,7 @@ public class AchievementListActivity extends Activity implements AchievementList
 
     private AchievementListActivity mContext;
 
-    AuthHuaweiId authHuaweiId = null;
+    AuthAccount authAccount = null;
 
     private boolean forceReload;
 
@@ -119,7 +119,7 @@ public class AchievementListActivity extends Activity implements AchievementList
         String mSignString = intent.getStringExtra("mSign");
 
         try {
-            authHuaweiId = AuthHuaweiId.fromJson(mSignString);
+            authAccount = authAccount.fromJson(mSignString);
         } catch (JSONException e) {
         }
         client = Games.getAchievementsClient(this);

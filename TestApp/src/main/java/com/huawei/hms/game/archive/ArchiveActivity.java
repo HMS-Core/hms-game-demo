@@ -29,20 +29,23 @@ import com.huawei.hms.R;
 import com.huawei.hms.common.ApiException;
 import com.huawei.hms.game.common.BaseActivity;
 import com.huawei.hms.game.common.SignInCenter;
+import com.huawei.hms.jos.AntiAddictionCallback;
+import com.huawei.hms.jos.AppParams;
 import com.huawei.hms.jos.JosApps;
 import com.huawei.hms.jos.JosAppsClient;
+import com.huawei.hms.jos.JosStatusCodes;
 import com.huawei.hms.jos.games.ArchivesClient;
 import com.huawei.hms.jos.games.GameScopes;
 import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.GamesStatusCodes;
 import com.huawei.hms.jos.games.archive.ArchiveConstants;
 import com.huawei.hms.jos.games.archive.ArchiveSummary;
+import com.huawei.hms.support.account.AccountAuthManager;
+import com.huawei.hms.support.account.request.AccountAuthParams;
+import com.huawei.hms.support.account.request.AccountAuthParamsHelper;
+import com.huawei.hms.support.account.result.AccountAuthResult;
+import com.huawei.hms.support.account.result.AuthAccount;
 import com.huawei.hms.support.api.entity.auth.Scope;
-import com.huawei.hms.support.hwid.HuaweiIdAuthManager;
-import com.huawei.hms.support.hwid.request.HuaweiIdAuthParams;
-import com.huawei.hms.support.hwid.request.HuaweiIdAuthParamsHelper;
-import com.huawei.hms.support.hwid.result.AuthHuaweiId;
-import com.huawei.hms.support.hwid.result.HuaweiIdAuthResult;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -87,10 +90,10 @@ public class ArchiveActivity extends BaseActivity {
     }
 
     @Override
-    public HuaweiIdAuthParams getHuaweiIdParams() {
+    public AccountAuthParams getHuaweiIdParams() {
         List<Scope> scopes = new ArrayList<>();
         scopes.add(GameScopes.DRIVE_APP_DATA);
-        return new HuaweiIdAuthParamsHelper(HuaweiIdAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).setScopeList(scopes)
+        return new AccountAuthParamsHelper(AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).setScopeList(scopes)
             .createParams();
     }
 
@@ -101,17 +104,44 @@ public class ArchiveActivity extends BaseActivity {
      */
     @OnClick(R.id.btn_signin_drive)
     public void init() {
+        AccountAuthParams params = AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME;
         JosAppsClient appsClient = JosApps.getJosAppsClient(this);
-        appsClient.init();
-        showLog("init success");
-
-        Task<AuthHuaweiId> AuthHuaweiIdTask = HuaweiIdAuthManager.getService(this, getHuaweiIdParams()).silentSignIn();
-        AuthHuaweiIdTask.addOnSuccessListener(new OnSuccessListener<AuthHuaweiId>() {
+        Task<Void> initTask;
+        initTask = appsClient.init(new AppParams(params, new AntiAddictionCallback() {
             @Override
-            public void onSuccess(AuthHuaweiId AuthHuaweiId) {
+            public void onExit() {
+                //在此处实现游戏防沉迷功能，如保存游戏、调用帐号退出接口
+            }
+        }));
+
+        initTask.addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                showLog("init success");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(Exception e) {
+                if (e instanceof ApiException) {
+                    ApiException apiException = (ApiException) e;
+                    int statusCode = apiException.getStatusCode();
+                    //错误码为7401时表示用户未同意华为联运隐私协议
+                    if (statusCode == JosStatusCodes.JOS_PRIVACY_PROTOCOL_REJECTED) {
+                        showLog("has reject the protocol");
+                        //在此处实现退出游戏或者重新调用初始化接口
+                    }
+                    //在此处实现其他错误码的处理
+                }
+            }
+        });
+
+        Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this,getHuaweiIdParams()).silentSignIn();
+        authAccountTask.addOnSuccessListener(new OnSuccessListener<AuthAccount>() {
+            @Override
+            public void onSuccess(AuthAccount authAccount) {
                 showLog("signIn success");
-                showLog("display:" + AuthHuaweiId.getDisplayName());
-                SignInCenter.get().updateAuthHuaweiId(AuthHuaweiId);
+                showLog("display:" + authAccount.getDisplayName());
+                SignInCenter.get().updateAuthAccount(authAccount);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -135,7 +165,7 @@ public class ArchiveActivity extends BaseActivity {
      * 权页面。
      */
     public void signInNewWay() {
-        Intent intent = HuaweiIdAuthManager.getService(ArchiveActivity.this, getHuaweiIdParams()).getSignInIntent();
+        Intent intent = AccountAuthManager.getService(ArchiveActivity.this, getHuaweiIdParams()).getSignInIntent();
         startActivityForResult(intent, SIGN_IN_INTENT);
     }
 
@@ -157,11 +187,11 @@ public class ArchiveActivity extends BaseActivity {
             return;
         }
         try {
-            HuaweiIdAuthResult signInResult = new HuaweiIdAuthResult().fromJson(jsonSignInResult);
+            AccountAuthResult signInResult = new AccountAuthResult().fromJson(jsonSignInResult);
             if (0 == signInResult.getStatus().getStatusCode()) {
                 showLog("Sign in success.");
                 showLog("Sign in result: " + signInResult.toJson());
-                SignInCenter.get().updateAuthHuaweiId(signInResult.getHuaweiId());
+                SignInCenter.get().updateAuthAccount(signInResult.getAccount());
             } else {
                 showLog("Sign in failed: " + signInResult.getStatus().getStatusCode());
             }

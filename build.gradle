@@ -1,19 +1,19 @@
 ext {
     groupId = 'com.huawei.hms'
     artifactId = 'game'
-    version = '5.0.4.303'
-    versionCode = 50004303
+    version = '6.1.0.301'
+    versionCode = 60100301
 
     buildToolsVersion = '28.0.3'
-    compileSdkVersion = 28
-    minSdkVersion = 17
-    targetSdkVersion = 28
+    compileSdkVersion = 30
+    minSdkVersion = 21
+    targetSdkVersion = 30
 
     // Android-support
     android_support_version = '28.0.0'
 
     // HMS SDK HwID
-    hms_sdk_hwid_version = '5.0.3.302'
+    hms_sdk_hwid_version = '6.1.0.302'
 }
 
 buildscript {
@@ -23,8 +23,8 @@ buildscript {
         maven { url 'http://developer.huawei.com/repo/' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
-        classpath 'com.huawei.agconnect:agcp:1.3.1.300'
+        classpath 'com.android.tools.build:gradle:4.2.1'
+        classpath 'com.huawei.agconnect:agcp:1.6.0.300'
     }
 }
 

@@ -8,14 +8,14 @@ android {
     defaultConfig {
         versionName = app_versionName
         versionCode = app_versionCode
-        applicationId "com.hmsdemo.molegame.huawei"
+        applicationId "com.sxx.fangchengmi.huawei"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     lintOptions {
@@ -24,17 +24,17 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('xxxx.jks')
-            keyAlias 'xxxx'
-            keyPassword 'xxxx'
-            storePassword 'xxxx'
+            storeFile file('xxx.jks')
+            keyAlias 'xxx'
+            keyPassword 'xxx'
+            storePassword 'xxx'
         }
-		
-		debug {
-            storeFile file('xxxx.jks')
-            keyAlias 'xxxx'
-            keyPassword 'xxxx'
-            storePassword 'xxxx'
+
+        debug {
+            storeFile file('xxx.jks')
+            keyAlias 'xxx'
+            keyPassword 'xxx'
+            storePassword 'xxx'
         }
     }
 

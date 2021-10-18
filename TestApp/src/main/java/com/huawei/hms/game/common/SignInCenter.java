@@ -17,23 +17,23 @@
 
 package com.huawei.hms.game.common;
 
-import com.huawei.hms.support.hwid.result.AuthHuaweiId;
+import com.huawei.hms.support.account.result.AuthAccount;
 
 public class SignInCenter {
 
     private static SignInCenter INS = new SignInCenter();
 
-    private static AuthHuaweiId currentAuthHuaweiId;
+    private static AuthAccount currentAuthAccount;
 
     public static SignInCenter get() {
         return INS;
     }
 
-    public void updateAuthHuaweiId(AuthHuaweiId AuthHuaweiId) {
-        currentAuthHuaweiId = AuthHuaweiId;
+    public void updateAuthAccount(AuthAccount AuthAccount) {
+        currentAuthAccount = AuthAccount;
     }
 
-    public AuthHuaweiId getAuthHuaweiId() {
-        return currentAuthHuaweiId;
+    public AuthAccount getAuthAccount() {
+        return currentAuthAccount;
     }
 }

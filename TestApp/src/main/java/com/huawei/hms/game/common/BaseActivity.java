@@ -32,9 +32,9 @@ import com.huawei.hms.game.ranking.RankingActivity;
 import com.huawei.hms.jos.games.archive.ArchiveSummary;
 import com.huawei.hms.jos.games.gamesummary.GameSummary;
 import com.huawei.hms.jos.games.player.Player;
-import com.huawei.hms.support.hwid.request.HuaweiIdAuthParams;
-import com.huawei.hms.support.hwid.request.HuaweiIdAuthParamsHelper;
-import com.huawei.hms.support.hwid.result.AuthHuaweiId;
+import com.huawei.hms.support.account.request.AccountAuthParams;
+import com.huawei.hms.support.account.request.AccountAuthParamsHelper;
+import com.huawei.hms.support.account.result.AuthAccount;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -57,8 +57,9 @@ import butterknife.OnClick;
 public abstract class BaseActivity extends Activity {
     StringBuffer sbLog = new StringBuffer();
 
-    public HuaweiIdAuthParams getHuaweiIdParams() {
-        return new HuaweiIdAuthParamsHelper(HuaweiIdAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).createParams();
+
+    public AccountAuthParams getHuaweiIdParams() {
+        return new AccountAuthParamsHelper(AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).createParams();
     }
 
     @Override
@@ -150,8 +151,8 @@ public abstract class BaseActivity extends Activity {
         });
     }
 
-    protected AuthHuaweiId getAuthHuaweiId() {
-        return SignInCenter.get().getAuthHuaweiId();
+    protected AuthAccount getAuthHuaweiId() {
+        return SignInCenter.get().getAuthAccount();
     }
 
     public void guideToAgreeDriveProtocol() {

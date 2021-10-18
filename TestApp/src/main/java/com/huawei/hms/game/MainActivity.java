@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020. Huawei Technologies Co., Ltd. All rights reserved.
  *
@@ -17,13 +16,12 @@
 
 package com.huawei.hms.game;
 
-import java.io.Serializable;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.huawei.hmf.tasks.OnFailureListener;
 import com.huawei.hmf.tasks.OnSuccessListener;
@@ -32,45 +30,40 @@ import com.huawei.hms.R;
 import com.huawei.hms.common.ApiException;
 import com.huawei.hms.game.common.BaseActivity;
 import com.huawei.hms.game.common.SignInCenter;
+import com.huawei.hms.jos.AntiAddictionCallback;
+import com.huawei.hms.jos.AppParams;
 import com.huawei.hms.jos.AppUpdateClient;
 import com.huawei.hms.jos.JosApps;
 import com.huawei.hms.jos.JosAppsClient;
+import com.huawei.hms.jos.JosStatusCodes;
 import com.huawei.hms.jos.games.AppPlayerInfo;
 import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.PlayersClient;
 import com.huawei.hms.jos.games.player.Player;
 import com.huawei.hms.jos.games.player.PlayerExtraInfo;
 import com.huawei.hms.jos.games.player.PlayersClientImpl;
-import com.huawei.hms.support.hwid.HuaweiIdAuthManager;
-import com.huawei.hms.support.hwid.result.AuthHuaweiId;
-import com.huawei.hms.support.hwid.result.HuaweiIdAuthResult;
+import com.huawei.hms.support.account.AccountAuthManager;
+import com.huawei.hms.support.account.request.AccountAuthParams;
+import com.huawei.hms.support.account.result.AccountAuthResult;
+import com.huawei.hms.support.account.result.AuthAccount;
 import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo;
 import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
-import android.util.Log;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import org.json.JSONException;
+
+import java.io.Serializable;
+
 public class MainActivity extends BaseActivity {
     public static final String TAG = "MainActivity";
 
-    private final static int SIGN_IN_INTENT = 3000;
-
-    private final static int HEARTBEAT_TIME = 15 * 60 * 1000;
+    private static final int SIGN_IN_INTENT = 3000;
 
     private String playerId;
 
-    private String sessionId = null;
-
     private boolean hasInit = false;
-
-    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,15 +71,13 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        // you can call these two methods orderly to check update when your app starting up
+        // you can call these method orderly to check update when your app starting up
         // checkUpdate();
-        // checkUpdatePop();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        gameEnd();
         Log.e(TAG, "onStop");
     }
 
@@ -99,8 +90,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // front
-        gameBegin();
         Log.e(TAG, "onStart");
     }
 
@@ -119,10 +108,50 @@ public class MainActivity extends BaseActivity {
      */
     @OnClick(R.id.btn_init)
     public void init() {
+        AccountAuthParams params = AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME;
         JosAppsClient appsClient = JosApps.getJosAppsClient(this);
-        appsClient.init();
-        showLog("init success");
+        Task<Void> initTask;
+        initTask = appsClient.init(
+                new AppParams(params, new AntiAddictionCallback() {
+                    @Override
+                    public void onExit() {
+                        // System.exit(0);
+                        // The callback will return in two situations:
+                        // 1. When a no-adult, real name user logs in to the game during the day, Huawei will pop up a box to remind the player that the game is not allowed. The player clicks "OK" and Huawei will return to the callback
+                        // 2. The no-adult, real name user logs in the game at the time allowed by the state. At 9 p.m., Huawei will pop up a box to remind the player that it is time. The player clicks "I know" and Huawei will return to the callback
+                        // You can realize the anti addiction function of the game here, such as saving the game, calling the account to exit the interface or directly the game process
+                        // 该回调会在如下两种情况下返回:
+                        // 1.未成年人实名帐号在白天登录游戏，华为会弹框提示玩家不允许游戏，玩家点击“确定”，华为返回回调
+                        // 2.未成年实名帐号在国家允许的时间登录游戏，到晚上9点，华为会弹框提示玩家已到时间，玩家点击“知道了”，华为返回回调
+                        // 您可在此处实现游戏防沉迷功能，如保存游戏、调用帐号退出接口或直接游戏进程退出(如System.exit(0))
+                    }
+                }));
+        initTask.addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                showLog("init success");
+            }
+        }).addOnFailureListener(
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        if (e instanceof ApiException) {
+                            ApiException apiException = (ApiException) e;
+                            int statusCode = apiException.getStatusCode();
+                            // Error code 7401 indicates that the user did not agree to Huawei joint operations privacy agreement
+                            // 错误码为7401时表示用户未同意华为联运隐私协议
+                            if (statusCode == JosStatusCodes.JOS_PRIVACY_PROTOCOL_REJECTED) {
+                                showLog("has reject the protocol");
+                                // You can exit the game or re-call the init interface.
+                                // 在此处实现退出游戏或者重新调用初始化接口
+                            }
+                            // Handle other error codes.
+                            // 在此处实现其他错误码的处理
+                        }
+                    }
+                });
         hasInit = true;
+
         /**
          * Games released in the Chinese mainland: The update API provided by Huawei must be called upon game launch.
          * Games released outside the Chinese mainland: It is optional for calling the update API provided by Huawei
@@ -144,26 +173,30 @@ public class MainActivity extends BaseActivity {
      */
     @OnClick(R.id.btn_sign_in)
     public void signIn() {
-        Task<AuthHuaweiId> authHuaweiIdTask = HuaweiIdAuthManager.getService(this, getHuaweiIdParams()).silentSignIn();
-        authHuaweiIdTask.addOnSuccessListener(new OnSuccessListener<AuthHuaweiId>() {
-            @Override
-            public void onSuccess(AuthHuaweiId authHuaweiId) {
-                showLog("signIn success");
-                showLog("display:" + authHuaweiId.getDisplayName());
-                SignInCenter.get().updateAuthHuaweiId(authHuaweiId);
-                getCurrentPlayer();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(Exception e) {
-                if (e instanceof ApiException) {
-                    ApiException apiException = (ApiException) e;
-                    showLog("signIn failed:" + apiException.getStatusCode());
-                    showLog("start getSignInIntent");
-                    signInNewWay();
-                }
-            }
-        });
+        Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getHuaweiIdParams()).silentSignIn();
+        authAccountTask
+                .addOnSuccessListener(
+                        new OnSuccessListener<AuthAccount>() {
+                            @Override
+                            public void onSuccess(AuthAccount authAccount) {
+                                showLog("signIn success");
+                                showLog("display:" + authAccount.getDisplayName());
+                                SignInCenter.get().updateAuthAccount(authAccount);
+                                getCurrentPlayer();
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(Exception e) {
+                                if (e instanceof ApiException) {
+                                    ApiException apiException = (ApiException) e;
+                                    showLog("signIn failed:" + apiException.getStatusCode());
+                                    showLog("start getSignInIntent");
+                                    signInNewWay();
+                                }
+                            }
+                        });
     }
 
     /**
@@ -174,7 +207,7 @@ public class MainActivity extends BaseActivity {
      * 权页面。
      */
     public void signInNewWay() {
-        Intent intent = HuaweiIdAuthManager.getService(MainActivity.this, getHuaweiIdParams()).getSignInIntent();
+        Intent intent = AccountAuthManager.getService(MainActivity.this, getHuaweiIdParams()).getSignInIntent();
         startActivityForResult(intent, SIGN_IN_INTENT);
     }
 
@@ -200,18 +233,17 @@ public class MainActivity extends BaseActivity {
             showLog("signIn inetnt is null");
             return;
         }
-        // HuaweiIdSignIn.getSignedInAccountFromIntent(data);
         String jsonSignInResult = data.getStringExtra("HUAWEIID_SIGNIN_RESULT");
         if (TextUtils.isEmpty(jsonSignInResult)) {
             showLog("SignIn result is empty");
             return;
         }
         try {
-            HuaweiIdAuthResult signInResult = new HuaweiIdAuthResult().fromJson(jsonSignInResult);
+            AccountAuthResult signInResult = new AccountAuthResult().fromJson(jsonSignInResult);
             if (0 == signInResult.getStatus().getStatusCode()) {
                 showLog("Sign in success.");
                 showLog("Sign in result: " + signInResult.toJson());
-                SignInCenter.get().updateAuthHuaweiId(signInResult.getHuaweiId());
+                SignInCenter.get().updateAuthAccount(signInResult.getAccount());
                 getCurrentPlayer();
             } else {
                 showLog("Sign in failed: " + signInResult.getStatus().getStatusCode());
@@ -231,39 +263,39 @@ public class MainActivity extends BaseActivity {
         PlayersClientImpl client = (PlayersClientImpl) Games.getPlayersClient(this);
 
         Task<Player> task = client.getCurrentPlayer();
-        task.addOnSuccessListener(new OnSuccessListener<Player>() {
-            @Override
-            public void onSuccess(Player player) {
-                String result = "display:" + player.getDisplayName() + "\n" + "playerId:" + player.getPlayerId() + "\n"
-                        + "playerLevel:" + player.getLevel() + "\n" + "timestamp:" + player.getSignTs() + "\n"
-                        + "playerSign:" + player.getPlayerSign();
-                showLog(result);
-                playerId = player.getPlayerId();
-                gameBegin();
-                handler = new Handler() {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        super.handleMessage(msg);
-                        gamePlayExtra();
-                    }
-                };
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        Message message = new Message();
-                        handler.sendMessage(message);
-                    }
-                }, HEARTBEAT_TIME, HEARTBEAT_TIME);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(Exception e) {
-                if (e instanceof ApiException) {
-                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
-                    showLog(result);
-                }
-            }
-        });
+        task.addOnSuccessListener(
+                        new OnSuccessListener<Player>() {
+                            @Override
+                            public void onSuccess(Player player) {
+                                String result =
+                                        "display:"
+                                                + player.getDisplayName()
+                                                + "\n"
+                                                + "playerId:"
+                                                + player.getPlayerId()
+                                                + "\n"
+                                                + "playerLevel:"
+                                                + player.getLevel()
+                                                + "\n"
+                                                + "timestamp:"
+                                                + player.getSignTs()
+                                                + "\n"
+                                                + "playerSign:"
+                                                + player.getPlayerSign();
+                                showLog(result);
+                                playerId = player.getPlayerId();
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(Exception e) {
+                                if (e instanceof ApiException) {
+                                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
+                                    showLog(result);
+                                }
+                            }
+                        });
     }
 
     /**
@@ -286,128 +318,23 @@ public class MainActivity extends BaseActivity {
         appPlayerInfo.sociaty = "Red Cliff II";
         appPlayerInfo.playerId = playerId;
         Task<Void> task = client.savePlayerInfo(appPlayerInfo);
-        task.addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void v) {
-                showLog("save player info successfully ");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(Exception e) {
-                if (e instanceof ApiException) {
-                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
-                    showLog(result);
-                }
-            }
-        });
-    }
-
-    /**
-     * Enter the game,report the player's behavior when entering the game.
-     * *
-     * 进入游戏，上报玩家进入游戏时的行为事件。
-     */
-    @OnClick(R.id.btn_game_begin)
-    public void gameBegin() {
-        if (TextUtils.isEmpty(playerId)) {
-            showLog("GetCurrentPlayer first.");
-            return;
-        }
-        String uid = UUID.randomUUID().toString();
-        PlayersClient client = Games.getPlayersClient(this);
-        Task<String> task = client.submitPlayerEvent(playerId, uid, "GAMEBEGIN");
-        task.addOnSuccessListener(new OnSuccessListener<String>() {
-            @Override
-            public void onSuccess(String jsonRequest) {
-                if (jsonRequest == null) {
-                    showLog("jsonRequest is null");
-                    return;
-                }
-                try {
-                    JSONObject data = new JSONObject(jsonRequest);
-                    sessionId = data.getString("transactionId");
-                } catch (JSONException e) {
-                    showLog("parse jsonArray meet json exception");
-                    return;
-                }
-                showLog("submitPlayerEvent traceId: " + jsonRequest);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(Exception e) {
-                if (e instanceof ApiException) {
-                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
-                    showLog(result);
-                }
-            }
-        });
-    }
-
-    /**
-     * Quit the game, report the behavior event when the player quit the game.
-     * *
-     * 退出游戏，上报玩家退出游戏时的行为事件。
-     */
-    @OnClick(R.id.btn_game_end)
-    public void gameEnd() {
-        if (TextUtils.isEmpty(playerId)) {
-            showLog("GetCurrentPlayer first.");
-            return;
-        }
-        if (TextUtils.isEmpty(sessionId)) {
-            showLog("SessionId is empty.");
-            return;
-        }
-        PlayersClient client = Games.getPlayersClient(this);
-        Task<String> task = client.submitPlayerEvent(playerId, sessionId, "GAMEEND");
-        task.addOnSuccessListener(new OnSuccessListener<String>() {
-            @Override
-            public void onSuccess(String s) {
-                showLog("submitPlayerEvent traceId: " + s);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(Exception e) {
-                if (e instanceof ApiException) {
-                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
-                    showLog(result);
-                }
-            }
-        });
-    }
-
-    /**
-     * Get additional player information.
-     * *
-     * 获取玩家附加信息。
-     */
-    @OnClick(R.id.btn_play_extra)
-    public void gamePlayExtra() {
-        if (TextUtils.isEmpty(playerId)) {
-            showLog("GetCurrentPlayer first.");
-            return;
-        }
-        PlayersClient client = Games.getPlayersClient(this);
-        Task<PlayerExtraInfo> task = client.getPlayerExtraInfo(sessionId);
-        task.addOnSuccessListener(new OnSuccessListener<PlayerExtraInfo>() {
-            @Override
-            public void onSuccess(PlayerExtraInfo extra) {
-                if (extra != null) {
-                    showLog("IsRealName: " + extra.getIsRealName() + ", IsAdult: " + extra.getIsAdult() + ", PlayerId: "
-                        + extra.getPlayerId() + ", PlayerDuration: " + extra.getPlayerDuration());
-                } else {
-                    showLog("Player extra info is empty.");
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(Exception e) {
-                if (e instanceof ApiException) {
-                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
-                    showLog(result);
-                }
-            }
-        });
+        task.addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void v) {
+                                showLog("save player info successfully ");
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(Exception e) {
+                                if (e instanceof ApiException) {
+                                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
+                                    showLog(result);
+                                }
+                            }
+                        });
     }
 
     /**

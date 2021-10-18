@@ -58,10 +58,10 @@
     <string name="archive_get_max_image_size">getMaxImageSize</string>
     <string name="archive_get_max_file_size">getMaxFileSize</string>
 
-    <string name="game_begin">GameBegin</string>
+    <!--<string name="game_begin">GameBegin</string>
     <string name="game_end">GameEnd</string>
     <string name="play_extra">PlayExtra</string>
-    <string name="anti_addiction">anti-addiction(only for chinese mainland)</string>
+    <string name="anti_addiction">anti-addiction(only for chinese mainland)</string>-->
     <string name="rank_intent">rank intent</string>
     <string name="rank_data">rank data</string>
     <string name="rank_metadata">rank metadata</string>

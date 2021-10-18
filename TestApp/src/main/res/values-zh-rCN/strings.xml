@@ -59,11 +59,11 @@
     <string name="archive_get_max_image_size">获取最大封面大小</string>
     <string name="archive_get_max_file_size">获取最大存档大小</string>
 
-    <string name="game_begin">游戏开始</string>
+    <!--<string name="game_begin">游戏开始</string>
     <string name="game_end">游戏结束</string>
     <string name="play_extra">玩家附加信息</string>
 
-    <string name="anti_addiction">防沉迷(仅限中国大陆)</string>
+    <string name="anti_addiction">防沉迷(仅限中国大陆)</string>-->
     <string name="rank_intent">排行intent</string>
     <string name="rank_data">排行数据</string>
     <string name="rank_metadata">排行元数据</string>
