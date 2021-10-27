@@ -111,6 +111,9 @@ public class MainActivity extends BaseActivity {
         AccountAuthParams params = AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME;
         JosAppsClient appsClient = JosApps.getJosAppsClient(this);
         Task<Void> initTask;
+        // Set the anti-addiction prompt context, this line must be added
+        // 设置防沉迷提示语的Conext，此行必须添加
+        ResourceLoaderUtil.setmContext(this);  
         initTask = appsClient.init(
                 new AppParams(params, new AntiAddictionCallback() {
                     @Override
@@ -130,6 +133,12 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onSuccess(Void aVoid) {
                 showLog("init success");
+                hasInit = true;
+                // Make sure that the interface of showFloatWindow() is successfully called once after the game has been initialized successfully
+                // 游戏初始化成功后务必成功调用过一次浮标显示接口
+                showFloatWindowNewWay();
+                // 一定要在init成功后，才可以调用登录接口
+                //signIn();
             }
         }).addOnFailureListener(
                 new OnFailureListener() {
@@ -173,6 +182,9 @@ public class MainActivity extends BaseActivity {
      */
     @OnClick(R.id.btn_sign_in)
     public void signIn() {
+        showLog("begin login and current hasInit=" + hasInit);
+        // 一定要在init成功后，才可以调用登录接口
+        // Be sure to call the login API after the init is successful
         Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getHuaweiIdParams()).silentSignIn();
         authAccountTask
                 .addOnSuccessListener(
@@ -293,6 +305,12 @@ public class MainActivity extends BaseActivity {
                                 if (e instanceof ApiException) {
                                     String result = "rtnCode:" + ((ApiException) e).getStatusCode();
                                     showLog(result);
+                                    if (7400 == ((ApiException) e).getStatusCode()||7018 == ((ApiException) e).getStatusCode()) {
+                                        // 7400表示用户未签署联运协议，需要继续调用init接口
+                                        // 7018表示初始化失败，需要继续调用init接口
+                                        // error code 7400 indicates that the user has not agreed to the joint operations privacy agreement
+                                        // error code 7018 indicates that the init API is not called.
+                                        init();
                                 }
                             }
                         });
@@ -343,10 +361,10 @@ public class MainActivity extends BaseActivity {
      * 显示游戏浮标。
      */
     private void showFloatWindowNewWay() {
-        if (!hasInit) {
-            init();
+        if (hasInit) {
+            // 请务必在init成功后，调用浮标接口
+            Games.getBuoyClient(this).showFloatWindow();
         }
-        Games.getBuoyClient(this).showFloatWindow();
     }
 
     /**
