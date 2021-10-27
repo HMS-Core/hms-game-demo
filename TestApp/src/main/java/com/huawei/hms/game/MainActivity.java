@@ -311,6 +311,7 @@ public class MainActivity extends BaseActivity {
                                         // error code 7400 indicates that the user has not agreed to the joint operations privacy agreement
                                         // error code 7018 indicates that the init API is not called.
                                         init();
+                                     }
                                 }
                             }
                         });
