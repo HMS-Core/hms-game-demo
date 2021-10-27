@@ -138,7 +138,7 @@ public class MainActivity extends BaseActivity {
                 // 游戏初始化成功后务必成功调用过一次浮标显示接口
                 showFloatWindowNewWay();
                 // 一定要在init成功后，才可以调用登录接口
-                //signIn();
+                // signIn();
             }
         }).addOnFailureListener(
                 new OnFailureListener() {
@@ -159,8 +159,7 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                 });
-        hasInit = true;
-
+       
         /**
          * Games released in the Chinese mainland: The update API provided by Huawei must be called upon game launch.
          * Games released outside the Chinese mainland: It is optional for calling the update API provided by Huawei
