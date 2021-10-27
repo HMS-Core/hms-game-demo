@@ -70,7 +70,8 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
+        init();
+        
         // you can call these method orderly to check update when your app starting up
         // checkUpdate();
     }
