@@ -157,6 +157,12 @@ public class MainActivity extends BaseActivity {
                             }
                             // Handle other error codes.
                             // 在此处实现其他错误码的处理
+                            if (statusCode == 907135003) {
+                                // 907135003表示玩家取消HMS Core升级或组件升级
+                                // 907135003 indicates that user rejected the installation or upgrade of HMS Core.
+                                showLog("init statusCode=" + statusCode);
+                                init();
+                            }
                         }
                     }
                 });
