@@ -10,6 +10,8 @@
     <string name="title_activity_achievement_list">成就列表</string>
     <string name="title_activity_gamesummary">游戏基本信息</string>
     <string name="title_activity_playerstats">玩家信息</string>
+    <string name="title_activity_player">玩家</string>
+    <string name="title_app_service">应用服务</string>
     <string name="report_immediate">立即上报</string>
     <string name="unlock">解锁</string>
     <string name="reveal">揭秘</string>
@@ -20,11 +22,9 @@
     <string name="ok">确定</string>
     <string name="init">初始化</string>
     <string name="sign_in">登录</string>
-    <string name="get_current_player">获取当前玩家信息</string>
     <string name="is_real_time">实时</string>
     <string name="get_current_player_stats">获取当前玩家统计信息</string>
     <string name="get_cache_player_id">获取缓存的PlayerId</string>
-    <string name="save_player">保存玩家信息</string>
     <string name="getAchievementIntent">获取成就Intent</string>
     <string name="load_achievement">加载成就</string>
     <string name="load_achievement_off">加载成就(离线)</string>
@@ -58,6 +58,14 @@
     <string name="archive_list">存档列表</string>
     <string name="archive_get_max_image_size">获取最大封面大小</string>
     <string name="archive_get_max_file_size">获取最大存档大小</string>
+    <string name="get_miss_product_list">获取订单信息</string>
+
+    <string name="get_current_player">获取当前玩家信息</string>
+    <string name="get_game_player">获取当前玩家信息(OpenId)</string>
+    <string name="get_game_player_true">获玩家信息(含PlayerId)</string>
+    <string name="get_game_player_false">获取玩家信息(不含PlayerId)</string>
+    <string name="save_player">保存玩家信息</string>
+    <string name="play_extra">玩家额外信息</string>
 
     <!--<string name="game_begin">游戏开始</string>
     <string name="game_end">游戏结束</string>

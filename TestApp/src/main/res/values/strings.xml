@@ -9,6 +9,8 @@
     <string name="title_activity_achievement_list">AchievementListActivity</string>
     <string name="title_activity_gamesummary">GameSummary</string>
     <string name="title_activity_playerstats">PlayerStats</string>
+    <string name="title_activity_player">Player</string>
+    <string name="title_app_service">AppService</string>
     <string name="report_immediate">reportImmediate</string>
     <string name="unlock">Unlock</string>
     <string name="reveal">Reveal</string>
@@ -19,11 +21,9 @@
     <string name="ok">OK</string>
     <string name="init">Init</string>
     <string name="sign_in">SignIn</string>
-    <string name="get_current_player">GetCurrentPlayer</string>
     <string name="is_real_time">IsRealTime</string>
     <string name="get_current_player_stats">GetCurrentPlayerStats</string>
     <string name="get_cache_player_id">GetCachePlayerId</string>
-    <string name="save_player">SavePlayerInfo</string>
     <string name="getAchievementIntent">AchievementIntent</string>
     <string name="load_achievement">LoadAchievement</string>
     <string name="load_achievement_off">LoadAchievementOff</string>
@@ -57,10 +57,17 @@
     <string name="archive_list">Archives</string>
     <string name="archive_get_max_image_size">getMaxImageSize</string>
     <string name="archive_get_max_file_size">getMaxFileSize</string>
+    <string name="get_miss_product_list">GetMissProductInfo</string>
+
+    <string name="get_current_player">GetCurrentPlayer</string>
+    <string name="get_game_player">GetGamePlayer</string>
+    <string name="get_game_player_true">get_game_player(requestPlayerId=true)</string>
+    <string name="get_game_player_false">get_game_player(requestPlayerId=false)</string>
+    <string name="save_player">SavePlayerInfo</string>
+    <string name="play_extra">PlayExtra</string>
 
     <!--<string name="game_begin">GameBegin</string>
     <string name="game_end">GameEnd</string>
-    <string name="play_extra">PlayExtra</string>
     <string name="anti_addiction">anti-addiction(only for chinese mainland)</string>-->
     <string name="rank_intent">rank intent</string>
     <string name="rank_data">rank data</string>

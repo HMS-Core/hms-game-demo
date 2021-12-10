@@ -97,6 +97,26 @@
             android:minWidth="60dp"
             android:textAllCaps="false"
             android:text="@string/title_activity_playerstats" />
+
+        <Button
+            android:id="@+id/btn_get_player_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/button_color"
+            android:minWidth="60dp"
+            android:textAllCaps="false"
+            android:text="@string/title_activity_player"/>
+
+        <Button
+            android:id="@+id/btn_app_service"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/button_color"
+            android:minWidth="60dp"
+            android:textAllCaps="false"
+            android:text="@string/title_app_service"/>
     </LinearLayout>
 
 </LinearLayout>

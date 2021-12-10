@@ -46,6 +46,7 @@ import com.huawei.hms.support.account.AccountAuthManager;
 import com.huawei.hms.support.account.request.AccountAuthParams;
 import com.huawei.hms.support.account.result.AccountAuthResult;
 import com.huawei.hms.support.account.result.AuthAccount;
+import com.huawei.hms.utils.ResourceLoaderUtil;
 import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo;
 import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack;
 
@@ -114,7 +115,7 @@ public class MainActivity extends BaseActivity {
         Task<Void> initTask;
         // Set the anti-addiction prompt context, this line must be added
         // 设置防沉迷提示语的Conext，此行必须添加
-        ResourceLoaderUtil.setmContext(this);  
+        ResourceLoaderUtil.setmContext(this);
         initTask = appsClient.init(
                 new AppParams(params, new AntiAddictionCallback() {
                     @Override

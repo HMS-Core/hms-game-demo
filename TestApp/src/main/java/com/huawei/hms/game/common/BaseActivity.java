@@ -24,9 +24,11 @@ import java.util.Locale;
 import com.huawei.hms.R;
 import com.huawei.hms.game.MainActivity;
 import com.huawei.hms.game.achievement.AchievementActivity;
+import com.huawei.hms.game.appservice.AppServiceActivity;
 import com.huawei.hms.game.archive.ArchiveActivity;
 import com.huawei.hms.game.event.EventActivity;
 import com.huawei.hms.game.gamesummary.GameSummaryActivity;
+import com.huawei.hms.game.player.PlayerActivity;
 import com.huawei.hms.game.playerstats.PlayerStatsActivity;
 import com.huawei.hms.game.ranking.RankingActivity;
 import com.huawei.hms.jos.games.archive.ArchiveSummary;
@@ -116,6 +118,20 @@ public abstract class BaseActivity extends Activity {
     @OnClick(R.id.btn_PlayerStat)
     public void clickPlayerStatsMenu() {
         startActivity(new Intent(this, PlayerStatsActivity.class));
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    @OnClick(R.id.btn_get_player_info)
+    public void clickGetPlayerInfo() {
+        startActivity(new Intent(this, PlayerActivity.class));
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    @OnClick(R.id.btn_app_service)
+    public void clickAppService() {
+        startActivity(new Intent(this, AppServiceActivity.class));
         overridePendingTransition(0, 0);
         finish();
     }

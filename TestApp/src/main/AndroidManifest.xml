@@ -77,14 +77,6 @@
             android:name=".game.playerstats.PlayerStatsActivity"
             android:label="@string/title_activity_playerstats"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".game.player.PlayerActivity"
-            android:label="@string/title_activity_playerstats"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".game.appservice.AppServiceActivity"
-            android:label="@string/title_activity_playerstats"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".game.archive.OpenArchiveActivity" />
         <activity android:name=".game.archive.ArchiveListActivity" />
         <activity android:name=".game.archive.ArchiveMetadataDetailActivity" />
