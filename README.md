@@ -1,57 +1,61 @@
-# Game Service Kit
+﻿# Game Service
 English | [中文](README_ZH.md)
+## Contents
 
-## Table of Contents
-
- * [Introduction](#introduction)
- * [Getting Started](#getting-started)
- * [Supported Environments](#supported-environments)
- * [Result](#result)
- * [License](#license)
+ * [Introduction](#Introduction)
+ * [Installation](#Installation)
+ * [Environment Requirements](#Environment-Requirements)
+ * [Configuration](#Configuration )
+ * [Result](#Result)
+ * [Technical Support](#Technical-Support)
+ * [License](#License)
 
 
 ## Introduction
-   GameServiceKit Android sample code encapsulates APIs of the HUAWEI GameSevice Kit. It provides many sample programs for your reference or usage.
-The following describes packages of Android sample code.
+Game Service (Android) sample code encapsulates many Game Service APIs, which provides you with many sample programs for your reference or usage. The following describes the different packages of Android sample code:
 
-   achievement:    Sample code of achievement feature.
-   archive:        Sample code of archive feature.
-   event:          Sample code of event feature.
-   gamematadata:   Sample code of game matadata feature.
-   playerstats:    Sample code of playerstats feature.
-   ranking:        Sample code of ranking feature.
-   common:         Common components and utils
+**achievement**: sample code of the achievement feature.
 
-   You also can use HMS Toolkit to quickly integrate the kit and run the demo project, as well as debug the app using a remote device for free. For details, please visit https://developer.huawei.com/consumer/en/doc/development/Tools-Guides/getting-started-0000001077381096
+**archive**: sample code of the saved games feature.
 
-## Getting Started
+**event**: sample code of the event feature.
 
-   1. Check whether the Android studio development environment is ready. Open the sample code project directory with file "build.gradle" in Android Studio. Run TestApp on your divice or simulator which have installed latest Huawei Mobile Service(HMS).
-   2. Register a [HUAWEI account](https://developer.huawei.com/consumer/en/).
-   3. Create an app and configure the app information in AppGallery Connect.
-      See details: [HUAWEI Game Service Development Preparation](https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides-V5/config-agc-0000001050166285-V5)
-   4. To build this demo, please first import the demo in the Android Studio (3.x+).
-   5. Configure the sample code:
-      (1) Download the file "agconnect-services.json" of the app on AGC, and add the file to the app root directory(\app) of the demo.
-      (2) Change the value of applicationid in the app-level build.gradle file of the sample project to the package name of your app.
-   6. Run the sample on your Android device or emulator.
+**gamesummary**: sample code of the basic game information feature.
 
-## Supported Environments
-   Android SDK Version >= 23 and JDK version >= 1.8 is recommended.
+**playerstats**: sample code for collecting the player statistics.
+
+**ranking**: sample code of the leaderboards feature.
+
+**common**: common elements and utilities.
+
+You can also use HMS Toolkit to quickly run the demo project. HMS Toolkit supports one-stop kit integration and provides remote real devices for you to test your app for free. For details about HMS Toolkit, please visit [document](https://developer.huawei.com/consumer/en/doc/development/Tools-Guides/getting-started-0000001077381096?ha_source=hms1) 
+
+## Installation
+Before using the sample code, check whether Android Studio has been set. Open the sample code in Android Studio and run TestApp on a mobile phone or simulator where the latest HMS Core (APK) is installed.
+
+## Environment Requirements
+Android SDK (API level 17 or higher) is recommended.
+
+## Configuration
+Before using the functions provided in the sample code, you need to configure your app information in AppGallery Connect.
+For details, please visit [HUAWEI Game Service Development Preparation](https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides/config-agc-0000001050166285?ha_source=hms1).
 
 ## Result
-   <img src="images/result_1.png" width = 20% height = 20%>
+<img src="images/result_1.png" width = 20% height = 20%>
 
-## Question or issues
-If you want to evaluate more about HMS Core,
-[r/HMSCore on Reddit](https://www.reddit.com/r/HuaweiDevelopers/) is for you to keep up with latest news about HMS Core, and to exchange insights with other developers.
+## Technical Support
+You can visit the [Reddit community](https://www.reddit.com/r/HuaweiDevelopers/) to obtain the latest information about HMS Core and communicate with other developers.
 
-If you have questions about how to use HMS samples, try the following options:
-- [Stack Overflow](https://stackoverflow.com/questions/tagged/huawei-mobile-services?tab=Votes) is the best place for any programming questions. Be sure to tag your question with 
-`huawei-mobile-services`.
-- [Huawei Developer Forum](https://forums.developer.huawei.com/forumPortal/en/home?fid=0101187876626530001) HMS Core Module is great for general questions, or seeking recommendations and opinions.
+If you have any questions about the sample code, try the following:
+- Visit [Stack Overflow](https://stackoverflow.com/questions/tagged/huawei-mobile-services?tab=Votes), submit your questions, and tag them with `huawei-mobile-services` . Huawei experts will answer your question.
+- Visit the HMS Core section in the [Huawei Developer Forum](https://forums.developer.huawei.com/forumPortal/en/forum/hms-core?ha_source=hms1) and communicate with other developers.
 
-If you run into a bug in our samples, please submit an [issue](https://github.com/HMS-Core/hms-game-demo/issues) to the Repository. Even better you can submit a [Pull Request](https://github.com/HMS-Core/hms-game-demo/pulls) with a fix.
+If you encounter any issues when using the sample code, submit your [issues](https://github.com/HMS-Core/hms-game-demo/issues) or submit a [pull request](https://github.com/HMS-Core/hms-game-demo/pulls).
 
-##  License
-   GameSeviceKit sample is licensed under the: [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+## License
+  The sample code is licensed under [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+  For details, please refer to the following documents:
+  [Development Guide](https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides/introduction-0000001050121216?ha_source=hms1)
+  [API Reference](https://developer.huawei.com/consumer/en/doc/development/HMSCore-References/overview-0000001091246791?ha_source=hms1)
+
