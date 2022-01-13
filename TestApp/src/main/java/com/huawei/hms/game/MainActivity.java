@@ -149,20 +149,26 @@ public class MainActivity extends BaseActivity {
                         if (e instanceof ApiException) {
                             ApiException apiException = (ApiException) e;
                             int statusCode = apiException.getStatusCode();
-                            // Error code 7401 indicates that the user did not agree to Huawei joint operations privacy agreement
-                            // 错误码为7401时表示用户未同意华为联运隐私协议
                             if (statusCode == JosStatusCodes.JOS_PRIVACY_PROTOCOL_REJECTED) {
+                                 // Error code 7401 indicates that the user did not agree to Huawei joint operations privacy agreement
+                                 // 错误码为7401时表示用户未同意华为联运隐私协议
                                 showLog("has reject the protocol");
-                                // You can exit the game or re-call the init interface.
-                                // 在此处实现退出游戏或者重新调用初始化接口
-                            }
-                            // Handle other error codes.
-                            // 在此处实现其他错误码的处理
-                            if (statusCode == 907135003) {
+                                // You need to prohibit players from entering the game here.
+                                // 此处您需禁止玩家进入游戏
+                            } else if (statusCode == GamesStatusCodes.GAME_STATE_NETWORK_ERROR) { 
+                                // Error code 7002 indicates network error
+                                // 错误码7002表示网络异常
+                                showLog("network error");
+                                // 此处您可提示玩家检查网络，请不要重复调用init接口，否则断网情况下可能会造成手机高耗电。
+                                // You can ask the player to check the network. Do not invoke the init interface repeatedly. Otherwise, the phone may consume a lot of power if the network is disconnected.
+                            } else if (statusCode == 907135003) {
                                 // 907135003表示玩家取消HMS Core升级或组件升级
                                 // 907135003 indicates that user rejected the installation or upgrade of HMS Core.
                                 showLog("init statusCode=" + statusCode);
                                 init();
+                            } else {
+                                // Handle other error codes
+                                // 在此处实现其他错误码的处理
                             }
                         }
                     }
