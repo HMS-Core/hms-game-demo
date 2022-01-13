@@ -38,6 +38,7 @@ import com.huawei.hms.jos.JosAppsClient;
 import com.huawei.hms.jos.JosStatusCodes;
 import com.huawei.hms.jos.games.AppPlayerInfo;
 import com.huawei.hms.jos.games.Games;
+import com.huawei.hms.jos.games.GamesStatusCodes;
 import com.huawei.hms.jos.games.PlayersClient;
 import com.huawei.hms.jos.games.player.Player;
 import com.huawei.hms.jos.games.player.PlayerExtraInfo;
