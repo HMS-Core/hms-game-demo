@@ -66,12 +66,15 @@ public class MainActivity extends BaseActivity {
     private String playerId;
 
     private boolean hasInit = false;
+    
+    private Callback callback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        callback = new Callback(this);
         init();
         
         // you can call these method orderly to check update when your app starting up
@@ -402,14 +405,14 @@ public class MainActivity extends BaseActivity {
     @OnClick(R.id.btn_check_update)
     public void checkUpdate() {
         AppUpdateClient client = JosApps.getAppUpdateClient(this);
-        client.checkAppUpdate(this, new UpdateCallBack(this));
+        client.checkAppUpdate(this, callback);
     }
 
-    private static class UpdateCallBack implements CheckUpdateCallBack {
-        private MainActivity apiActivity;
+    private static class Callback implements CheckUpdateCallBack {
+        private WeakReference<Context> mContextWeakReference;
 
-        private UpdateCallBack(MainActivity apiActivity) {
-            this.apiActivity = apiActivity;
+        public Callback(Context context) {
+            mContextWeakReference = new WeakReference<>(context);
         }
 
         /**
@@ -423,22 +426,36 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onUpdateInfo(Intent intent) {
             if (intent != null) {
-                Serializable info = intent.getSerializableExtra("updatesdk_update_info");
+                // 更新状态信息
+                int status = intent.getIntExtra(UpdateKey.STATUS, -99);
+                Log.i(TAG, "check update status is:" + status);
+                // 返回错误码
+                int rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, -99);
+                // 返回失败信息
+                String rtnMessage = intent.getStringExtra(UpdateKey.FAIL_REASON);
+                // 强制更新应用时，弹出对话框后用户是否点击“退出应用”按钮
+                // Check whether the user clicks the “exit” button after the dialog box is displayed when the application is forcibly updated.
+                boolean isExit = intent.getBooleanExtra(UpdateKey.MUST_UPDATE, false);
+                Log.i(TAG, "rtnCode = " + rtnCode + "rtnMessage = " + rtnMessage);
+
+                Serializable info = intent.getSerializableExtra(UpdateKey.INFO);
+                // 如果info属于ApkUpgradeInfo类型，则拉起更新弹框
                 if (info instanceof ApkUpgradeInfo) {
-                    apiActivity.showLog("check update success");
-                    AppUpdateClient client = JosApps.getAppUpdateClient(apiActivity);
-                    /**
-                     * show update dialog
-                     * *
-                     * 弹出升级提示框
-                     */
-                    client.showUpdateDialog(apiActivity, (ApkUpgradeInfo) info, false);
-                } else {
-                    apiActivity.showLog("check update failed");
+                    // 如果info属于ApkUpgradeInfo类型，则拉起更新弹框
+                    Context context = mContextWeakReference.get();
+                    if (context != null) {
+                        JosApps.getAppUpdateClient(context).showUpdateDialog(context,(ApkUpgradeInfo) info,false);
+                    }
+                    Log.i(TAG, "check update success and there is a new update");
+                }
+                Log.i(TAG, "check update isExit=" + isExit);
+                if (isExit) {
+                    // 是强制更新应用，用户在弹出的升级提示框中选择了“退出应用”，处理逻辑由您自行控制，这里只是个例子
+                    // System.exit(0);
                 }
             }
         }
-
+        
         // ignored
         // 预留, 无需处理
         @Override
