@@ -460,22 +460,18 @@ public class MainActivity extends BaseActivity {
         // 预留, 无需处理
         @Override
         public void onMarketInstallInfo(Intent intent) {
-            Log.w("AppUpdateManager", "info not instanceof ApkUpgradeInfo");
-            apiActivity.showLog("check update failed");
         }
 
         // ignored
         // 预留, 无需处理
         @Override
         public void onMarketStoreError(int responseCode) {
-            apiActivity.showLog("check update failed");
         }
 
         // ignored
         // 预留, 无需处理
         @Override
         public void onUpdateStoreError(int responseCode) {
-            apiActivity.showLog("check update failed");
         }
     }
 }
