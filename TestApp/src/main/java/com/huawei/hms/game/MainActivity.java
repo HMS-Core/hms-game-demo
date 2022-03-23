@@ -298,19 +298,7 @@ public class MainActivity extends BaseActivity {
                             public void onSuccess(Player player) {
                                 String result =
                                         "display:"
-                                                + player.getDisplayName()
-                                                + "\n"
-                                                + "playerId:"
-                                                + player.getPlayerId()
-                                                + "\n"
-                                                + "playerLevel:"
-                                                + player.getLevel()
-                                                + "\n"
-                                                + "timestamp:"
-                                                + player.getSignTs()
-                                                + "\n"
-                                                + "playerSign:"
-                                                + player.getPlayerSign();
+                                                + player.getDisplayName();
                                 showLog(result);
                                 playerId = player.getPlayerId();
                             }
