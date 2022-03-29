@@ -81,6 +81,8 @@
         <activity android:name=".game.archive.ArchiveListActivity" />
         <activity android:name=".game.archive.ArchiveMetadataDetailActivity" />
         <activity android:name=".game.gamesummary.GameSummaryActivity" />
+        <activity android:name=".game.player.PlayerActivity" />
+        <activity android:name=".game.appservice.AppServiceActivity" />
     </application>
 
 </manifest>
