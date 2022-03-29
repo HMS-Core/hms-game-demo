@@ -82,7 +82,7 @@ public class ArchiveListAdapter extends RecyclerView.Adapter<ArchiveListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
         final ArchiveSummary archiveSummary = archiveSummaries.get(position);
         final String id = archiveSummary.getId();
         holder.archiveCoverImage.setTag(id);
