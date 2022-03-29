@@ -89,7 +89,7 @@ public class AchievementListAdapter extends RecyclerView.Adapter<AchievementList
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, final int position) {
+        public void onBindViewHolder(final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
 
             final Achievement achievement = achievementList.get(position);
             int type = achievement.getType();
