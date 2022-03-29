@@ -16,6 +16,7 @@
 
 package com.huawei.hms.game;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,6 +51,7 @@ import com.huawei.hms.support.account.result.AuthAccount;
 import com.huawei.hms.utils.ResourceLoaderUtil;
 import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo;
 import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack;
+import com.huawei.updatesdk.service.otaupdate.UpdateKey;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -57,6 +59,7 @@ import butterknife.OnClick;
 import org.json.JSONException;
 
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 
 public class MainActivity extends BaseActivity {
     public static final String TAG = "MainActivity";
