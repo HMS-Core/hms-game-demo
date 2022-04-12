@@ -142,6 +142,11 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onSuccess(Void aVoid) {
                 showLog("init success");
+                // Games released in the Chinese mainland: The update API provided by Huawei must be called upon game launch.
+                // Games released outside the Chinese mainland: It is optional for calling the update API provided by Huawei upon game launch. 
+                // 检测应用新版本，中国大陆发布的应用：应用启动时必须使用华为升级接口进行应用升级。
+                // 中国大陆以外发布的应用：不强制要求。
+                checkUpdate();
                 hasInit = true;
                 // Make sure that the interface of showFloatWindow() is successfully called once after the game has been initialized successfully
                 // 游戏初始化成功后务必成功调用过一次浮标显示接口
@@ -180,17 +185,6 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                 });
-       
-        /**
-         * Games released in the Chinese mainland: The update API provided by Huawei must be called upon game launch.
-         * Games released outside the Chinese mainland: It is optional for calling the update API provided by Huawei
-         * upon
-         * game launch.
-         * *
-         * 检测应用新版本，中国大陆发布的应用：应用启动时必须使用华为升级接口进行应用升级。
-         * 中国大陆以外发布的应用：不强制要求。
-         */
-        checkUpdate();
     }
 
     /**
