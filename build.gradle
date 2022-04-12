@@ -1,8 +1,8 @@
 ext {
     groupId = 'com.huawei.hms'
     artifactId = 'game'
-    version = '6.1.0.301'
-    versionCode = 60100301
+    version = '6.2.0.301'
+    versionCode = 60200301
 
     buildToolsVersion = '28.0.3'
     compileSdkVersion = 30
