@@ -17,6 +17,7 @@
 
 package com.huawei.hms.game.event;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
