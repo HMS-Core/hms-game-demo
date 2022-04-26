@@ -13,7 +13,7 @@ ext {
     android_support_version = '28.0.0'
 
     // HMS SDK HwID
-    hms_sdk_hwid_version = '6.1.0.302'
+    hms_sdk_hwid_version = '6.4.0.300'
 }
 
 buildscript {
