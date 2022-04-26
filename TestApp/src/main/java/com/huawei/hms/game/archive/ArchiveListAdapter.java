@@ -17,6 +17,7 @@
 
 package com.huawei.hms.game.archive;
 
+import android.annotation.SuppressLint;
 import java.util.List;
 
 import com.huawei.hmf.tasks.OnFailureListener;
