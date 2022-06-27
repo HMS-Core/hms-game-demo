@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="400dp"
+    android:layout_height="330dp"
+    android:background="#54A2D5"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="@string/Game_Congratulations"
+        android:textColor="#FFFFFF"
+        android:textSize="23sp" />
+
+    <Button
+        android:id="@+id/btn_click_continue"
+        android:layout_width="160dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@mipmap/game_click_continue" />
+</LinearLayout>

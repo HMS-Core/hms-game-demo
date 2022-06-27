@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/home_bg">
+
+    <Button
+        android:id="@+id/btn_start_game_home"
+        android:layout_width="183dp"
+        android:layout_height="83dp"
+        android:layout_marginTop="42dp"
+        android:background="@mipmap/start_game_bg"
+        android:gravity="center"
+        android:text="@string/Home_startGame"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/text_home_display_name"
+        android:layout_width="60dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="15dp"
+        android:background="@mipmap/game_nickname"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxEms="4"
+        android:singleLine="true"
+        android:text="@string/Home_displayName"
+        android:textColor="#FFFFFF"
+        android:textSize="8sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_button_userInfo"
+        tools:ignore="MissingConstraints,SmallSp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/textView3"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/Home_sore"
+        android:background="@mipmap/score_bg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/text_score_show_home"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:text="@string/shopping_zero"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="100dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:text="@string/Home_market"
+        android:textColor="#555555"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_jump_shop"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="75dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:text="@string/Home_summary"
+        android:textColor="#555555"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/textView7"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toEndOf="@+id/textView6"
+        app:layout_constraintTop_toBottomOf="@+id/btn_jump_into_summary_activity"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="75dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:text="@string/Home_ranking"
+        android:textColor="#555555"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_jump_into_rank_activity"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="75dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="15dp"
+        android:gravity="center"
+        android:text="@string/Home_archive"
+        android:textColor="#555555"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_jump_into_archive_activity"
+        tools:ignore="MissingConstraints" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/btn_image_check_update"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:src="@mipmap/update"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/btn_jump_shop"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="140dp"
+        android:src="@mipmap/home_image_shopping_market_bg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image_button_userInfo"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_weight="1.0"
+        android:src="@mipmap/game_photo_man"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/btn_jump_into_summary_activity"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="328dp"
+        android:src="@mipmap/summary"
+        app:layout_constraintEnd_toStartOf="@+id/btn_jump_into_archive_activity"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_jump_into_rank_activity"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/btn_jump_into_archive_activity"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="328dp"
+        android:layout_marginEnd="15dp"
+        android:src="@mipmap/archive"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_image_check_update"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/btn_jump_into_rank_activity"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="328dp"
+        android:src="@mipmap/rank"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_home_display_name"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

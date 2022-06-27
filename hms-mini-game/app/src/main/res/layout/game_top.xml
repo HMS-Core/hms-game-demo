@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:orientation="horizontal"
+    android:baselineAligned="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="2.8"
+        android:orientation="vertical">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/game_top_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:src="@drawable/ic_launcher_background"
+            tools:ignore="MissingClass,NestedWeights" />
+
+        <TextView
+            android:background="@mipmap/game_nickname"
+            android:id="@+id/game_top_username"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:maxEms="4"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:layout_weight="2.6"
+            android:gravity="center"
+            android:layout_marginTop="-5dp"
+            android:textColor="#FFFFFF"
+            android:textSize="10sp"
+            tools:ignore="SmallSp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.0"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:orientation="horizontal"
+            tools:ignore="NestedWeights">
+
+            <TextView
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="3dp"
+                android:padding="1dp"
+                android:background="@mipmap/bg_level"
+                android:id="@+id/game_top_level"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:gravity="center"
+                android:text="@string/game_top_level_text"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
+
+            <TextView
+                android:layout_marginTop="4dp"
+                android:background="@mipmap/bg_score"
+                android:id="@+id/game_top_score"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
+
+            <TextView
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="3dp"
+                android:background="@mipmap/bg_level"
+                android:id="@+id/game_top_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="1dp"
+                android:layout_weight="1.0"
+                android:gravity="center"
+                android:text="@string/game_time_count_text"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:gravity="right"
+            android:orientation="horizontal"
+            tools:ignore="RtlHardcoded">
+
+            <Button
+                android:layout_marginRight="10dp"
+                android:id="@+id/game_onPause"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@mipmap/game_pause"
+                android:visibility="invisible" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

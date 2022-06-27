@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.huawei.gamecenter.minigame.huawei.UI.MyCustomView
+        android:id="@+id/mini_game_view"
+        android:background="@mipmap/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/game_onStart"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:background="@mipmap/game_start" />
+
+    <include
+        layout="@layout/game_top"
+        android:layout_alignParentTop="true"
+        android:layout_height="90dp"
+        android:layout_width="match_parent" />
+    <!--    <include-->
+    <!--        layout="@layout/game_bottom"-->
+    <!--        android:layout_height="60dp"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_alignParentBottom="true"-->
+    <!--        />-->
+
+</RelativeLayout>

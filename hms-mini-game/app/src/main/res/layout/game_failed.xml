@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@mipmap/game_fail_bg"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_weight="1.0"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:layout_weight="1.0"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/game_start_again"
+        android:id="@+id/btn_startAgain"
+        tools:ignore="ContentDescription" />
+</LinearLayout>

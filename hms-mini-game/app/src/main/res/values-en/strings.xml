@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="game_logining">Signing in....</string>
+    <string name="app_name" translatable="false">MiNiGame</string>
+    <string name="huawei_login">HUAWEI ID sign-in</string>
+    <string name="user_information_activity_nickname">Nickname</string>
+    <string name="user_info_game_record_text">Gaming records</string>
+    <string name="user_average_year_time">Average daily time:</string>
+    <string name="user_recent_time">Sign-ins in past year:</string>
+    <string name="user_last_game_time">Last sign-in:</string>
+    <string name="user_pay_times_text_desc">Top-ups in past year:</string>
+    <string name="user_pay_amount_desc">Top-up amount in past year:</string>
+    <string name="user_setting_button_text">Settings</string>
+    <string name="user_is_join_rank_button_text">Add me to leaderboard</string>
+    <string name="shopping_twentyScore">20 points</string>
+    <string name="shopping_20">Equivalent to 20 bullets</string>
+    <string name="shopping_100score">100 points</string>
+    <string name="shopping_100bullet">Equivalent to 100 bullets</string>
+    <string name="shopping_zero">0</string>
+    <string name="Home_market">Shopping Mall</string>
+    <string name="Home_summary">Game saves</string>
+    <string name="Home_ranking">Leaderboards</string>
+    <string name="Home_archive">Achievements</string>
+    <string name="user_pay_record_text">Purchase history</string>
+    <string name="Game_Congratulations" translatable="false"> Level completed! </string>
+    <string name="shopping_more">More items</string>
+    <string name="shopping_stayTuned">Coming soon</string>
+    <string name="Home_startGame">Get started</string>
+    <string name="Home_displayName">Raiden</string>
+    <string name="Home_sore">Points: xxx</string>
+    <string name="GameToast_successfulBuySore">Purchase successful </string>
+    <string name="GameToast_scoreUseUp">Points used up </string>
+    <string name="GameToast_buyScore">Buy points</string>
+    <string name="GameToast_gameOver">Home destroyed. Game over! </string>
+    <string name="GameToast_gameAgain" tools:ignore="DuplicateDefinition">Try again</string>
+    <string name="GameToast_nextGameLevel">Congratulations! Start the next level? </string>
+    <string name="GameToast_gameContiue">Continue</string>
+    <string name="GameToast_levelSetting">Level: %1$d/10</string>
+    <string name="GameToast_gameClearance">Level completed! </string>
+    <string name="GameToast_clearAllCheckpoints">You\'re invincible!</string>
+    <string name="shopping_amount">¥0.1</string>
+    <string name="GameToast_gameOut">Exit</string>
+    <string name="update_des">Update check status code:</string>
+    <string name="userinfo_minute">min</string>
+    <string name="userinfo_times">times</string>
+    <string name="userinfo_days">day(s)</string>
+    <string name="update_no_gradeinfo">No available update.</string>
+    <string name="home_capabilities_not_deployed">This capability has not been launched!</string>
+    <string name="home_user_information_button">personal information</string>
+    <string name="home_score_info_button">Score</string>
+    <string name="home_check_update_button">Update</string>
+    <string name="home_shopping_market_button">Shopping Mall</string>
+    <string name="home_rankings_button">Ranking</string>
+    <string name="home_archive_button_text">Archive</string>
+    <string name="home_achieve_button_text">Achieve</string>
+    <string name="home_start_game_button_text">Game start</string>
+    <string name="shop_constant_text_ninety">90</string>
+    <string name="shop_back_button_text">Back</string>
+    <string name="shop_product_price_show_simple_text">¥0.3</string>
+    <string name="game_top_level_text">level</string>
+    <string name="game_time_count_text">45 s</string>
+</resources>
