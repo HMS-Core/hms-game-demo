@@ -1,4 +1,4 @@
-中文 | [English]() 
+中文 | [English](https://github.com/HMS-Core/hms-game-demo/blob/master/hms-mini-game/README_EN.md) 
 ## 目录
  * [概述](#概述)
  * [安装](#安装)
