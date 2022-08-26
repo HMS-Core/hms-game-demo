@@ -30,6 +30,7 @@ public class Constant {
     public static final int SIGN_IN_REQUEST_CODE = 4444;
     public static String PLAYER_INFO_KEY = "player_info";
     public static String PLAYER_ICON_URI = "player_icon";
+    public static final int OBTAIN_BONUS_POINTS_EVERY_DAY = 20;
 
     public static class PurchasesPriceType {
         public static final int PRICE_TYPE_CONSUMABLE_GOODS = 0;

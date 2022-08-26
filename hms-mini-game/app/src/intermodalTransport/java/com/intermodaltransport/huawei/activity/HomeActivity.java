@@ -28,11 +28,14 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.bumptech.glide.Glide;
 import com.huawei.gamecenter.minigame.huawei.GameActivity;
 import com.huawei.gamecenter.minigame.huawei.R;
 import com.huawei.gamecenter.minigame.huawei.Until.Constant;
 import com.huawei.gamecenter.minigame.huawei.Until.HMSLogHelper;
+import com.huawei.gamecenter.minigame.huawei.Until.TimeUtil;
 import com.huawei.gamecenter.minigame.huawei.Until.UntilTool;
 import com.huawei.hmf.tasks.Task;
 import com.huawei.hms.common.ApiException;
@@ -57,6 +60,7 @@ import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo;
 import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack;
 import com.huawei.updatesdk.service.otaupdate.UpdateKey;
 import com.intermodaltransport.huawei.ExitApplication;
+import com.intermodaltransport.huawei.SubscribeManager;
 
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.jetbrains.annotations.NotNull;
@@ -74,6 +78,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.huawei.gamecenter.minigame.huawei.Until.Constant.OBTAIN_BONUS_POINTS_EVERY_DAY;
+
 
 public class HomeActivity extends Activity implements View.OnClickListener {
     private static final String TAG = "HomeActivity";
@@ -84,6 +90,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
     private Player currentPlayer;
     private TextView scoreTextView;
     private String photoUri = null;
+    private ConstraintLayout obtainScoreLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +120,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
 
     private void initView() {
         scoreTextView = findViewById(R.id.text_score_show_home);
+        obtainScoreLayout = findViewById(R.id.obtain_score_layout);
         findViewById(R.id.image_button_userInfo).setOnClickListener(v -> {
             // 跳转个人游戏信息界面
             Intent intent = new Intent(HomeActivity.this, UserInfoActivity.class);
@@ -138,12 +146,24 @@ public class HomeActivity extends Activity implements View.OnClickListener {
             checkUpdate();
         });
 
+        obtainScoreLayout.setOnClickListener(this);
         findViewById(R.id.btn_start_game_home).setOnClickListener(this);
         findViewById(R.id.btn_jump_into_rank_activity).setOnClickListener(v -> Toast.makeText(HomeActivity.this, getString(R.string.home_capabilities_not_deployed), Toast.LENGTH_LONG).show());
         findViewById(R.id.btn_jump_into_summary_activity).setOnClickListener(v -> Toast.makeText(HomeActivity.this, getString(R.string.home_capabilities_not_deployed), Toast.LENGTH_LONG).show());
         findViewById(R.id.btn_jump_into_archive_activity).setOnClickListener(v -> Toast.makeText(HomeActivity.this, getString(R.string.home_capabilities_not_deployed), Toast.LENGTH_LONG).show());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showFloatWindowNewWay();
+        SubscribeManager.getSingletonInstance().checkSubIsValidAndRefreshView(obtainScoreLayout, this, currentId, null);
+    }
+
+
+    /**
+     * @param player 登录页面获取的登录对象信息，用于刷新大厅页面：用户头像、用户昵称、积分值。
+     */
     private void initData(Player player) {
         if (TextUtils.isEmpty(currentId)) {
             HMSLogHelper.getSingletonInstance().debug(TAG, "initData player is null ,please login  again");
@@ -159,13 +179,13 @@ public class HomeActivity extends Activity implements View.OnClickListener {
     }
 
     private void setCircleImageView(String url) {
-        CircleImageView imageVie = findViewById(R.id.image_button_userInfo);
+        CircleImageView imageView= findViewById(R.id.image_button_userInfo);
         if (!TextUtils.isEmpty(url)) {
             Glide.with(HomeActivity.this)
                     .load(url)
                     .placeholder(R.mipmap.game_photo_man)
                     .fitCenter()
-                    .into(imageVie);
+                    .into(imageView);
         }
 
     }
@@ -313,7 +333,6 @@ public class HomeActivity extends Activity implements View.OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (SIGN_IN_INTENT == requestCode) {
-
             if (null == data) {
                 HMSLogHelper.getSingletonInstance().debug(TAG, "signIn intent is null");
                 return;
@@ -344,20 +363,38 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.btn_start_game_home) {
-            if (!TextUtils.isEmpty(currentId)) {
+        switch (v.getId()) {
+            case R.id.btn_start_game_home:
+                if (TextUtils.isEmpty(currentId)){
+                    signIn();
+                    break;
+                }
                 Intent intent = new Intent(this, GameActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(Constant.PLAYER_INFO_KEY, currentPlayer);
                 bundle.putString(Constant.PLAYER_ICON_URI, photoUri);
                 intent.putExtras(bundle);
                 startActivity(intent);
-            } else {
-                // 重新登录
-                signIn();
-            }
+                break;
+            case R.id.obtain_score_layout:
+                long lastUpdateTime = UntilTool.getLastScoreUpdateTime(this, currentId);
+                if (TimeUtil.isSameDayOfMillis(lastUpdateTime, System.currentTimeMillis())) {
+                    Toast.makeText(this, getString(R.string.already_received_tips), Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                UntilTool.updateScoreTime(this, currentId);
+                // 会员每日领取20积分
+                currentScore = currentScore + OBTAIN_BONUS_POINTS_EVERY_DAY;
+                scoreTextView.setText(String.valueOf(currentScore));
+                UntilTool.addInfo(this, currentId, currentScore);
+                HMSLogHelper.getSingletonInstance().debug(TAG, "updateScore currentScore:" + currentScore);
+                obtainScoreLayout.setBackgroundResource(R.drawable.button_already_obtain_score);
+                break;
+            default:
+                break;
         }
     }
 
@@ -405,9 +442,11 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         });
     }
 
+    /**
+     * @param productId     购买支付后未发货的商品ID
+     * @param purchaseToken 掉单订单购买凭据
+     */
     private void consumeGood(String productId, String purchaseToken) {
-        // 注意：所有补单商品先发货再进行消耗
-        updateSoreView(productId);
         // 构造一个ConsumeOwnedPurchaseReq对象
         ConsumeOwnedPurchaseReq req = new ConsumeOwnedPurchaseReq();
         req.setPurchaseToken(purchaseToken);
@@ -444,11 +483,6 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         hideFloatWindowNewWay();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        showFloatWindowNewWay();
-    }
 
     /**
      * Show the game buoy.

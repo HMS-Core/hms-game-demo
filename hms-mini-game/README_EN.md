@@ -1,4 +1,4 @@
-﻿English | [Chinese](https://github.com/HMS-Core/hms-game-demo/blob/master/hms-mini-game/README_ZH.md)
+﻿English | [Chinese]()
 ## Contents
 
 * [Introduction](#Introduction)

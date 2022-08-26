@@ -52,7 +52,7 @@ public class MyCustomView extends View implements GameControler {
     private final int cordon;
     private final int screenHeight;
     private boolean isSpawning = false;
-    private float moveSpd = (float) 1.5;
+    private float moveSpd = (float) 15.5;
 
     private Bitmap bmScaled;
     private Bullet bullet;
@@ -154,7 +154,7 @@ public class MyCustomView extends View implements GameControler {
                 // 移动所有的点
                 canvas.drawBitmap(bullet.getBitmap(), bulletPoints.get(i).getX() - bullet.getBitmap().getWidth() / 2, bulletPoints.get(i).getY() - (int) (artilleryObj.getBitmap().getHeight() * 0.9), bullet.getPaint());
                 if (!isRefresh) {
-                    bulletPoints.get(i).move(bullet.getMoveStep() + 1, false);
+                    bulletPoints.get(i).move(bullet.getMoveStep() + 15, false);
                 }
                 // 是否发生碰撞
                 for (int j = 0; j < enemyPoints.size(); j++) {

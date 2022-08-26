@@ -46,6 +46,12 @@
     <string name="userinfo_days">day(s)</string>
     <string name="update_no_gradeinfo">No available update.</string>
     <string name="home_capabilities_not_deployed">This capability has not been launched!</string>
+    <string name="purchase_monthly_card">购买月卡</string>
+    <string name="purchase" translatable="false">购买</string>
+    <string name="effective" translatable="false">已生效</string>
+    <string name="to_be_effective" translatable="false">待生效</string>
+    <string name="already_received_tips" translatable="false">今天已经领取过积分了</string>
+    <string name="the_service_has_been_purchased" translatable="false">已购买该服务</string>
     <string name="home_user_information_button">personal information</string>
     <string name="home_score_info_button">Score</string>
     <string name="home_check_update_button">Update</string>
@@ -59,4 +65,10 @@
     <string name="shop_product_price_show_simple_text">¥0.3</string>
     <string name="game_top_level_text">level</string>
     <string name="game_time_count_text">45 s</string>
+    <string name="manager_button_text">Manager</string>
+    <string name="subscription_management">订阅管理</string>
+    <string name="subscription_now">马上订阅</string>
+    <string name="bonus_point_claiming_rules">每日可免费领取20积分一次</string>
+    <string name="no_consumption">无消费</string>
+    <string name="and">且</string>
 </resources>

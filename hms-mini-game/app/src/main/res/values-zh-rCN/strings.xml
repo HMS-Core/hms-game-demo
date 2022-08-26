@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">MiNiGame</string>
+    <string name="Game_Congratulations" translatable="false">恭喜通过本关游戏！</string>
+    <string name="huawei_login">华为帐号登录</string>
+    <string name="userinfo_nickname">昵称</string>
+    <string name="userinfo_gamerecored">游戏记录</string>
+    <string name="userinfo_averageyeartime">最近一年平均在线时长：</string>
+    <string name="userinfo_recentTime">最近一年在线次数：</string>
+    <string name="userinfo_lastGameTime">距离上次玩游戏的时间：</string>
+    <string name="userinfo_payTmes">最近一年支付总次数：</string>
+    <string name="userinfo_payAmount">最近一年付款总额区间：</string>
+    <string name="userinfo_setting">设置</string>
+    <string name="userinfo_isJoinRank">参与排行榜</string>
+    <string name="shopping_more">更多商品</string>
+    <string name="shopping_stayTuned">敬请期待</string>
+    <string name="shopping_twentyScore">20积分</string>
+    <string name="shopping_20">可发射20枚子弹</string>
+    <string name="shopping_100score">100积分</string>
+    <string name="shopping_100bullet">可发射100枚子弹</string>
+    <string name="shopping_zero">0</string>
+    <string name="Home_startGame">开始游戏</string>
+    <string name="Home_displayName">乘风破浪</string>
+    <string name="Home_sore">积分xxx</string>
+    <string name="Home_market">商城</string>
+    <string name="Home_summary">存档</string>
+    <string name="Home_ranking">排行榜</string>
+    <string name="Home_archive">成就</string>
+    <string name="GameToast_successfulBuySore">积分购买成功！！</string>
+    <string name="GameToast_scoreUseUp">您的积分已经使用完毕！！</string>
+    <string name="GameToast_buyScore">购买积分</string>
+    <string name="GameToast_gameOver">家园保卫失败，游戏终止！</string>
+    <string name="GameToast_nextGameLevel">恭喜您通过本次游戏，是否继续下一关？</string>
+    <string name="GameToast_gameContiue">继续游戏</string>
+    <string name="GameToast_levelSetting">关卡: %1$d/10</string>
+    <string name="GameToast_gameClearance">恭喜通关！</string>
+    <string name="GameToast_clearAllCheckpoints">通关所有关卡</string>
+    <string name="shopping_amount">¥0.1</string>
+    <string name="GameToast_gameOut">退出游戏</string>
+    <string name="GameToast_gameAgain">再来一局</string>
+    <string name="update_des">检测升级更新状态码：</string>
+    <string name="update_no_gradeinfo">当前没有升级信息!</string>
+    <string name="userinfo_payrecorde">消费记录</string>
+    <string name="userinfo_minute">分钟</string>
+    <string name="userinfo_times">次</string>
+    <string name="userinfo_days">天</string>
+    <string name="game_logining">正在登录.....</string>
+    <string name="purchase_monthly_card">购买月卡</string>
+    <string name="subscription_now">马上订阅</string>
+    <string name="bonus_point_claiming_rules">每日可免费领取20积分一次</string>
+</resources>

@@ -24,7 +24,6 @@ import android.text.TextUtils;
 
 import static android.content.Context.MODE_PRIVATE;
 
-
 public class UntilTool {
     private static final String TAG = "MiniGame_UntilTool";
 
@@ -47,6 +46,26 @@ public class UntilTool {
         SharedPreferences sp = context.getSharedPreferences("data", MODE_PRIVATE);
         return sp.getInt(playerId, 0);
     }
+
+    public static void updateScoreTime(Context context, String playerId) {
+        SharedPreferences pref = context.getSharedPreferences("update_time", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putLong(playerId, System.currentTimeMillis());
+        boolean isSuccess = editor.commit();
+        if (isSuccess) {
+            HMSLogHelper.getSingletonInstance().debug(TAG, "addInfo: success add !");
+        }
+    }
+
+    public static long getLastScoreUpdateTime(Context context, String playerId) {
+        if (TextUtils.isEmpty(playerId)) {
+            HMSLogHelper.getSingletonInstance().debug(TAG, "playerId is empty !");
+            return 0;
+        }
+        SharedPreferences sp = context.getSharedPreferences("update_time", MODE_PRIVATE);
+        return sp.getLong(playerId, 0);
+    }
+
 
     public static int getScoreInt(String productId) {
         if (("20points").equals(productId)) {

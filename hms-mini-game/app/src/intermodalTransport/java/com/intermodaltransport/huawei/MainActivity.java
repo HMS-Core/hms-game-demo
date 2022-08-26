@@ -50,6 +50,7 @@ import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo;
 import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack;
 import com.huawei.updatesdk.service.otaupdate.UpdateKey;
 import com.intermodaltransport.huawei.activity.HomeActivity;
+import com.intermodaltransport.huawei.activity.ShoppingActivity;
 
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.jetbrains.annotations.NotNull;
@@ -246,9 +247,11 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(
                         e -> {
+                            HMSLogHelper.getSingletonInstance().debug(TAG, "get current player failed");
                             if (e instanceof ApiException) {
                                 String result = "rtnCode:" + ((ApiException) e).getStatusCode();
                                 dismissDialog();
+                                // 登录检验成功之后，进入游戏，把数据存入本地,设置全局的用户ID变量。
                                 HMSLogHelper.getSingletonInstance().debug(TAG, result);
                                 if (((ApiException) e).getStatusCode() == 7400 || ((ApiException) e).getStatusCode() == 7018) {
                                     // 7400表示用户未签署联运协议，需要继续调用init接口

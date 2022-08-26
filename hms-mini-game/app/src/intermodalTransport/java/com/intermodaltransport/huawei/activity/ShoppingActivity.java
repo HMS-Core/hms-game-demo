@@ -26,10 +26,14 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.huawei.gamecenter.minigame.huawei.R;
 import com.huawei.gamecenter.minigame.huawei.Until.Constant;
 import com.huawei.gamecenter.minigame.huawei.Until.HMSLogHelper;
+import com.huawei.gamecenter.minigame.huawei.Until.TimeUtil;
 import com.huawei.gamecenter.minigame.huawei.Until.UntilTool;
 import com.huawei.hmf.tasks.Task;
 import com.huawei.hms.iap.Iap;
@@ -51,11 +55,14 @@ import com.huawei.hms.iap.util.IapClientHelper;
 import com.huawei.hms.jos.games.player.Player;
 import com.huawei.hms.support.api.client.Status;
 import com.intermodaltransport.huawei.ExitApplication;
+import com.intermodaltransport.huawei.SubscribeManager;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.huawei.gamecenter.minigame.huawei.Until.Constant.OBTAIN_BONUS_POINTS_EVERY_DAY;
 
 public class ShoppingActivity extends Activity implements View.OnClickListener {
     private static final String TAG = "ShoppingActivity";
@@ -64,7 +71,8 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
     private TextView scoreText;
     private Player currentPlayer;
     private String currentProductId;
-    private List<ProductInfo> mProductList;
+    private List<ProductInfo> mProductList = new ArrayList<>();
+    private ConstraintLayout obtainScoreLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,14 +82,12 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_shopping_beta);
         currentPlayer = getIntent().getParcelableExtra(Constant.PLAYER_INFO_KEY);
         currentId = currentPlayer.getPlayerId();
-        currentScore = UntilTool.getInfo(this, currentId);
+
         initView();
-        if (UntilTool.isNetSystemUsable(this)) {
-            // 判断当前是否有网络链接
-            showProductInfo();
-        }
+        checkIapEnv();
         ExitApplication.getInstance().addActivity(this);
     }
+
 
     @SuppressLint("DefaultLocale")
     private void showProductInfo() {
@@ -106,7 +112,7 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
             if (e instanceof IapApiException) {
                 IapApiException apiException = (IapApiException) e;
                 int returnCode = apiException.getStatusCode();
-                HMSLogHelper.getSingletonInstance().debug(TAG, String.format("obtainProductInfo API return code is :%d", returnCode));
+                HMSLogHelper.getSingletonInstance().debug(TAG, "returnCode: " + returnCode);
             }
         });
     }
@@ -125,44 +131,73 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    private void initData(String productId) {
-        HMSLogHelper.getSingletonInstance().debug(TAG, "initData productId:" + productId);
-        updateScore(currentPlayer.getPlayerId(), UntilTool.getScoreInt(productId));
+    @Override
+    protected void onResume() {
+        super.onResume();
+        currentScore = UntilTool.getInfo(this, currentId);
+        scoreText.setText(String.valueOf(currentScore));
+        SubscribeManager.getSingletonInstance().checkSubIsValidAndRefreshView(obtainScoreLayout, this, currentId, null);
     }
+
 
     @SuppressLint("SetTextI18n")
     private void initView() {
+        obtainScoreLayout = findViewById(R.id.obtain_score_layout);
+        obtainScoreLayout.setOnClickListener(ShoppingActivity.this);
         findViewById(R.id.shop_layout_product_background_first).setOnClickListener(ShoppingActivity.this);
         findViewById(R.id.shop_layout_product_background_second).setOnClickListener(ShoppingActivity.this);
         findViewById(R.id.btn_shopping_back).setOnClickListener(ShoppingActivity.this);
+        findViewById(R.id.purchase_monthly_card_layout).setOnClickListener(ShoppingActivity.this);
         scoreText = findViewById(R.id.shop_score_show_text);
-        scoreText.setText(String.valueOf(currentScore));
+        scoreText.setText(currentScore + "");
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.shop_layout_product_background_first) {
-            if (UntilTool.isNetSystemUsable(this) && mProductList != null) {
-                checkIapEnv(mProductList.get(0).getProductId());
-            } else {
-                HMSLogHelper.getSingletonInstance().debug(TAG, "isNetSystemUsable is false or mProductList is null, please check !");
-                return;
-            }
-        }
-
-        if (v.getId() == R.id.shop_layout_product_background_second) {
-            if (UntilTool.isNetSystemUsable(this) && mProductList != null) {
-                checkIapEnv(mProductList.get(1).getProductId());
-            } else {
-                HMSLogHelper.getSingletonInstance().debug(TAG, "isNetSystemUsable is false or mProductList is null, please check !");
-                return;
-            }
-        }
-
-        if (v.getId() == R.id.btn_shopping_back) {
-            onBackPressed();
+        switch (v.getId()) {
+            case R.id.shop_layout_product_background_first:
+                if (mProductList == null || mProductList.size() == 0) {
+                    HMSLogHelper.getSingletonInstance().debug(TAG, "mProductList is null, please check !");
+                    return;
+                }
+                startPay(mProductList.get(0).getProductId());
+                break;
+            case R.id.shop_layout_product_background_second:
+                if (mProductList == null || mProductList.size() < 1) {
+                    HMSLogHelper.getSingletonInstance().debug(TAG, "mProductList is null, please check !");
+                    return;
+                }
+                startPay(mProductList.get(1).getProductId());
+                break;
+            case R.id.btn_shopping_back:
+                onBackPressed();
+                break;
+            case R.id.purchase_monthly_card_layout:
+                Intent intent = new Intent(ShoppingActivity.this, SubscriptionPurchaseActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(Constant.PLAYER_INFO_KEY, currentPlayer);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                break;
+            case R.id.obtain_score_layout:
+                long lastUpdateTime = UntilTool.getLastScoreUpdateTime(this, currentId);
+                if (TimeUtil.isSameDayOfMillis(lastUpdateTime, System.currentTimeMillis())) {
+                    Toast.makeText(this, getString(R.string.already_received_tips), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                UntilTool.updateScoreTime(this, currentId);
+                currentScore = currentScore + OBTAIN_BONUS_POINTS_EVERY_DAY;
+                scoreText.setText(String.valueOf(currentScore));
+                UntilTool.addInfo(this, currentId, currentScore);
+                HMSLogHelper.getSingletonInstance().debug(TAG, "updateScore currentScore:" + currentScore);
+                obtainScoreLayout.setBackgroundResource(R.drawable.button_already_obtain_score);
+                break;
+            default:
+                break;
         }
     }
+
 
     /**
      * 启动支付购买
@@ -216,13 +251,14 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
             switch (purchaseResultInfo.getReturnCode()) {
                 case OrderStatusCode.ORDER_STATE_CANCEL:
                     // 用户取消
+
                     break;
                 case OrderStatusCode.ORDER_STATE_FAILED:
                 case OrderStatusCode.ORDER_STATE_DEFAULT_CODE:
                 case OrderStatusCode.ORDER_PRODUCT_OWNED:
                     // 检查是否存在未发货商品
                     HMSLogHelper.getSingletonInstance().debug(TAG, "product is owned !");
-                    obtainProduct(currentProductId);
+                    obtainOwnedProduct();
                     break;
                 case OrderStatusCode.ORDER_STATE_SUCCESS:
                     // 支付成功
@@ -238,7 +274,8 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
                     }
                     assert inAppPurchaseDataBean != null;
                     String purchaseToken = inAppPurchaseDataBean.getPurchaseToken();
-                    consumeGood(currentProductId, purchaseToken);
+                    updateScore(currentPlayer.getPlayerId(), UntilTool.getScoreInt(currentProductId));
+                    consumeGood(purchaseToken);
                     break;
                 default:
                     break;
@@ -264,8 +301,7 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
         HMSLogHelper.getSingletonInstance().debug(TAG, "updateScore currentScore:" + currentScore);
     }
 
-    @SuppressLint("DefaultLocale")
-    private void obtainProduct(String currentProductId) {
+    private void obtainOwnedProduct() {
         // 构造一个OwnedPurchasesReq对象
         OwnedPurchasesReq ownedPurchasesReq = new OwnedPurchasesReq();
         // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
@@ -283,9 +319,10 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
                     // 如果验签成功，确认每个商品的购买状态。确认商品已支付后，检查此前是否已发过货，未发货则进行发货操作。发货成功后执行消耗操作
                     try {
                         InAppPurchaseData inAppPurchaseDataBean = new InAppPurchaseData(inAppPurchaseData);
-                        consumeGood(currentProductId, inAppPurchaseDataBean.getPurchaseToken());
-                    } catch (JSONException e) {
-                        HMSLogHelper.getSingletonInstance().error(TAG, "InAppPurchaseData json  parse error.");
+                        updateScore(currentPlayer.getPlayerId(), UntilTool.getScoreInt(currentProductId));
+                        consumeGood(inAppPurchaseDataBean.getPurchaseToken());
+                    } catch (JSONException ignored) {
+                        HMSLogHelper.getSingletonInstance().debug(TAG, "other error");
                     }
                 }
             }
@@ -301,9 +338,8 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
         });
     }
 
-    private void consumeGood(String productId, String purchaseToken) {
-        // 注意：所有补单商品先发货再进行消耗
-        initData(productId);
+
+    private void consumeGood(String purchaseToken) {
         // 构造一个ConsumeOwnedPurchaseReq对象
         ConsumeOwnedPurchaseReq req = new ConsumeOwnedPurchaseReq();
         req.setPurchaseToken(purchaseToken);
@@ -326,17 +362,13 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
     /**
      * checkIapEnv   检查当前支付环境是否满足要求，例如HMS Core后台华为账号是否是已登录状态
      */
-    private void checkIapEnv(String productId) {
-        if (TextUtils.isEmpty(productId)) {
-            HMSLogHelper.getSingletonInstance().debug(TAG, "productId  is empty.");
-            return;
-        }
+    private void checkIapEnv() {
         // 获取调用接口的Activity对象
         final Activity activity = ShoppingActivity.this;
         Task<IsEnvReadyResult> task = Iap.getIapClient(activity).isEnvReady();
         task.addOnSuccessListener(result -> {
-            // 检测当前支付环境没有问题后，可以发起支付
-            startPay(productId);
+            // 展示商品信息
+            showProductInfo();
         });
         task.addOnFailureListener(e -> {
             if (e instanceof IapApiException) {
@@ -348,8 +380,8 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
                         try {
                             // 启动IAP返回的登录页面
                             status.startResolutionForResult(activity, Constant.START_IS_ENV_READY_REQUEST_CODE);
-                        } catch (Exception e1) {
-                            HMSLogHelper.getSingletonInstance().debug(TAG, e1.getMessage());
+                        } catch (IntentSender.SendIntentException exp) {
+                            HMSLogHelper.getSingletonInstance().debug(TAG, "other error");
                         }
                     }
                 } else if (status.getStatusCode() == OrderStatusCode.ORDER_ACCOUNT_AREA_NOT_SUPPORTED) {
@@ -358,7 +390,7 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
                 }
             } else {
                 // 其他外部错误
-                HMSLogHelper.getSingletonInstance().debug(TAG, "IAP API isEnvReady others error.");
+                HMSLogHelper.getSingletonInstance().debug(TAG, "other error");
             }
         });
     }

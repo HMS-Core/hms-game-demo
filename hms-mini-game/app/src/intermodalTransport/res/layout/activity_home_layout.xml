@@ -40,7 +40,7 @@
         tools:ignore="MissingConstraints,SmallSp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/textView3"
+        android:id="@+id/score_text_view"
         android:layout_width="80dp"
         android:layout_height="40dp"
         android:layout_marginTop="32dp"
@@ -64,6 +64,29 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/obtain_score_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score_text_view"
+        android:visibility="gone"
+        android:background="@drawable/button_already_obtain_score"
+        >
+
+        <TextView
+            android:id="@+id/tv_obtain_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="领取20积分"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            tools:ignore="MissingConstraints" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView

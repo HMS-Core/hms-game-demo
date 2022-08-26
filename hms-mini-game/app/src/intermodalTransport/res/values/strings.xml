@@ -16,7 +16,7 @@
   -->
 
 <resources>
-    <string name="app_name" translatable="false">家园保卫战</string>
+    <string name="app_name" translatable="false">游友家园</string>
     <string name="title_activity_ranking" translatable="false">ScrollingActivity</string>
     <string name="large_text" translatable="false">
         "Material is the metaphor.\n\n"

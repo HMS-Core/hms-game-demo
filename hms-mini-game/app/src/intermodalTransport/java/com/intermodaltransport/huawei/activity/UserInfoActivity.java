@@ -32,6 +32,10 @@ import com.huawei.gamecenter.minigame.huawei.Until.Constant;
 import com.huawei.gamecenter.minigame.huawei.Until.HMSLogHelper;
 import com.huawei.hmf.tasks.Task;
 import com.huawei.hms.common.ApiException;
+import com.huawei.hms.iap.Iap;
+import com.huawei.hms.iap.IapClient;
+import com.huawei.hms.iap.entity.StartIapActivityReq;
+import com.huawei.hms.iap.entity.StartIapActivityResult;
 import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.player.Player;
 import com.huawei.hms.jos.games.playerstats.GamePlayerStatistics;
@@ -62,7 +66,7 @@ public class UserInfoActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_userinfo);
         initView();
-        getGamePlayerStatistics(currentAuthId);
+        getGamePlayerStatistics();
         Player player = getIntent().getParcelableExtra(Constant.PLAYER_INFO_KEY);
         photoUri = getIntent().getStringExtra(Constant.PLAYER_ICON_URI);
         initData(player);
@@ -86,51 +90,73 @@ public class UserInfoActivity extends Activity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void getGamePlayerStatistics(AuthHuaweiId authHuaweiId) {
-        if (authHuaweiId == null) {
-            HMSLogHelper.getSingletonInstance().debug(TAG, "authHuaWeiId is null ,please login  again");
-            HuaweiIdAuthParams authParams = new HuaweiIdAuthParamsHelper(HuaweiIdAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).createParams();
-            HuaweiIdAuthService service = HuaweiIdAuthManager.getService(this, authParams);
-            startActivityForResult(service.getSignInIntent(), Constant.SIGN_IN_REQUEST_CODE);
-        } else {
-            GamePlayerStatisticsClient playerStatsClient;
-            //noinspection deprecation
-            playerStatsClient = Games.getGamePlayerStatsClient(this, authHuaweiId);
-            Task<GamePlayerStatistics> task = playerStatsClient.getGamePlayerStatistics(false);
-            task.addOnSuccessListener(gamePlayerStatistics -> {
-                if (gamePlayerStatistics != null) {
-                    averageOnLineMinutes.setText("" + gamePlayerStatistics.getAverageOnLineMinutes() + getString(R.string.userinfo_minute));
-                    lastGameTime.setText("" + gamePlayerStatistics.getDaysFromLastGame() + getString(R.string.userinfo_days));
-                    paymentTimes.setText("" + gamePlayerStatistics.getPaymentTimes() + getString(R.string.userinfo_times));
-                    onlineTimes.setText("" + gamePlayerStatistics.getOnlineTimes() + getString(R.string.userinfo_times));
-                    payAmountRange.setText("" + gamePlayerStatistics.getTotalPurchasesAmountRange());
-                } else {
-                    // 当gamePlayerStatistics获取为null时，界面默认刷新所有数据为0。
-                    int defaultNumber = 0;
-                    averageOnLineMinutes.setText("" + defaultNumber + getString(R.string.userinfo_minute));
-                    lastGameTime.setText("" + defaultNumber + getString(R.string.userinfo_days));
-                    paymentTimes.setText("" + defaultNumber + getString(R.string.userinfo_times));
-                    onlineTimes.setText("" + defaultNumber + getString(R.string.userinfo_times));
-                    payAmountRange.setText("" + defaultNumber);
-                }
-            }).addOnFailureListener(e -> {
-                if (e instanceof ApiException) {
-                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
-                    HMSLogHelper.getSingletonInstance().debug(TAG, "getGamePlayerStatistics API return code is : " + result);
-                }
-            });
-        }
+    private void getGamePlayerStatistics() {
+        GamePlayerStatisticsClient playerStatsClient = Games.getGamePlayerStatsClient(this);
+        Task<GamePlayerStatistics> task = playerStatsClient.getGamePlayerStatistics(false);
+        task.addOnSuccessListener(gamePlayerStatistics -> {
+            if (gamePlayerStatistics != null) {
+                averageOnLineMinutes.setText(checkAndConversionNumbers(gamePlayerStatistics.getAverageOnLineMinutes()) + getString(R.string.userinfo_minute));
+                lastGameTime.setText(checkAndConversionNumbers(gamePlayerStatistics.getDaysFromLastGame()) + getString(R.string.userinfo_days));
+                paymentTimes.setText(checkAndConversionNumbers(gamePlayerStatistics.getPaymentTimes()) + getString(R.string.userinfo_times));
+                onlineTimes.setText(checkAndConversionNumbers(gamePlayerStatistics.getOnlineTimes()) + getString(R.string.userinfo_times));
+                payAmountRange.setText(convertTotalPaymentRange(gamePlayerStatistics.getTotalPurchasesAmountRange()));
+            } else {
+                // 当gamePlayerStatistics获取为null时，界面默认刷新所有数据为0。
+                int defaultNumber = 0;
+                averageOnLineMinutes.setText("" + defaultNumber + getString(R.string.userinfo_minute));
+                lastGameTime.setText("" + defaultNumber + getString(R.string.userinfo_days));
+                paymentTimes.setText("" + defaultNumber + getString(R.string.userinfo_times));
+                onlineTimes.setText("" + defaultNumber + getString(R.string.userinfo_times));
+                payAmountRange.setText(convertTotalPaymentRange(defaultNumber));
+            }
+        }).addOnFailureListener(e -> {
+            if (e instanceof ApiException) {
+                String result = "rtnCode:" + ((ApiException) e).getStatusCode();
+                HMSLogHelper.getSingletonInstance().debug(TAG, "getGamePlayerStatistics API return code is : " + result);
+            }
+        });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constant.SIGN_IN_REQUEST_CODE) {
-            Task<AuthHuaweiId> authIdTask = HuaweiIdAuthManager.parseAuthResultFromIntent(data);
-            authIdTask.addOnSuccessListener(authHuaWeiId -> {
-                HMSLogHelper.getSingletonInstance().debug(TAG, "sign in success.");
-                getGamePlayerStatistics(authHuaWeiId);
-            }).addOnFailureListener(e -> HMSLogHelper.getSingletonInstance().debug(TAG, "parseAuthResultFromIntent failed"));
+    // 当返回-1时，转换成0
+    private String checkAndConversionNumbers(float data) {
+        if (String.valueOf(data).equals("-1.0")) {
+            return "0";
+        }
+        return String.valueOf(data);
+    }
+
+    // 当返回-1时，转换成0
+    private String checkAndConversionNumbers(int data) {
+        if (String.valueOf(data).equals("-1")) {
+            return "0";
+        }
+        return String.valueOf(data);
+    }
+
+    /**
+     * @param totalPurchasesAmountRange 使用1到6的数字表示。
+     * @return 当前玩家12个月内总付费额度的区间，以美元为单位。
+     */
+    private String convertTotalPaymentRange(int totalPurchasesAmountRange) {
+        switch (totalPurchasesAmountRange) {
+            // 10美元以下
+            case 2:
+                return "<10$";
+            // 10美元以上（含10美元），50美元以下。
+            case 3:
+                return ">=10$" + getString(R.string.and) + "<50$";
+            // 50美元以上（含50美元），300美元以下。
+            case 4:
+                return ">=50$" + getString(R.string.and) + "<300$";
+            // 300美元以上（含300美元），1000美元以下。
+            case 5:
+                return ">=300$" + getString(R.string.and) + "<1000$";
+            // 1000美元以上。
+            case 6:
+                return ">=1000$";
+            // 无消费。
+            default:
+                return getString(R.string.no_consumption);
         }
     }
 
@@ -141,8 +167,24 @@ public class UserInfoActivity extends Activity {
         onlineTimes = findViewById(R.id.text_online_times);
         payAmountRange = findViewById(R.id.text_pay_amount_range);
         findViewById(R.id.user_press_back_button_id).setOnClickListener(v -> onBackPressed());
+        findViewById(R.id.manager).setOnClickListener(v -> startIapActivity());
         displayName = findViewById(R.id.text_display_name);
         photoSnap = findViewById(R.id.image_photo_head);
+    }
+
+    private void startIapActivity() {
+        // 创建一个StartIapActivityReq对象
+        StartIapActivityReq req = new StartIapActivityReq();
+        req.setType(StartIapActivityReq.TYPE_SUBSCRIBE_MANAGER_ACTIVITY);
+        IapClient mClient = Iap.getIapClient(this);
+        Task<StartIapActivityResult> task = mClient.startIapActivity(req);
+        task.addOnSuccessListener(result -> {
+            HMSLogHelper.getSingletonInstance().debug(TAG, "onSuccess");
+            // 请求成功，需拉起IAP返回的页面
+            if (result != null) {
+                result.startActivity(UserInfoActivity.this);
+            }
+        }).addOnFailureListener(e -> HMSLogHelper.getSingletonInstance().debug(TAG, "onFailure"));
     }
 
     @Override
