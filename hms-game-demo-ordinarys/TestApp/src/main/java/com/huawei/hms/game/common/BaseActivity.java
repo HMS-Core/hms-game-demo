@@ -64,6 +64,11 @@ public abstract class BaseActivity extends Activity {
         return new AccountAuthParamsHelper(AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).createParams();
     }
 
+
+    public AccountAuthParams getUnauthorizedAccountAuthParams() {
+        return new AccountAuthParamsHelper().setId().createParams();
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

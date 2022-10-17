@@ -60,6 +60,7 @@ import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo;
 import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack;
 import com.huawei.updatesdk.service.otaupdate.UpdateKey;
 import com.intermodaltransport.huawei.ExitApplication;
+import com.intermodaltransport.huawei.MainActivity;
 import com.intermodaltransport.huawei.SubscribeManager;
 
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
@@ -79,6 +80,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static com.huawei.gamecenter.minigame.huawei.Until.Constant.OBTAIN_BONUS_POINTS_EVERY_DAY;
+import static com.huawei.updatesdk.service.otaupdate.UpdateStatusCode.NO_UPGRADE_INFO;
 
 
 public class HomeActivity extends Activity implements View.OnClickListener {
@@ -101,7 +103,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         currentPlayer = getIntent().getParcelableExtra(Constant.PLAYER_INFO_KEY);
         photoUri = getIntent().getStringExtra(Constant.PLAYER_ICON_URI);
         initView();
-        currentId = currentPlayer.getPlayerId();
+        currentId = currentPlayer.getOpenId();
         displayNameView = findViewById(R.id.text_home_display_name);
         // 游戏登录成功之后，调用补单接口进行检查是否有掉单商品未发货。
         obtainProduct();
@@ -111,11 +113,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onStart() {
         super.onStart();
-        if (currentPlayer == null) {
-            HMSLogHelper.getSingletonInstance().debug(TAG, "player obj is null,please login first !");
-        } else {
-            initData(currentPlayer);
-        }
+        initData(currentPlayer);
     }
 
     private void initView() {
@@ -167,8 +165,6 @@ public class HomeActivity extends Activity implements View.OnClickListener {
     private void initData(Player player) {
         if (TextUtils.isEmpty(currentId)) {
             HMSLogHelper.getSingletonInstance().debug(TAG, "initData player is null ,please login  again");
-            // 添加登录逻辑
-            signIn();
         } else {
             setCircleImageView(photoUri);
             displayNameView.setText(player.getDisplayName());
@@ -203,175 +199,12 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         client.checkAppUpdate(this, new UpdateCallBack(this));
     }
 
-    /**
-     * Log in ,and return the login information (or error message) of the Huawei account that has
-     * logged in to this application. During this process, the authorization interface will not be
-     * displayed to Huawei account users.
-     * <p>
-     * 登录，返回已登录此应用的华为帐号登录信息(或者错误信息)，在此过程中不会展现授权界面给华为帐号用户。
-     */
-    public void signIn() {
-        // 一定要在init成功后，才可以调用登录接口
-        // Be sure to call the login API after the init is successful
-        Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getScopeParams()).silentSignIn();
-        authAccountTask
-                .addOnSuccessListener(
-                        authAccount -> {
-                            HMSLogHelper.getSingletonInstance().debug(TAG, "signIn success");
-                            photoUri = authAccount.getAvatarUriString();
-                            getCurrentPlayer();
-                        })
-                .addOnFailureListener(
-                        e -> {
-                            if (e instanceof ApiException) {
-                                ApiException apiException = (ApiException) e;
-                                HMSLogHelper.getSingletonInstance().debug(TAG, "signIn failed:" + apiException.getStatusCode());
-                                signInNewWay();
-                            }
-                        });
-    }
-
-    /**
-     * Obtain the Intent of the Huawei account login authorization page, and open the Huawei account
-     * login authorization page by calling startActivityForResult(Intent, int).
-     * <p>
-     * 获取到华为帐号登录授权页面的Intent，并通过调用startActivityForResult(Intent, int)打 开华为帐号登录授
-     * 权页面。
-     */
-    public void signInNewWay() {
-        Intent intent = AccountAuthManager.getService(HomeActivity.this, getScopeParams()).getSignInIntent();
-        startActivityForResult(intent, SIGN_IN_INTENT);
-    }
-
-    public AccountAuthParams getScopeParams() {
-        return new AccountAuthParamsHelper(AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).createParams();
-    }
-
-    /**
-     * Get the currently logged in player object and get player information from the ‘Player’ object.
-     * <p>
-     * 获取当前登录的玩家对象，从Player对象中获取玩家信息。
-     */
-    public void getCurrentPlayer() {
-        PlayersClientImpl client = (PlayersClientImpl) Games.getPlayersClient(this);
-        Task<Player> task = client.getCurrentPlayer();
-        task.addOnSuccessListener(
-                player -> {
-                    String result = "display:" + player.getDisplayName();
-                    if (!TextUtils.isEmpty(result)) {
-                        HMSLogHelper.getSingletonInstance().debug(TAG, result);
-                    }
-                    checkSign(player);
-                    initData(player);
-                })
-                .addOnFailureListener(
-                        e -> {
-                            if (e instanceof ApiException) {
-                                String result = "rtnCode:" + ((ApiException) e).getStatusCode();
-                                HMSLogHelper.getSingletonInstance().debug(TAG, result);
-                                if (7400 == ((ApiException) e).getStatusCode() || 7018 == ((ApiException) e).getStatusCode()) {
-                                    // 7400表示用户未签署联运协议，需要继续调用init接口
-                                    // 7018表示初始化失败，需要继续调用init接口
-                                    // error code 7400 indicates that the user has not agreed to the joint operations privacy agreement
-                                    // error code 7018 indicates that the init API is not called.
-                                    HMSLogHelper.getSingletonInstance().error(TAG, e.getMessage());
-                                }
-                            }
-                        });
-    }
-
-    /**
-     * 登录验签
-     *
-     * @param player 玩家对象
-     */
-    @SuppressWarnings("deprecation")
-    private void checkSign(Player player) {
-        if (player == null) {
-            HMSLogHelper.getSingletonInstance().error(TAG, "Player obj is null, please signIn again!");
-            return;
-        }
-        @SuppressLint("AllowAllHostnameVerifier") OkHttpClient client = new OkHttpClient().newBuilder()
-                .hostnameVerifier(new AllowAllHostnameVerifier())
-                .build();
-        // 通过FormBody对象构建Builder来添加表单参数
-        FormBody mFormBody = new FormBody.Builder()
-                .add("method", "external.hms.gs.checkPlayerSign")
-                .add("appId", "105174767")
-                .add("cpId", "70086000159286487")
-                .add("ts", player.getSignTs())
-                .add("playerId", player.getPlayerId())
-                .add("playerLevel", player.getLevel() + "")
-                .add("playerSSign", player.getPlayerSign())
-                .add("openId", player.getOpenId())
-                .add("openIdSign", player.getOpenIdSign())
-                .build();
-        Request request = new Request.Builder()
-                .url("https://jos-api.cloud.huawei.com/gameservice/api/gbClientApi")
-                .post(mFormBody)
-                .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                HMSLogHelper.getSingletonInstance().error(TAG, e.getMessage());
-                runOnUiThread(() -> Toast.makeText(HomeActivity.this, "check sign failed", Toast.LENGTH_SHORT).show());
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                HMSLogHelper.getSingletonInstance().debug(TAG, response.toString());
-                runOnUiThread(() -> {
-                    // 登录检验成功之后，进入游戏，把数据存入本地,设置全局的用户ID变量。
-                    currentId = player.getPlayerId();
-                });
-            }
-        });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (SIGN_IN_INTENT == requestCode) {
-            if (null == data) {
-                HMSLogHelper.getSingletonInstance().debug(TAG, "signIn intent is null");
-                return;
-            }
-            String jsonSignInResult = data.getStringExtra("HUAWEIID_SIGNIN_RESULT");
-            if (TextUtils.isEmpty(jsonSignInResult)) {
-                HMSLogHelper.getSingletonInstance().debug(TAG, "SignIn result is empty");
-                return;
-            }
-            try {
-                AccountAuthResult signInResult = new AccountAuthResult().fromJson(jsonSignInResult);
-                if (0 == signInResult.getStatus().getStatusCode()) {
-                    HMSLogHelper.getSingletonInstance().debug(TAG, "Sign in success.");
-                    photoUri = signInResult.getAccount().getAvatarUriString();
-                    getCurrentPlayer();
-                } else {
-
-                    HMSLogHelper.getSingletonInstance().debug(TAG, "Sign in failed: " + signInResult.getStatus().getStatusCode());
-                    Toast.makeText(HomeActivity.this, "Sign in failed: " + signInResult.getStatus().getStatusCode(), Toast.LENGTH_SHORT).show();
-                }
-            } catch (JSONException var7) {
-                HMSLogHelper.getSingletonInstance().debug(TAG, "Failed to convert json from signInResult.");
-                Toast.makeText(HomeActivity.this, "Failed to convert json from signInResult.", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            HMSLogHelper.getSingletonInstance().debug(TAG, "unknown requestCode in onActivityResult");
-            Toast.makeText(HomeActivity.this, "unknown requestCode in onActivityResult", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_start_game_home:
-                if (TextUtils.isEmpty(currentId)){
-                    signIn();
-                    break;
-                }
                 Intent intent = new Intent(this, GameActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(Constant.PLAYER_INFO_KEY, currentPlayer);
@@ -521,7 +354,11 @@ public class HomeActivity extends Activity implements View.OnClickListener {
                 int rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, -99);
                 // 返回失败信息
                 String rtnMessage = intent.getStringExtra(UpdateKey.FAIL_REASON);
-                Toast.makeText(HomeActivity.this, getString(R.string.update_des) + status, Toast.LENGTH_LONG).show();
+                if (status == NO_UPGRADE_INFO) {
+                    Toast.makeText(HomeActivity.this, getString(R.string.update_no_gradeinfo), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(HomeActivity.this, getString(R.string.update_des) + status, Toast.LENGTH_LONG).show();
+                }
                 // 强制更新应用时，弹出对话框后用户是否点击“退出应用”按钮
                 boolean isExit = intent.getBooleanExtra(UpdateKey.MUST_UPDATE, false);
                 HMSLogHelper.getSingletonInstance().debug(TAG, "rtnCode = " + rtnCode + "rtnMessage = " + rtnMessage);

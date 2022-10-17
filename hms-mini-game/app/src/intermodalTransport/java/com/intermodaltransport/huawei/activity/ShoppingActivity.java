@@ -81,7 +81,7 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_shopping_beta);
         currentPlayer = getIntent().getParcelableExtra(Constant.PLAYER_INFO_KEY);
-        currentId = currentPlayer.getPlayerId();
+        currentId = currentPlayer.getOpenId();
 
         initView();
         checkIapEnv();
@@ -274,7 +274,7 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
                     }
                     assert inAppPurchaseDataBean != null;
                     String purchaseToken = inAppPurchaseDataBean.getPurchaseToken();
-                    updateScore(currentPlayer.getPlayerId(), UntilTool.getScoreInt(currentProductId));
+                    updateScore(currentPlayer.getOpenId(), UntilTool.getScoreInt(currentProductId));
                     consumeGood(purchaseToken);
                     break;
                 default:
@@ -319,7 +319,7 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
                     // 如果验签成功，确认每个商品的购买状态。确认商品已支付后，检查此前是否已发过货，未发货则进行发货操作。发货成功后执行消耗操作
                     try {
                         InAppPurchaseData inAppPurchaseDataBean = new InAppPurchaseData(inAppPurchaseData);
-                        updateScore(currentPlayer.getPlayerId(), UntilTool.getScoreInt(currentProductId));
+                        updateScore(currentPlayer.getOpenId(), UntilTool.getScoreInt(currentProductId));
                         consumeGood(inAppPurchaseDataBean.getPurchaseToken());
                     } catch (JSONException ignored) {
                         HMSLogHelper.getSingletonInstance().debug(TAG, "other error");

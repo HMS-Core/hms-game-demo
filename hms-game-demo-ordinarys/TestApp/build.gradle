@@ -8,7 +8,7 @@ android {
     defaultConfig {
         versionName = app_versionName
         versionCode = app_versionCode
-        applicationId "com.sxx.fangchengmi.huawei"
+        applicationId "com.xxx.huawei"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
     }

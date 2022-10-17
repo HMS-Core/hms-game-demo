@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">MiNiGame</string>
+    <string name="app_name" translatable="false">游友家园</string>
     <string name="Game_Congratulations" translatable="false">恭喜通过本关游戏！</string>
     <string name="huawei_login">华为帐号登录</string>
-    <string name="userinfo_nickname">昵称</string>
-    <string name="userinfo_gamerecored">游戏记录</string>
-    <string name="userinfo_averageyeartime">最近一年平均在线时长：</string>
-    <string name="userinfo_recentTime">最近一年在线次数：</string>
-    <string name="userinfo_lastGameTime">距离上次玩游戏的时间：</string>
-    <string name="userinfo_payTmes">最近一年支付总次数：</string>
-    <string name="userinfo_payAmount">最近一年付款总额区间：</string>
-    <string name="userinfo_setting">设置</string>
-    <string name="userinfo_isJoinRank">参与排行榜</string>
+    <string name="user_information_activity_nickname">昵称</string>
+    <string name="user_info_game_record_text">游戏记录</string>
+    <string name="user_average_year_time">最近一年平均在线时长:</string>
+    <string name="user_recent_time">最近一年在线次数:</string>
+    <string name="user_last_game_time">距离上次玩游戏的时间:</string>
+    <string name="user_pay_times_text_desc">最近一年支付总次数:</string>
+    <string name="user_pay_amount_desc">最近一年付款总额区间:</string>
+    <string name="user_setting_button_text">设置</string>
+    <string name="user_is_join_rank_button_text">参与排行榜</string>
     <string name="shopping_more">更多商品</string>
     <string name="shopping_stayTuned">敬请期待</string>
     <string name="shopping_twentyScore">20积分</string>
@@ -40,12 +40,31 @@
     <string name="GameToast_gameAgain">再来一局</string>
     <string name="update_des">检测升级更新状态码：</string>
     <string name="update_no_gradeinfo">当前没有升级信息!</string>
-    <string name="userinfo_payrecorde">消费记录</string>
+    <string name="user_pay_record_text">消费记录</string>
     <string name="userinfo_minute">分钟</string>
     <string name="userinfo_times">次</string>
     <string name="userinfo_days">天</string>
     <string name="game_logining">正在登录.....</string>
     <string name="purchase_monthly_card">购买月卡</string>
+    <string name="home_user_information_button">个人信息</string>
+    <string name="home_score_info_button">积分</string>
+    <string name="home_check_update_button">升级</string>
+    <string name="home_shopping_market_button">商城</string>
+    <string name="home_rankings_button">排行榜</string>
+    <string name="home_archive_button_text">存档</string>
+    <string name="home_achieve_button_text">成就</string>
+    <string name="home_start_game_button_text">开始游戏</string>
+    <string name="shop_constant_text_ninety">90</string>
+    <string name="shop_back_button_text">返回</string>
+    <string name="shop_product_price_show_simple_text">¥0.3</string>
+    <string name="game_top_level_text">关卡</string>
+    <string name="game_time_count_text">45 s</string>
+    <string name="manager_button_text">管理</string>
+    <string name="subscription_management">订阅管理</string>
     <string name="subscription_now">马上订阅</string>
     <string name="bonus_point_claiming_rules">每日可免费领取20积分一次</string>
+    <string name="no_consumption">无消费</string>
+    <string name="and">且</string>
+    <string name="unauthorized_login">华为帐号快捷登录</string>
+    <string name="unauthorized_login_tips">仅登录关联华为帐号，不获取其他个人信息</string>
 </resources>

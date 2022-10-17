@@ -47,10 +47,13 @@ import com.huawei.hms.support.account.request.AccountAuthParamsHelper;
 import com.huawei.hms.support.account.result.AccountAuthResult;
 import com.huawei.hms.support.account.result.AuthAccount;
 import com.intermodaltransport.huawei.ExitApplication;
+import com.intermodaltransport.huawei.activity.HomeActivity;
+import com.intermodaltransport.huawei.activity.ShoppingActivity;
 
 import org.json.JSONException;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
@@ -73,6 +76,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private Button gameOnPause;
     private AlertDialog alertDialog;
     private CountDownTimer countDownTimer;
+    private static int REQ_SHOPPING = 11111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +95,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (UntilTool.getInfo(this, mPlayer.getPlayerId()) == 0) {
-            currentScore = 30;
-        }
-        currentScore = UntilTool.getInfo(this, mPlayer.getPlayerId());
+    protected void onResume() {
+        super.onResume();
+        currentScore = UntilTool.getInfo(this, mPlayer.getOpenId());
         initData(mPlayer);
     }
 
@@ -155,13 +156,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.game_onStart) {
-            gameDrawView.gameSwitch(false);
-            gameOnStart.setVisibility(View.GONE);
-            gameOnPause.setVisibility(View.VISIBLE);
-            initTimeCount(timeSecond);
+            if (currentScore <= 0) {
+                gameDrawView.gameSwitch(true);
+                gameOnStart.setVisibility(View.VISIBLE);
+                gameOnPause.setVisibility(View.INVISIBLE);
+                cancelTimeCount();
+                showAlertDialog(Constant.MODE_ONE);
+            } else {
+                gameDrawView.gameSwitch(false);
+                gameOnStart.setVisibility(View.GONE);
+                gameOnPause.setVisibility(View.VISIBLE);
+                initTimeCount(timeSecond);
+            }
         }
         if (v.getId() == R.id.game_onPause) {
             if (!MyCustomView.isRefresh) {
@@ -217,21 +227,28 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         // 积分消耗完毕 是否购买积分
         if (clickMode == Constant.MODE_ONE) {
             alertDialog = new AlertDialog.Builder(this, R.style.simpleDialogStyle)
-                    .setCancelable(false)
+                    .setCancelable(true)
                     .create();
             LayoutInflater inflater = LayoutInflater.from(this);
             @SuppressLint("InflateParams") View v = inflater.inflate(R.layout.game_score_use_up, null);
             alertDialog.show();
             alertDialog.getWindow().setContentView(v);
             alertDialog.findViewById(R.id.btn_scoreUseUp).setOnClickListener(v14 -> {
-                currentScore = 30 + currentScore;
-                showToast(getString(R.string.GameToast_successfulBuySore));
-                gameScoreSetting(currentScore);
-                gameDrawView.gameSwitch(false);
-                updateScoreAndLevel();
-                // 开启定时器
-                initTimeCount(timeSecond);
+//                currentScore = 30 + currentScore;
+//                showToast(getString(R.string.GameToast_successfulBuySore));
+//                gameScoreSetting(currentScore);
+//                gameDrawView.gameSwitch(false);
+//                updateScoreAndLevel();
+//                // 开启定时器
+//                initTimeCount(timeSecond);
                 alertDialog.dismiss();
+                // 跳转开启支付界面
+                Intent intent = new Intent(GameActivity.this, ShoppingActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(Constant.PLAYER_INFO_KEY, mPlayer);
+                bundle.putString(Constant.PLAYER_ICON_URI, photoUri);
+                intent.putExtras(bundle);
+                startActivity(intent);
             });
         }
         if (clickMode == Constant.M0DE_TWO) {

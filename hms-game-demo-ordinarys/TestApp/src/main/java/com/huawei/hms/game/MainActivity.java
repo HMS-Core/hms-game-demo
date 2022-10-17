@@ -19,19 +19,14 @@ package com.huawei.hms.game;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.huawei.hmf.tasks.OnFailureListener;
-import com.huawei.hmf.tasks.OnSuccessListener;
 import com.huawei.hmf.tasks.Task;
 import com.huawei.hms.R;
 import com.huawei.hms.common.ApiException;
 import com.huawei.hms.game.common.BaseActivity;
 import com.huawei.hms.game.common.SignInCenter;
-import com.huawei.hms.jos.AntiAddictionCallback;
 import com.huawei.hms.jos.AppParams;
 import com.huawei.hms.jos.AppUpdateClient;
 import com.huawei.hms.jos.JosApps;
@@ -42,7 +37,6 @@ import com.huawei.hms.jos.games.Games;
 import com.huawei.hms.jos.games.GamesStatusCodes;
 import com.huawei.hms.jos.games.PlayersClient;
 import com.huawei.hms.jos.games.player.Player;
-import com.huawei.hms.jos.games.player.PlayerExtraInfo;
 import com.huawei.hms.jos.games.player.PlayersClientImpl;
 import com.huawei.hms.support.account.AccountAuthManager;
 import com.huawei.hms.support.account.request.AccountAuthParams;
@@ -66,10 +60,10 @@ public class MainActivity extends BaseActivity {
 
     private static final int SIGN_IN_INTENT = 3000;
 
-    private String playerId;
+    private String openId;
 
     private boolean hasInit = false;
-    
+
     private Callback callback;
 
     @Override
@@ -79,7 +73,7 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
         callback = new Callback(this);
         init();
-        
+
         // you can call these method orderly to check update when your app starting up
         // checkUpdate();
     }
@@ -121,67 +115,58 @@ public class MainActivity extends BaseActivity {
         JosAppsClient appsClient = JosApps.getJosAppsClient(this);
         Task<Void> initTask;
         // Set the anti-addiction prompt context, this line must be added
-        // 设置防沉迷提示语的Conext，此行必须添加
+        // 设置防沉迷提示语的Context，此行必须添加
         ResourceLoaderUtil.setmContext(this);
         initTask = appsClient.init(
-                new AppParams(params, new AntiAddictionCallback() {
-                    @Override
-                    public void onExit() {
-                        // System.exit(0);
-                        // The callback will return in two situations:
-                        // 1. When a no-adult, real name user logs in to the game during the day, Huawei will pop up a box to remind the player that the game is not allowed. The player clicks "OK" and Huawei will return to the callback
-                        // 2. The no-adult, real name user logs in the game at the time allowed by the state. At 9 p.m., Huawei will pop up a box to remind the player that it is time. The player clicks "I know" and Huawei will return to the callback
-                        // You can realize the anti addiction function of the game here, such as saving the game, calling the account to exit the interface or directly the game process
-                        // 该回调会在如下两种情况下返回:
-                        // 1.未成年人实名帐号在白天登录游戏，华为会弹框提示玩家不允许游戏，玩家点击“确定”，华为返回回调
-                        // 2.未成年实名帐号在国家允许的时间登录游戏，到晚上9点，华为会弹框提示玩家已到时间，玩家点击“知道了”，华为返回回调
-                        // 您可在此处实现游戏防沉迷功能，如保存游戏、调用帐号退出接口或直接游戏进程退出(如System.exit(0))
-                    }
+                new AppParams(params, () -> {
+                    // System.exit(0);
+                    // The callback will return in two situations:
+                    // 1. When a no-adult, real name user logs in to the game during the day, Huawei will pop up a box to remind the player that the game is not allowed. The player clicks "OK" and Huawei will return to the callback
+                    // 2. The no-adult, real name user logs in the game at the time allowed by the state. At 9 p.m., Huawei will pop up a box to remind the player that it is time. The player clicks "I know" and Huawei will return to the callback
+                    // You can realize the anti addiction function of the game here, such as saving the game, calling the account to exit the interface or directly the game process
+                    // 该回调会在如下两种情况下返回:
+                    // 1.未成年人实名帐号在白天登录游戏，华为会弹框提示玩家不允许游戏，玩家点击“确定”，华为返回回调
+                    // 2.未成年实名帐号在国家允许的时间登录游戏，到晚上9点，华为会弹框提示玩家已到时间，玩家点击“知道了”，华为返回回调
+                    // 您可在此处实现游戏防沉迷功能，如保存游戏、调用帐号退出接口或直接游戏进程退出(如System.exit(0))
                 }));
-        initTask.addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                showLog("init success");
-                // Games released in the Chinese mainland: The update API provided by Huawei must be called upon game launch.
-                // Games released outside the Chinese mainland: It is optional for calling the update API provided by Huawei upon game launch. 
-                // 检测应用新版本，中国大陆发布的应用：应用启动时必须使用华为升级接口进行应用升级。
-                // 中国大陆以外发布的应用：不强制要求。
-                checkUpdate();
-                hasInit = true;
-                // Make sure that the interface of showFloatWindow() is successfully called once after the game has been initialized successfully
-                // 游戏初始化成功后务必成功调用过一次浮标显示接口
-                showFloatWindowNewWay();
-                // 一定要在init成功后，才可以调用登录接口
-                // signIn();
-            }
+        initTask.addOnSuccessListener(aVoid -> {
+            showLog("init success");
+            // Games released in the Chinese mainland: The update API provided by Huawei must be called upon game launch.
+            // Games released outside the Chinese mainland: It is optional for calling the update API provided by Huawei upon game launch.
+            // 检测应用新版本，中国大陆发布的应用：应用启动时必须使用华为升级接口进行应用升级。
+            // 中国大陆以外发布的应用：不强制要求。
+            checkUpdate();
+            hasInit = true;
+            // Make sure that the interface of showFloatWindow() is successfully called once after the game has been initialized successfully
+            // 游戏初始化成功后务必成功调用过一次浮标显示接口
+            showFloatWindowNewWay();
+            // 一定要在init成功后，才可以调用登录接口
+            // signIn();
         }).addOnFailureListener(
-                new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        if (e instanceof ApiException) {
-                            ApiException apiException = (ApiException) e;
-                            int statusCode = apiException.getStatusCode();
-                            if (statusCode == JosStatusCodes.JOS_PRIVACY_PROTOCOL_REJECTED) {
-                                 // Error code 7401 indicates that the user did not agree to Huawei joint operations privacy agreement
-                                 // 错误码为7401时表示用户未同意华为联运隐私协议
-                                showLog("has reject the protocol");
-                                // You need to prohibit players from entering the game here.
-                                // 此处您需禁止玩家进入游戏
-                            } else if (statusCode == GamesStatusCodes.GAME_STATE_NETWORK_ERROR) { 
-                                // Error code 7002 indicates network error
-                                // 错误码7002表示网络异常
-                                showLog("network error");
-                                // 此处您可提示玩家检查网络，请不要重复调用init接口，否则断网情况下可能会造成手机高耗电。
-                                // You can ask the player to check the network. Do not invoke the init interface repeatedly. Otherwise, the phone may consume a lot of power if the network is disconnected.
-                            } else if (statusCode == 907135003) {
-                                // 907135003表示玩家取消HMS Core升级或组件升级
-                                // 907135003 indicates that user rejected the installation or upgrade of HMS Core.
-                                showLog("init statusCode=" + statusCode);
-                                init();
-                            } else {
-                                // Handle other error codes
-                                // 在此处实现其他错误码的处理
-                            }
+                e -> {
+                    if (e instanceof ApiException) {
+                        ApiException apiException = (ApiException) e;
+                        int statusCode = apiException.getStatusCode();
+                        if (statusCode == JosStatusCodes.JOS_PRIVACY_PROTOCOL_REJECTED) {
+                            // Error code 7401 indicates that the user did not agree to Huawei joint operations privacy agreement
+                            // 错误码为7401时表示用户未同意华为联运隐私协议
+                            showLog("has reject the protocol");
+                            // You need to prohibit players from entering the game here.
+                            // 此处您需禁止玩家进入游戏
+                        } else if (statusCode == GamesStatusCodes.GAME_STATE_NETWORK_ERROR) {
+                            // Error code 7002 indicates network error
+                            // 错误码7002表示网络异常
+                            showLog("network error");
+                            // 此处您可提示玩家检查网络，请不要重复调用init接口，否则断网情况下可能会造成手机高耗电。
+                            // You can ask the player to check the network. Do not invoke the init interface repeatedly. Otherwise, the phone may consume a lot of power if the network is disconnected.
+                        } else if (statusCode == 907135003) {
+                            // 907135003表示玩家取消HMS Core升级或组件升级
+                            // 907135003 indicates that user rejected the installation or upgrade of HMS Core.
+                            showLog("init statusCode=" + statusCode);
+                            init();
+                        } else {
+                            // Handle other error codes
+                            // 在此处实现其他错误码的处理
                         }
                     }
                 });
@@ -202,28 +187,49 @@ public class MainActivity extends BaseActivity {
         Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getHuaweiIdParams()).silentSignIn();
         authAccountTask
                 .addOnSuccessListener(
-                        new OnSuccessListener<AuthAccount>() {
-                            @Override
-                            public void onSuccess(AuthAccount authAccount) {
-                                showLog("signIn success");
-                                showLog("display:" + authAccount.getDisplayName());
-                                SignInCenter.get().updateAuthAccount(authAccount);
-                                getCurrentPlayer();
-                            }
+                        authAccount -> {
+                            showLog("signIn success");
+                            showLog("display:" + authAccount.getDisplayName());
+                            SignInCenter.get().updateAuthAccount(authAccount);
+                            getGamePlayer();
                         })
                 .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(Exception e) {
-                                if (e instanceof ApiException) {
-                                    ApiException apiException = (ApiException) e;
-                                    showLog("signIn failed:" + apiException.getStatusCode());
-                                    showLog("start getSignInIntent");
-                                    signInNewWay();
-                                }
+                        e -> {
+                            if (e instanceof ApiException) {
+                                ApiException apiException = (ApiException) e;
+                                showLog("signIn failed:" + apiException.getStatusCode());
+                                showLog("start getSignInIntent");
+                                signInNewWay(getHuaweiIdParams());
                             }
                         });
     }
+
+    /**
+     * Get the currently logged in player object and get player information from the ‘Player’ object.
+     * *
+     * 快捷登录
+     */
+    @OnClick(R.id.btn_unauthorized_login)
+    public void unauthorizedLogin() {
+        // 必须在init成功后，才可以实现登录功能
+        Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getUnauthorizedAccountAuthParams()).silentSignIn();
+        authAccountTask.addOnSuccessListener(
+                authAccount -> {
+                    showLog("signIn success");
+                    getGamePlayer();   // 获取玩家信息
+                })
+                .addOnFailureListener(
+                        e -> {
+                            if (e instanceof ApiException) {
+                                ApiException apiException = (ApiException) e;
+                                showLog("signIn failed:" + apiException.getStatusCode());
+                                showLog("start getSignInIntent");
+                                // 在此处实现显式登录
+                                signInNewWay(getUnauthorizedAccountAuthParams());
+                            }
+                        });
+    }
+
 
     /**
      * Obtain the Intent of the Huawei account login authorization page, and open the Huawei account
@@ -231,9 +237,11 @@ public class MainActivity extends BaseActivity {
      * *
      * 获取到华为帐号登录授权页面的Intent，并通过调用startActivityForResult(Intent, int)打开华为帐号登录授
      * 权页面。
+     *
+     * @param params 账号授权参数
      */
-    public void signInNewWay() {
-        Intent intent = AccountAuthManager.getService(MainActivity.this, getHuaweiIdParams()).getSignInIntent();
+    public void signInNewWay(AccountAuthParams params) {
+        Intent intent = AccountAuthManager.getService(MainActivity.this, params).getSignInIntent();
         startActivityForResult(intent, SIGN_IN_INTENT);
     }
 
@@ -256,7 +264,7 @@ public class MainActivity extends BaseActivity {
      */
     private void handleSignInResult(Intent data) {
         if (null == data) {
-            showLog("signIn inetnt is null");
+            showLog("signIn intent is null");
             return;
         }
         String jsonSignInResult = data.getStringExtra("HUAWEIID_SIGNIN_RESULT");
@@ -270,7 +278,7 @@ public class MainActivity extends BaseActivity {
                 showLog("Sign in success.");
                 showLog("Sign in result: " + signInResult.toJson());
                 SignInCenter.get().updateAuthAccount(signInResult.getAccount());
-                getCurrentPlayer();
+                getGamePlayer();
             } else {
                 showLog("Sign in failed: " + signInResult.getStatus().getStatusCode());
             }
@@ -284,40 +292,26 @@ public class MainActivity extends BaseActivity {
      * *
      * 获取当前登录的玩家对象，从Player对象中获取玩家信息。
      */
-    @OnClick(R.id.btn_get_player)
-    public void getCurrentPlayer() {
+    public void getGamePlayer() {
         PlayersClientImpl client = (PlayersClientImpl) Games.getPlayersClient(this);
-
-        Task<Player> task = client.getCurrentPlayer();
+        Task<Player> task = client.getGamePlayer();
         task.addOnSuccessListener(
-                        new OnSuccessListener<Player>() {
-                            @Override
-                            public void onSuccess(Player player) {
-                                String result =
-                                        "display:"
-                                                + player.getDisplayName();
-                                showLog(result);
-                                playerId = player.getPlayerId();
-                            }
-                        })
-                .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(Exception e) {
-                                if (e instanceof ApiException) {
-                                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
-                                    showLog(result);
-                                    if (7400 == ((ApiException) e).getStatusCode()||7018 == ((ApiException) e).getStatusCode()) {
-                                        // 7400表示用户未签署联运协议，需要继续调用init接口
-                                        // 7018表示初始化失败，需要继续调用init接口
-                                        // error code 7400 indicates that the user has not agreed to the joint operations privacy agreement
-                                        // error code 7018 indicates that the init API is not called.
-                                        init();
-                                     }
-                                }
-                            }
-                        });
+                player -> openId = player.getOpenId()
+        ).addOnFailureListener(e -> {
+            if (e instanceof ApiException) {
+                String result = "rtnCode:" + ((ApiException) e).getStatusCode();
+                showLog(result);
+                if (7400 == ((ApiException) e).getStatusCode() || 7018 == ((ApiException) e).getStatusCode()) {
+                    // 7400表示用户未签署联运协议，需要继续调用init接口
+                    // 7018表示初始化失败，需要继续调用init接口
+                    // error code 7400 indicates that the user has not agreed to the joint operations privacy agreement
+                    // error code 7018 indicates that the init API is not called.
+                    init();
+                }
+            }
+        });
     }
+
 
     /**
      * Save user's game character information to Huawei game server, such as district server, level,
@@ -327,7 +321,7 @@ public class MainActivity extends BaseActivity {
      */
     @OnClick(R.id.btn_save_player)
     public void savePlayerInfo() {
-        if (TextUtils.isEmpty(playerId)) {
+        if (TextUtils.isEmpty(openId)) {
             showLog("GetCurrentPlayer first.");
             return;
         }
@@ -337,23 +331,15 @@ public class MainActivity extends BaseActivity {
         appPlayerInfo.rank = "level 56";
         appPlayerInfo.role = "hunter";
         appPlayerInfo.sociaty = "Red Cliff II";
-        appPlayerInfo.playerId = playerId;
+        appPlayerInfo.openId = openId;
         Task<Void> task = client.savePlayerInfo(appPlayerInfo);
         task.addOnSuccessListener(
-                        new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void v) {
-                                showLog("save player info successfully ");
-                            }
-                        })
+                v -> showLog("save player info successfully "))
                 .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(Exception e) {
-                                if (e instanceof ApiException) {
-                                    String result = "rtnCode:" + ((ApiException) e).getStatusCode();
-                                    showLog(result);
-                                }
+                        e -> {
+                            if (e instanceof ApiException) {
+                                String result = "rtnCode:" + ((ApiException) e).getStatusCode();
+                                showLog(result);
                             }
                         });
     }
@@ -406,7 +392,7 @@ public class MainActivity extends BaseActivity {
          * 从应用市场获取的更新状态信息
          *
          * @param intent see detail:
-         *        https://developer.huawei.com/consumer/cn/doc/development/HMS-References/appupdateclient#intent
+         *               https://developer.huawei.com/consumer/cn/doc/development/HMS-References/appupdateclient#intent
          */
         @Override
         public void onUpdateInfo(Intent intent) {
@@ -429,7 +415,7 @@ public class MainActivity extends BaseActivity {
                     // 如果info属于ApkUpgradeInfo类型，则拉起更新弹框
                     Context context = mContextWeakReference.get();
                     if (context != null) {
-                        JosApps.getAppUpdateClient(context).showUpdateDialog(context,(ApkUpgradeInfo) info,false);
+                        JosApps.getAppUpdateClient(context).showUpdateDialog(context, (ApkUpgradeInfo) info, false);
                     }
                     Log.i(TAG, "check update success and there is a new update");
                 }
@@ -440,7 +426,7 @@ public class MainActivity extends BaseActivity {
                 }
             }
         }
-        
+
         // ignored
         // 预留, 无需处理
         @Override

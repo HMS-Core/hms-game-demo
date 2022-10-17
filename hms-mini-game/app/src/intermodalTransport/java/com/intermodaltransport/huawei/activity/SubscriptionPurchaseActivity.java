@@ -63,11 +63,11 @@ import static com.huawei.gamecenter.minigame.huawei.Until.Constant.OBTAIN_BONUS_
 import static com.huawei.gamecenter.minigame.huawei.Until.Constant.START_RESOLUTION_REQUEST_CODE;
 
 public class SubscriptionPurchaseActivity extends Activity implements View.OnClickListener {
+    private static final String TAG = "SubscriptionPurchaseAct";
     private static int currentScore = 0;
-    private static String playerId;
+    private static String openId;
     private TextView scoreText;
     private ConstraintLayout obtainScoreLayout;
-    private static final String TAG = "SubscriptionPurchaseAct";
     private List<ProductInfo> mProductList = new ArrayList<>();
     private TextView buyWeekText;
     private RelativeLayout buyWeekLayout;
@@ -83,8 +83,8 @@ public class SubscriptionPurchaseActivity extends Activity implements View.OnCli
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_subscription_purchase);
         Player currentPlayer = getIntent().getParcelableExtra(Constant.PLAYER_INFO_KEY);
-        playerId = currentPlayer.getPlayerId();
-        currentScore = UntilTool.getInfo(this, playerId);
+        openId = currentPlayer.getOpenId();
+        currentScore = UntilTool.getInfo(this, openId);
         initView();
     }
 
@@ -133,7 +133,7 @@ public class SubscriptionPurchaseActivity extends Activity implements View.OnCli
             mProductList = result.getProductInfoList();
             // 商品列表查询成功获取之后，需要进行刷新,此demo当前只设置了两个商品展示效果，对于多个商品列表展示可以采用循环配合listView展示。
             setProductInfo(mProductList);
-            SubscribeManager.getSingletonInstance().checkSubIsValidAndRefreshView(obtainScoreLayout, this, playerId, callback);
+            SubscribeManager.getSingletonInstance().checkSubIsValidAndRefreshView(obtainScoreLayout, this, openId, callback);
         }).addOnFailureListener(e -> {
             if (e instanceof IapApiException) {
                 IapApiException apiException = (IapApiException) e;
@@ -184,7 +184,7 @@ public class SubscriptionPurchaseActivity extends Activity implements View.OnCli
                     buyYearLayout.setClickable(false);
                 }
                 obtainScoreLayout.setVisibility(View.VISIBLE);
-                long lastUpdateTime = UntilTool.getLastScoreUpdateTime(this, playerId);
+                long lastUpdateTime = UntilTool.getLastScoreUpdateTime(this, openId);
                 if (TimeUtil.isSameDayOfMillis(lastUpdateTime, System.currentTimeMillis())) {
                     obtainScoreLayout.setBackgroundResource(R.drawable.button_already_obtain_score);
                 } else {
@@ -262,12 +262,12 @@ public class SubscriptionPurchaseActivity extends Activity implements View.OnCli
 
 
     private void updateScore() {
-        long lastUpdateTime = UntilTool.getLastScoreUpdateTime(this, playerId);
+        long lastUpdateTime = UntilTool.getLastScoreUpdateTime(this, openId);
         if (!TimeUtil.isSameDayOfMillis(lastUpdateTime, System.currentTimeMillis())) {
-            UntilTool.updateScoreTime(this, playerId);
+            UntilTool.updateScoreTime(this, openId);
             currentScore = currentScore + OBTAIN_BONUS_POINTS_EVERY_DAY;
             scoreText.setText(String.valueOf(currentScore));
-            UntilTool.addInfo(this, playerId, currentScore);
+            UntilTool.addInfo(this, openId, currentScore);
             HMSLogHelper.getSingletonInstance().debug(TAG, "updateScore currentScore:" + currentScore);
             obtainScoreLayout.setBackgroundResource(R.drawable.button_already_obtain_score);
         } else {

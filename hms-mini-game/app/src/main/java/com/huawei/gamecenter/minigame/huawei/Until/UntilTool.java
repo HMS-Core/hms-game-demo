@@ -27,43 +27,43 @@ import static android.content.Context.MODE_PRIVATE;
 public class UntilTool {
     private static final String TAG = "MiniGame_UntilTool";
 
-    public static void addInfo(Context context, String playerId, int score) {
+    public static void addInfo(Context context, String openId, int score) {
         SharedPreferences pref = context.getSharedPreferences("data", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putInt(playerId, score);
+        editor.putInt(openId, score);
         boolean isSuccess = editor.commit();
         if (isSuccess) {
             HMSLogHelper.getSingletonInstance().debug(TAG, "addInfo: success add !");
         }
     }
 
-    public static int getInfo(Context context, String playerId) {
-        if (TextUtils.isEmpty(playerId)) {
+    public static int getInfo(Context context, String openId) {
+        if (TextUtils.isEmpty(openId)) {
             int retCode = 0;
-            HMSLogHelper.getSingletonInstance().debug(TAG, "playerId is empty !");
+            HMSLogHelper.getSingletonInstance().debug(TAG, "openId is empty !");
             return retCode;
         }
         SharedPreferences sp = context.getSharedPreferences("data", MODE_PRIVATE);
-        return sp.getInt(playerId, 0);
+        return sp.getInt(openId, 0);
     }
 
-    public static void updateScoreTime(Context context, String playerId) {
+    public static void updateScoreTime(Context context, String openId) {
         SharedPreferences pref = context.getSharedPreferences("update_time", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putLong(playerId, System.currentTimeMillis());
+        editor.putLong(openId, System.currentTimeMillis());
         boolean isSuccess = editor.commit();
         if (isSuccess) {
             HMSLogHelper.getSingletonInstance().debug(TAG, "addInfo: success add !");
         }
     }
 
-    public static long getLastScoreUpdateTime(Context context, String playerId) {
-        if (TextUtils.isEmpty(playerId)) {
-            HMSLogHelper.getSingletonInstance().debug(TAG, "playerId is empty !");
+    public static long getLastScoreUpdateTime(Context context, String openId) {
+        if (TextUtils.isEmpty(openId)) {
+            HMSLogHelper.getSingletonInstance().debug(TAG, "openId is empty !");
             return 0;
         }
         SharedPreferences sp = context.getSharedPreferences("update_time", MODE_PRIVATE);
-        return sp.getLong(playerId, 0);
+        return sp.getLong(openId, 0);
     }
 
 

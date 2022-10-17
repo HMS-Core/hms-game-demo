@@ -37,12 +37,12 @@
         android:layout_marginTop="10dp">
 
         <Button
-            android:id="@+id/btn_get_player"
+            android:id="@+id/btn_unauthorized_login"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="@string/get_current_player" />
+            android:text="@string/unauthorized_login" />
 
         <Button
             android:id="@+id/btn_save_player"

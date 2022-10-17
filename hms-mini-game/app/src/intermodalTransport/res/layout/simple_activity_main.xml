@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/joy"
             android:layout_marginLeft="30dp"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="50dp"
             android:layout_marginRight="30dp"
             android:background="@drawable/button_selector"
             android:gravity="center"
@@ -85,5 +85,59 @@
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/unauthorized_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/login_in_huawei"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/button_selector"
+            android:gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp">
+
+            <ImageView
+                android:id="@+id/unauthorized_logo"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/hw_24x24_logo"
+                tools:ignore="ContentDescription" />
+            <!--图像视图-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:text="@string/unauthorized_login"
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <com.huawei.gamecenter.minigame.huawei.UI.TriangleView
+            android:id="@+id/triangle_view"
+            android:layout_below="@+id/unauthorized_login"
+            android:layout_width="7dp"
+            android:layout_centerHorizontal="true"
+            android:layout_height="7dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/triangle_view"
+            android:layout_centerHorizontal="true"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/login_tips_shape"
+            android:textSize="14sp"
+            android:textColor="@color/whitesmoke"
+            android:text="@string/unauthorized_login_tips"/>
+
+
     </RelativeLayout>
+
 </RelativeLayout>

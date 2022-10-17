@@ -59,7 +59,7 @@
     <string name="archive_get_max_file_size">getMaxFileSize</string>
     <string name="get_miss_product_list">GetMissProductInfo</string>
 
-    <string name="get_current_player">GetCurrentPlayer</string>
+    <string name="unauthorized_login">unauthorizedLogin</string>
     <string name="get_game_player">GetGamePlayer</string>
     <string name="get_game_player_true">get_game_player(requestPlayerId=true)</string>
     <string name="get_game_player_false">get_game_player(requestPlayerId=false)</string>

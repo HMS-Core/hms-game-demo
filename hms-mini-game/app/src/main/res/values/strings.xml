@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MiNiGame</string>
+    <string name="app_name">游友家园</string>
     <string name="Game_Congratulations">恭喜通过本关游戏！</string>
     <string name="huawei_login">华为帐号登录</string>
     <string name="user_information_activity_nickname">昵称</string>
@@ -70,4 +70,6 @@
     <string name="bonus_point_claiming_rules">每日可免费领取20积分一次</string>
     <string name="no_consumption">无消费</string>
     <string name="and">且</string>
+    <string name="unauthorized_login">华为帐号快捷登录</string>
+    <string name="unauthorized_login_tips">仅登录关联华为帐号，不获取其他个人信息</string>
 </resources>

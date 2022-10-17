@@ -8,7 +8,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "xxx.xxx.xxx"
+        applicationId "com.xxx.huawei"
         minSdkVersion 26
         targetSdkVersion 30
         versionCode 1
@@ -31,17 +31,17 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('../app/xxx.jks')
-            keyAlias 'gamedemo'
-            keyPassword '123456'
-            storePassword '123456'
+            storeFile file('xxx.jks')
+            keyAlias 'xxx'
+            keyPassword 'xxx'
+            storePassword 'xxx'
         }
 
         debug {
-            storeFile file('../app/xxx.jks')
-            keyAlias 'gamedemo'
-            keyPassword '123456'
-            storePassword '123456'
+            storeFile file('xxx.jks')
+            keyAlias 'xxx'
+            keyPassword 'xxx'
+            storePassword 'xxx'
         }
     }
 

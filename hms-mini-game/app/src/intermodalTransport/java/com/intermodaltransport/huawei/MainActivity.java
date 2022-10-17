@@ -16,7 +16,6 @@
 
 package com.intermodaltransport.huawei;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -50,7 +49,6 @@ import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo;
 import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack;
 import com.huawei.updatesdk.service.otaupdate.UpdateKey;
 import com.intermodaltransport.huawei.activity.HomeActivity;
-import com.intermodaltransport.huawei.activity.ShoppingActivity;
 
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.jetbrains.annotations.NotNull;
@@ -67,6 +65,8 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static com.huawei.updatesdk.service.otaupdate.UpdateStatusCode.NO_UPGRADE_INFO;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -97,7 +97,12 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         findViewById(R.id.login_in_huawei).setOnClickListener(new MyClickListener());
         findViewById(R.id.visitors_login).setOnClickListener(new MyClickListener());
+        findViewById(R.id.unauthorized_login).setOnClickListener(new MyClickListener());
         dialog = new LoadingDialog(MainActivity.this);
+        // 仅点击外部不可取消
+        dialog.setCanceledOnTouchOutside(false);
+        // 点击返回键和外部都不可取消
+        dialog.setCancelable(false);
     }
 
     @Override
@@ -158,12 +163,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void dismissDialog() {
-        if (dialog != null && dialog.isShowing()) {
-            dialog.dismiss();
-        }
-    }
-
     /**
      * Show the game buoy.
      * <p>
@@ -189,6 +188,10 @@ public class MainActivity extends AppCompatActivity {
         return new AccountAuthParamsHelper(AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).createParams();
     }
 
+    public AccountAuthParams getUnauthorizedLoginParams() {
+        return new AccountAuthParamsHelper().setId().createParams();
+    }
+
     /**
      * Log in ,and return the login information (or error message) of the Huawei account that has
      * logged in to this application. During this process, the authorization interface will not be
@@ -204,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 .addOnSuccessListener(
                         authAccount -> {
                             HMSLogHelper.getSingletonInstance().debug(TAG, "signIn success");
-                            getCurrentPlayer();
+                            getGamePlayer();
                             photoUri = authAccount.getAvatarUriString();
                         })
                 .addOnFailureListener(
@@ -213,7 +216,34 @@ public class MainActivity extends AppCompatActivity {
                                 ApiException apiException = (ApiException) e;
                                 HMSLogHelper.getSingletonInstance().debug(TAG, "signIn failed:" + apiException.getStatusCode());
                                 dismissDialog();
-                                signInNewWay();
+                                signInNewWay(getAuthParams());
+                            }
+                        });
+    }
+
+    /**
+     * Unauthorized login
+     * <p>
+     * 快捷登录
+     */
+    public void unauthorizedLogin() {
+        // 一定要在init成功后，才可以调用登录接口
+        // Be sure to call the login API after the init is successful
+        Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getUnauthorizedLoginParams()).silentSignIn();
+        authAccountTask
+                .addOnSuccessListener(
+                        authAccount -> {
+                            HMSLogHelper.getSingletonInstance().debug(TAG, "signIn success");
+                            getGamePlayer();
+                            photoUri = authAccount.getAvatarUriString();
+                        })
+                .addOnFailureListener(
+                        e -> {
+                            if (e instanceof ApiException) {
+                                ApiException apiException = (ApiException) e;
+                                HMSLogHelper.getSingletonInstance().debug(TAG, "signIn failed:" + apiException.getStatusCode());
+                                dismissDialog();
+                                signInNewWay(getUnauthorizedLoginParams());
                             }
                         });
     }
@@ -224,10 +254,12 @@ public class MainActivity extends AppCompatActivity {
      * <p>
      * 获取到华为帐号登录授权页面的Intent，并通过调用startActivityForResult(Intent, int)打 开华为帐号登录授
      * 权页面。
+     *
+     * @param params 账号授权参数
      */
     @SuppressWarnings("deprecation")
-    public void signInNewWay() {
-        Intent intent = AccountAuthManager.getService(MainActivity.this, getAuthParams()).getSignInIntent();
+    public void signInNewWay(AccountAuthParams params) {
+        Intent intent = AccountAuthManager.getService(MainActivity.this, params).getSignInIntent();
         startActivityForResult(intent, SIGN_IN_INTENT);
     }
 
@@ -236,14 +268,21 @@ public class MainActivity extends AppCompatActivity {
      * <p>
      * 获取当前登录的玩家对象，从Player对象中获取玩家信息。
      */
-    public void getCurrentPlayer() {
+    public void getGamePlayer() {
         PlayersClientImpl client = (PlayersClientImpl) Games.getPlayersClient(this);
-        Task<Player> task = client.getCurrentPlayer();
+        Task<Player> task = client.getGamePlayer();
         task.addOnSuccessListener(
                 player -> {
                     HMSLogHelper.getSingletonInstance().debug(TAG, player.getDisplayName());
-                    // 初始化  打开数据库
-                    checkSign(player);
+
+                    dismissDialog();
+                    // 登录检验成功之后，进入游戏，把数据存入本地,设置全局的用户ID变量。
+                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(Constant.PLAYER_INFO_KEY, player);
+                    bundle.putString(Constant.PLAYER_ICON_URI, photoUri);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 })
                 .addOnFailureListener(
                         e -> {
@@ -264,67 +303,12 @@ public class MainActivity extends AppCompatActivity {
                         });
     }
 
-    /**
-     * 登录验签
-     *
-     * @param player 玩家对象
-     */
-    private void checkSign(Player player) {
-        @SuppressLint("AllowAllHostnameVerifier") OkHttpClient client = new OkHttpClient().newBuilder()
-                .hostnameVerifier(new AllowAllHostnameVerifier())
-                .build();
-        // 通过FormBody对象构建Builder来添加表单参数
-        FormBody mFormBody = new FormBody.Builder()
-                .add("method", "external.hms.gs.checkPlayerSign")
-                .add("appId", "105174767")
-                .add("cpId", "70086000159286487")
-                .add("ts", player.getSignTs())
-                .add("playerId", player.getPlayerId())
-                .add("playerLevel", player.getLevel() + "")
-                .add("playerSSign", player.getPlayerSign())
-                .add("openId", player.getOpenId())
-                .add("openIdSign", player.getOpenIdSign())
-                .build();
-
-        Request request = new Request.Builder()
-                .url("https://jos-api.cloud.huawei.com/gameservice/api/gbClientApi")
-                .post(mFormBody)
-                .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                HMSLogHelper.getSingletonInstance().debug(TAG, e.getMessage());
-                runOnUiThread(() -> {
-                    Toast.makeText(MainActivity.this, "check sign failed", Toast.LENGTH_SHORT).show();
-                    dismissDialog();
-                });
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                HMSLogHelper.getSingletonInstance().debug(TAG, response.toString());
-                runOnUiThread(() -> {
-                    dismissDialog();
-                    // 登录检验成功之后，进入游戏，把数据存入本地,设置全局的用户ID变量。
-                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelable(Constant.PLAYER_INFO_KEY, player);
-                    bundle.putString(Constant.PLAYER_ICON_URI, photoUri);
-                    intent.putExtras(bundle);
-                    startActivity(intent);
-                });
-            }
-        });
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SIGN_IN_INTENT) {
-            if (dialog != null && !dialog.isShowing()) {
-                dialog.show();
-            }
+            showLoadingDialog();
             if (null == data) {
                 HMSLogHelper.getSingletonInstance().debug(TAG, "signIn intent is null");
                 return;
@@ -339,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
                 if (signInResult.getStatus().getStatusCode() == 0) {
                     HMSLogHelper.getSingletonInstance().debug(TAG, "Sign in success.");
                     photoUri = signInResult.getAccount().getAvatarUriString();
-                    getCurrentPlayer();
+                    getGamePlayer();
                 } else {
                     dismissDialog();
                     HMSLogHelper.getSingletonInstance().debug(TAG, "Sign in failed: " + signInResult.getStatus().getStatusCode());
@@ -387,7 +371,11 @@ public class MainActivity extends AppCompatActivity {
                 int rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, -99);
                 // 返回失败信息
                 String rtnMessage = intent.getStringExtra(UpdateKey.FAIL_REASON);
-                Toast.makeText(MainActivity.this, getString(R.string.update_des) + status, Toast.LENGTH_LONG).show();
+                if (status == NO_UPGRADE_INFO) {
+                    Toast.makeText(MainActivity.this, getString(R.string.update_no_gradeinfo), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this, getString(R.string.update_des) + status, Toast.LENGTH_LONG).show();
+                }
                 // 强制更新应用时，弹出对话框后用户是否点击“退出应用”按钮
                 boolean isExit = intent.getBooleanExtra(UpdateKey.MUST_UPDATE, false);
                 HMSLogHelper.getSingletonInstance().debug(TAG, "rtnCode = " + rtnCode + "rtnMessage = " + rtnMessage);
@@ -440,13 +428,25 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.login_in_huawei) {
-                // 仅点击外部不可取消
-                dialog.setCanceledOnTouchOutside(false);
-                // 点击返回键和外部都不可取消
-                dialog.setCancelable(false);
-                dialog.show();
+                showLoadingDialog();
                 signIn();
+            } else if (v.getId() == R.id.unauthorized_login) {
+                showLoadingDialog();
+                unauthorizedLogin();
             }
         }
     }
+
+    private void showLoadingDialog() {
+        if (dialog != null && !dialog.isShowing()) {
+            dialog.show();
+        }
+    }
+
+    private void dismissDialog() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
+    }
+
 }

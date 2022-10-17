@@ -21,7 +21,7 @@
     <string name="my_achievement">我的成就</string>
     <string name="ok">确定</string>
     <string name="init">初始化</string>
-    <string name="sign_in">登录</string>
+    <string name="sign_in">华为帐号登录</string>
     <string name="is_real_time">实时</string>
     <string name="get_current_player_stats">获取当前玩家统计信息</string>
     <string name="get_cache_player_id">获取缓存的PlayerId</string>
@@ -60,7 +60,7 @@
     <string name="archive_get_max_file_size">获取最大存档大小</string>
     <string name="get_miss_product_list">获取订单信息</string>
 
-    <string name="get_current_player">获取当前玩家信息</string>
+    <string name="unauthorized_login">华为帐号快捷登录</string>
     <string name="get_game_player">获取当前玩家信息(OpenId)</string>
     <string name="get_game_player_true">获玩家信息(含PlayerId)</string>
     <string name="get_game_player_false">获取玩家信息(不含PlayerId)</string>
