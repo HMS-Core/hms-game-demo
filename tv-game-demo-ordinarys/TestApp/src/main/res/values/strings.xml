@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">HmsGameDemo</string>
+    <string name="init">Init</string>
+    <string name="sign_in">SignIn</string>
+    <string name="check_update">CheckUpdate</string>
+    <string name="unauthorized_login">unauthorizedLogin</string>
+    <string name="user_agr_content" translatable="false">欢迎下载本游戏，我们非常重视个人信息和保护指引。请在使用我们的服务前，详细阅读并同意《服务协议》条款。为了提供完整的游戏体验，我们会向您申请必要的权限和信息。您可以选择同意或拒绝权限申请，如果决绝可能导致部分游戏体验异常。欢迎下载本游戏，我们非常重视个人信息和保护指引。请在使用我们的服务前，为了提供完整的游戏体验，我们会向您申请必要的权限和信息。您可以选择同意或拒绝权限申请，如果决绝可能导致部分游戏体验异常。,</string>
+    <string name="agreement" translatable="false">个人信息保护指引</string>
+    <string name="service_agreement" translatable="false">《服务协议》</string>
+</resources>

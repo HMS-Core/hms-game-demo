@@ -1,0 +1,76 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.huawei.agconnect'
+def app_versionName = rootProject.ext.version
+def app_versionCode = rootProject.ext.versionCode
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        versionName = app_versionName
+        versionCode = app_versionCode
+        applicationId "com.xxx.xxx.huawei"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('../xxx.jks')
+            keyAlias 'xxx'
+            keyPassword 'xxx'
+            storePassword 'xxx'
+        }
+
+        release {
+            storeFile file('../xxx.jks')
+            keyAlias 'xxx'
+            keyPassword 'xxx'
+            storePassword 'xxx'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            debuggable true
+        }
+        debug {
+            signingConfig signingConfigs.debug
+            debuggable true
+        }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        cacheDynamicVersionsFor 0, "seconds"
+        cacheChangingModulesFor 0, "seconds"
+    }
+}
+
+dependencies {
+
+    implementation 'com.huawei.hms:game:' + rootProject.ext.version
+    implementation 'com.huawei.hms:hwid:' + rootProject.ext.hms_sdk_hwid_version
+    implementation fileTree(include: ['*.aar'], dir: 'libs')
+
+    implementation 'com.android.support:support-annotations:' + rootProject.ext.android_support_version
+    implementation 'com.android.support:support-fragment:' + rootProject.ext.android_support_version
+
+    implementation 'com.android.support:appcompat-v7:' + rootProject.ext.android_support_version
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    api 'com.jakewharton:butterknife:8.5.1'
+    implementation 'com.android.support:design:' + rootProject.ext.android_support_version
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+}
