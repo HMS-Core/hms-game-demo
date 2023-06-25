@@ -110,7 +110,8 @@ public class ArchiveActivity extends BaseActivity {
         initTask = appsClient.init(new AppParams(params, new AntiAddictionCallback() {
             @Override
             public void onExit() {
-                //在此处实现游戏防沉迷功能，如保存游戏、调用帐号退出接口
+                // You can realize the anti addiction function of the game here, such as saving the game, calling the account to exit the interface or directly the game process
+                // 在此处实现游戏防沉迷功能，如保存游戏、调用帐号退出接口
             }
         }));
 
@@ -125,12 +126,15 @@ public class ArchiveActivity extends BaseActivity {
                 if (e instanceof ApiException) {
                     ApiException apiException = (ApiException) e;
                     int statusCode = apiException.getStatusCode();
-                    //错误码为7401时表示用户未同意华为联运隐私协议
+                    // Error code 7401 indicates that the user did not agree to Huawei joint operations privacy agreement
+                    // 错误码为7401时表示用户未同意华为联运隐私协议
                     if (statusCode == JosStatusCodes.JOS_PRIVACY_PROTOCOL_REJECTED) {
                         showLog("has reject the protocol");
-                        //在此处实现退出游戏或者重新调用初始化接口
+                        // You can exit the game or call the initialization interface again here.
+                        // 在此处实现退出游戏或者重新调用初始化接口
                     }
-                    //在此处实现其他错误码的处理
+                    // Handle other error codes
+                    // 在此处实现其他错误码的处理
                 }
             }
         });
