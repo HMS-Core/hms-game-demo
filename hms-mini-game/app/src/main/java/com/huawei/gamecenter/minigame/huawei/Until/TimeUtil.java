@@ -23,16 +23,18 @@ import java.util.TimeZone;
 
 public class TimeUtil {
     /**
+     * Number of milliseconds in a day
      * 一天的毫秒数
      */
     private static final long MILLIS_IN_DAY = 1000L * 60 * 60 * 24;
 
     /**
+     * Check whether the two time points are the same day.
      * 判断两个时间是否同一天
      *
-     * @param ms1 时间戳1
-     * @param ms2 时间戳2
-     * @return 是否同一天
+     * @param ms1 时间戳1(Timestamp 1)
+     * @param ms2 时间戳2(Timestamp 2)
+     * @return 是否同一天(Same day or not)
      */
     public static boolean isSameDayOfMillis(final long ms1, final long ms2) {
         final long interval = ms1 - ms2;
