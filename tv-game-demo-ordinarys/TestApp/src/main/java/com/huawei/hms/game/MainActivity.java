@@ -172,8 +172,8 @@ public class MainActivity extends AppCompatActivity {
             showLog("init success");
             // The login interface can be invoked only after the init operation is successful.
             // 必须在init成功后，才可以实现登录功能
-//            checkUpdate();
-//            signIn();
+            // checkUpdate();
+            // signIn();
         }).addOnFailureListener(
                 e -> {
                     if (e instanceof ApiException) {
@@ -219,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Game login
      * 游戏登录
      *
      * @return
