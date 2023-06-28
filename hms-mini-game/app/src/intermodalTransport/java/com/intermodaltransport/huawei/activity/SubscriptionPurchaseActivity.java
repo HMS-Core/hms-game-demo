@@ -118,19 +118,24 @@ public class SubscriptionPurchaseActivity extends Activity implements View.OnCli
     @SuppressLint("DefaultLocale")
     private void showProductInfo() {
         List<String> productIdList = new ArrayList<>();
+        // The product to be queried must be configured on the AppGallery Connect website.
         // 查询的商品必须是您在AppGallery Connect网站配置的商品
         productIdList.add("subscribe_001");
         productIdList.add("subscribe_002");
         productIdList.add("subscribe_003");
         ProductInfoReq req = new ProductInfoReq();
+        // priceType: 0 :consumable product 1: non-consumable product; 2: subscription product
         // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品*
         req.setPriceType(Constant.PurchasesPriceType.PRICE_TYPE_SUBSCRIBING_OFFERING);
         req.setProductIds(productIdList);
+        // Invoke the obtainProductInfo interface to obtain offering details configured on the AppGallery Connect website.
         // 调用obtainProductInfo接口获取AppGallery Connect网站配置的商品的详情信息
         Task<ProductInfoResult> task = Iap.getIapClient(SubscriptionPurchaseActivity.this).obtainProductInfo(req);
         task.addOnSuccessListener(result -> {
+            // Obtain the product's details returned when the interface request is successful.
             // 获取接口请求成功时返回的商品详情信息
             mProductList = result.getProductInfoList();
+            // After the offering list is obtained, it needs to be updated. Currently, only two offering display effects are set in this demo. Multiple offering lists can be displayed cyclically in the list view.
             // 商品列表查询成功获取之后，需要进行刷新,此demo当前只设置了两个商品展示效果，对于多个商品列表展示可以采用循环配合listView展示。
             setProductInfo(mProductList);
             SubscribeManager.getSingletonInstance().checkSubIsValidAndRefreshView(obtainScoreLayout, this, openId, callback);
@@ -152,6 +157,8 @@ public class SubscriptionPurchaseActivity extends Activity implements View.OnCli
         }
         for (int i = 0; i < result.getInAppPurchaseDataList().size(); i++) {
             String inAppPurchaseData = result.getInAppPurchaseDataList().get(i);
+            // You need to use your app's IAP public key to verify the signature of inAppPurchaseData.
+            // If the verification is successful, check the payment status and subscription status.
             // 您需要使用您的应用的IAP公钥验证inAppPurchaseData的签名
             // 如果验签成功，请检查支付状态和订阅状态
             try {
@@ -276,20 +283,27 @@ public class SubscriptionPurchaseActivity extends Activity implements View.OnCli
     }
 
     private void startPay(String productId) {
+        // Construct a PurchaseIntentReq object.
         // 构造一个PurchaseIntentReq对象
         PurchaseIntentReq req = new PurchaseIntentReq();
+        // The offerings to be purchased through the createPurchaseIntent interface must be those configured on the AppGallery Connect website.
         // 通过createPurchaseIntent接口购买的商品必须是您在AppGallery Connect网站配置的商品。
         req.setProductId(productId);
+        // priceType: 0 :consumable product 1: non-consumable product; 2: subscription product
         // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
         req.setPriceType(Constant.PurchasesPriceType.PRICE_TYPE_SUBSCRIBING_OFFERING);
         req.setDeveloperPayload("test");
+        // Invoke the createPurchaseIntent interface to create a hosting offering order.
         // 调用createPurchaseIntent接口创建托管商品订单
         Task<PurchaseIntentResult> task = Iap.getIapClient(this).createPurchaseIntent(req);
         task.addOnSuccessListener(result -> {
+            // Obtain the order creation result.
             // 获取创建订单的结果
             Status status = result.getStatus();
             if (status.hasResolution()) {
                 try {
+                    // 6666 is your custom constant
+                    // Launch the cashier page returned by the IAP
                     // 6666是您自定义的常量
                     // 启动IAP返回的收银台页面
                     status.startResolutionForResult(SubscriptionPurchaseActivity.this, START_RESOLUTION_REQUEST_CODE);
@@ -303,6 +317,7 @@ public class SubscriptionPurchaseActivity extends Activity implements View.OnCli
                 int returnCode = apiException.getStatusCode();
                 HMSLogHelper.getSingletonInstance().debug(TAG, "other error: " + returnCode);
             } else {
+                // Other External Errors
                 // 其他外部错误
                 HMSLogHelper.getSingletonInstance().debug(TAG, "other error");
             }
@@ -317,6 +332,7 @@ public class SubscriptionPurchaseActivity extends Activity implements View.OnCli
                 HMSLogHelper.getSingletonInstance().error("onActivityResult", "data is null");
                 return;
             }
+            // Invoke the parseRespCodeFromIntent method to obtain the interface request result
             // 调用parsePurchaseResultInfoFromIntent方法解析支付结果数据
             PurchaseResultInfo purchaseResultInfo = Iap.getIapClient(this).parsePurchaseResultInfoFromIntent(data);
             switch (purchaseResultInfo.getReturnCode()) {

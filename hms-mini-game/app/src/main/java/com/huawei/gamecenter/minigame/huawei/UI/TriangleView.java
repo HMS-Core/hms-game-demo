@@ -32,6 +32,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
+ * triangles
+ **
  * 三角形
  */
 public class TriangleView extends View {
@@ -48,10 +50,14 @@ public class TriangleView extends View {
     private int height = 0;
 
     /**
+     * inverted triangle
+     **
      * 倒三角
      */
     public static final int INVERTED = 0;
     /**
+     * positive triangle
+     **
      * 正三角
      */
     public static final int REGULAR = 1;

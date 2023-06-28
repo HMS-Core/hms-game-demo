@@ -105,6 +105,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         initView();
         currentId = currentPlayer.getOpenId();
         displayNameView = findViewById(R.id.text_home_display_name);
+        // After the login is successful, the system invokes the order supplement interface to check whether there are unshipped offerings.
         // 游戏登录成功之后，调用补单接口进行检查是否有掉单商品未发货。
         obtainProduct();
         ExitApplication.getInstance().addActivity(this);
@@ -120,6 +121,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         scoreTextView = findViewById(R.id.text_score_show_home);
         obtainScoreLayout = findViewById(R.id.obtain_score_layout);
         findViewById(R.id.image_button_userInfo).setOnClickListener(v -> {
+            // Switch to the personal game information page.
             // 跳转个人游戏信息界面
             Intent intent = new Intent(HomeActivity.this, UserInfoActivity.class);
             Bundle bundle = new Bundle();
@@ -130,6 +132,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         });
 
         findViewById(R.id.btn_jump_shop).setOnClickListener(v -> {
+            // Switch to the payment page.
             // 跳转开启支付界面
             Intent intent = new Intent(HomeActivity.this, ShoppingActivity.class);
             Bundle bundle = new Bundle();
@@ -140,6 +143,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         });
 
         findViewById(R.id.btn_image_check_update).setOnClickListener(v -> {
+            // Invoke the update detection interface.
             // 检测更新接口调用
             checkUpdate();
         });
@@ -160,6 +164,8 @@ public class HomeActivity extends Activity implements View.OnClickListener {
 
 
     /**
+     * Login object information obtained from the login page, which is used to refresh the lobby page, including the user avatar, user nickname, and bonus point value.
+     * *
      * @param player 登录页面获取的登录对象信息，用于刷新大厅页面：用户头像、用户昵称、积分值。
      */
     private void initData(Player player) {
@@ -219,6 +225,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
                     break;
                 }
                 UntilTool.updateScoreTime(this, currentId);
+                // Members receive 20 points per day
                 // 会员每日领取20积分
                 currentScore = currentScore + OBTAIN_BONUS_POINTS_EVERY_DAY;
                 scoreTextView.setText(String.valueOf(currentScore));
@@ -232,25 +239,33 @@ public class HomeActivity extends Activity implements View.OnClickListener {
     }
 
     /**
+     * (This case is placed in the Activity_onCreate lifecycle to execute the code logic.) After the game starts and logs in, the system needs to invoke the order supplement interface to query all paid but not shipped orders of the current login account and resend offerings.
+     * *
      * （本案例放在Activity_onCreate生命周期中执行本段代码逻辑）游戏启动登录之后需要调用补单接口，进行查询当前登录账号所有的已支付未发货状态订单进行补发商品。
      */
     private void obtainProduct() {
         HMSLogHelper.getSingletonInstance().debug(TAG, "obtainProduct start.");
+        // Construct an OwnedPurchasesReq object.
         // 构造一个OwnedPurchasesReq对象
         OwnedPurchasesReq ownedPurchasesReq = new OwnedPurchasesReq();
+        // priceType: 0 :consumable product 1: non-consumable product; 2: subscription product
         // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
         ownedPurchasesReq.setPriceType(Constant.PurchasesPriceType.PRICE_TYPE_CONSUMABLE_GOODS);
+        // Obtain the Activity object that invokes the interface.
         // 获取调用接口的Activity对象
         final Activity activity = HomeActivity.this;
+        // Invoke the obtainOwnedPurchases interface to obtain the purchase information of all purchased but not delivered consumables.
         // 调用obtainOwnedPurchases接口获取所有已购但未发货的消耗型商品的购买信息
         Task<OwnedPurchasesResult> task = Iap.getIapClient(activity).obtainOwnedPurchases(ownedPurchasesReq);
         task.addOnSuccessListener(result -> {
             HMSLogHelper.getSingletonInstance().debug(TAG, "OwnedPurchasesResult onSuccess");
-
+            // Obtain the interface request success result.
             // 获取接口请求成功的结果
             if (result != null && result.getInAppPurchaseDataList() != null) {
                 for (int i = 0; i < result.getInAppPurchaseDataList().size(); i++) {
                     String inAppPurchaseData = result.getInAppPurchaseDataList().get(i);
+                    // Use the IAP public key of the application to verify the signature data of inAppPurchaseData.
+                    // If the verification is successful, check the purchase status of each product. After confirming that the goods have been paid, check whether the goods have been shipped before. If the goods have not been shipped, ship the goods. Perform the consumption operation after the shipment is successful.
                     // 使用应用的IAP公钥验证inAppPurchaseData的签名数据
                     // 如果验签成功，确认每个商品的购买状态。确认商品已支付后，检查此前是否已发过货，未发货则进行发货操作。发货成功后执行消耗操作
                     try {
@@ -269,6 +284,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
                 int returnCode = apiException.getStatusCode();
                 HMSLogHelper.getSingletonInstance().debug(TAG, "OwnedPurchasesResult onFailure:" + returnCode);
             } else {
+                // Other External Errors
                 // 其他外部错误
                 HMSLogHelper.getSingletonInstance().debug(TAG, "OwnedPurchasesResult onFailure");
             }
@@ -276,16 +292,22 @@ public class HomeActivity extends Activity implements View.OnClickListener {
     }
 
     /**
+     * @param productId         ID of the product that is not delivered after payment
+     * @param purchaseToken     Purchase voucher for order drop
+     **
      * @param productId     购买支付后未发货的商品ID
      * @param purchaseToken 掉单订单购买凭据
      */
     private void consumeGood(String productId, String purchaseToken) {
+        // Construct a ConsumeOwnedPurchaseReq object.
         // 构造一个ConsumeOwnedPurchaseReq对象
         ConsumeOwnedPurchaseReq req = new ConsumeOwnedPurchaseReq();
         req.setPurchaseToken(purchaseToken);
+        // Invoke the consumeOwnedPurchase interface
         // 调用consumeOwnedPurchase接口
         Task<ConsumeOwnedPurchaseResult> task = Iap.getIapClient(HomeActivity.this).consumeOwnedPurchase(req);
         task.addOnSuccessListener(result -> {
+            // Obtain the interface request success result.
             // 获取接口请求成功时的结果信息
             HMSLogHelper.getSingletonInstance().debug(TAG, "ConsumeOwnedPurchase onSuccess: " + result.getReturnCode());
         }).addOnFailureListener(e -> {
@@ -294,6 +316,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
                 int returnCode = apiException.getStatusCode();
                 HMSLogHelper.getSingletonInstance().debug(TAG, "ConsumeOwnedPurchase onFailure: " + returnCode);
             } else {
+                // Other External Errors
                 // 其他外部错误
                 HMSLogHelper.getSingletonInstance().debug(TAG, "ConsumeOwnedPurchase onFailure.");
             }
@@ -301,6 +324,8 @@ public class HomeActivity extends Activity implements View.OnClickListener {
     }
 
     /**
+     * @param productId  After the supplement is successful, the system distributes the corresponding virtual offering based on the offering ID, updates the bonus point display control, and saves the control to the local share file.
+     **
      * @param productId 补单消耗成功后，根据商品ID进行发放对应的虚拟商品,刷新积分显示控件,并保存至本地share文件存储中。
      */
     @SuppressLint("SetTextI18n")
@@ -323,6 +348,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
      * 显示游戏浮标。
      */
     private void showFloatWindowNewWay() {
+        // Invoke the float interface after the init operation is successful.
         // 请务必在init成功后，调用浮标接口
         Games.getBuoyClient(this).showFloatWindow();
     }
@@ -347,11 +373,14 @@ public class HomeActivity extends Activity implements View.OnClickListener {
         @Override
         public void onUpdateInfo(Intent intent) {
             if (intent != null) {
+                // Update status information
                 // 更新状态信息
                 int status = intent.getIntExtra(UpdateKey.STATUS, -99);
                 HMSLogHelper.getSingletonInstance().debug(TAG, "check update status is:" + status);
+                // Return the error code.
                 // 返回错误码
                 int rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, -99);
+                // Return failure information.
                 // 返回失败信息
                 String rtnMessage = intent.getStringExtra(UpdateKey.FAIL_REASON);
                 if (status == NO_UPGRADE_INFO) {
@@ -359,15 +388,18 @@ public class HomeActivity extends Activity implements View.OnClickListener {
                 } else {
                     Toast.makeText(HomeActivity.this, getString(R.string.update_des) + status, Toast.LENGTH_LONG).show();
                 }
+                // Check whether the user clicks the “exit” button after the dialog box is displayed when the application is forcibly updated.
                 // 强制更新应用时，弹出对话框后用户是否点击“退出应用”按钮
                 boolean isExit = intent.getBooleanExtra(UpdateKey.MUST_UPDATE, false);
                 HMSLogHelper.getSingletonInstance().debug(TAG, "rtnCode = " + rtnCode + "rtnMessage = " + rtnMessage);
 
                 Serializable info = intent.getSerializableExtra(UpdateKey.INFO);
+                // If the info type is ApkUpgradeInfo, the update dialog box is displayed.
                 // 如果info属于ApkUpgradeInfo类型，则拉起更新弹框
                 if (info instanceof ApkUpgradeInfo) {
                     Context context = mContextWeakReference.get();
                     if (context != null) {
+                        // Different values of the last field in the showUpdateDialog interface bring different user experience. For details, see the scenario description in this document. The following uses false as an example.
                         // showUpdateDialog接口中最后一个字段传入不同取值会带来不同的用户体验，具体请参考本文档的场景描述，此处以false为例
                         JosApps.getAppUpdateClient(context).showUpdateDialog(context, (ApkUpgradeInfo) info, false);
                     }
@@ -375,6 +407,7 @@ public class HomeActivity extends Activity implements View.OnClickListener {
                 }
                 HMSLogHelper.getSingletonInstance().debug(TAG, "check update isExit=" + isExit);
                 if (isExit) {
+                    // Forcibly update the application. If the user chooses to exit the application in the displayed upgrade dialog box, the processing logic is controlled by you. The following is only an example.
                     // 是强制更新应用，用户在弹出的升级提示框中选择了“退出应用”，处理逻辑由您自行控制，这里只是个例子
                     System.exit(0);
                 }

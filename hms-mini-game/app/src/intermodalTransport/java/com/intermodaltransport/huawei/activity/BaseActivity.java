@@ -33,6 +33,8 @@ import com.intermodaltransport.huawei.ExitApplication;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
+ * This file is to be extracted as a base class activity to extract all common logic and code blocks such as initialization and buoy.
+ * *
  * 此文件准备抽取出来，做基类Activity，提取所有公共逻辑以及初始化、浮标等代码块。
  */
 public class BaseActivity extends AppCompatActivity {

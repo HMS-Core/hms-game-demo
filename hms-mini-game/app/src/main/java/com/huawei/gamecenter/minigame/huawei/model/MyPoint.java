@@ -44,6 +44,7 @@ public class MyPoint {
         this.y = y;
     }
 
+    // Method of moving points
     // 点移动的方法
     /*
      * moveStep:步长
@@ -63,6 +64,7 @@ public class MyPoint {
         else set((int) (getX() + moveX), (int) (getY() + moveY));
     }
 
+    // Whether to leave the area
     // 是否离开该区域
     public boolean isOutOfBounds(int boundWidth, int boundHeight) {
         if (getX() > boundWidth || getX() < 0) {
@@ -72,6 +74,7 @@ public class MyPoint {
         }
     }
 
+    // Whether to leave the area. Ignore the top
     // 是否离开该区域，忽略顶部
     public boolean isOutOfBoundsWithOutTop(int boundWidth, int boundHeight) {
         if (getX() < 0 || getX() > boundWidth) {

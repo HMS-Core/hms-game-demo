@@ -131,6 +131,7 @@ public class MyCustomView extends View implements GameControler {
         canvas.drawBitmap(artilleryObj.getBitmap(), artilleryObj.getMatrix(), artilleryObj.getPaint());
         for (int i = 0; i < enemyPoints.size(); i++) {
             if (enemyPoints.get(i).getY() + bmBoom.getHeight() / 2 >= cordon) {
+                // Cannonballs cross the cordon, game ends.
                 // 炮弹越过警戒线游戏终止
                 canvas.drawBitmap(bmBoom, enemyPoints.get(i).getX(), enemyPoints.get(i).getY(), enemy.getPaint());
                 gmEnd();
@@ -151,11 +152,13 @@ public class MyCustomView extends View implements GameControler {
             if (bulletPoints.get(i).isOutOfBounds(screenWidth, screenHeight)) {
                 bulletPoints.remove(i--);
             } else {
+                // Move all the dots
                 // 移动所有的点
                 canvas.drawBitmap(bullet.getBitmap(), bulletPoints.get(i).getX() - bullet.getBitmap().getWidth() / 2, bulletPoints.get(i).getY() - (int) (artilleryObj.getBitmap().getHeight() * 0.9), bullet.getPaint());
                 if (!isRefresh) {
                     bulletPoints.get(i).move(bullet.getMoveStep() + 15, false);
                 }
+                // Collision or not
                 // 是否发生碰撞
                 for (int j = 0; j < enemyPoints.size(); j++) {
                     MyRect r = new MyRect();
@@ -164,10 +167,13 @@ public class MyCustomView extends View implements GameControler {
                     p.setBounds(enemyPoints.get(j).getX(), enemyPoints.get(j).getY(), (int) (bmDaoDan.getWidth() * 0.5), (int) (bmDaoDan.getHeight() * 0.6));
                     if (r.allIntersects(p)) {
                         canvas.drawBitmap(bmBoom, enemyPoints.get(j).getX(), enemyPoints.get(j).getY(), enemy.getPaint());
+                        // Remove the bullets
                         // 移除子弹
                         bulletPoints.remove(i--);
+                        // Remove the enemy
                         // 移除敌人
                         enemyPoints.remove(j);
+                        // A listening event occurs.
                         // 发生监听事件
                         if (beatEnemyListener != null)
                             beatEnemyListener.onBeatEnemy(0);
@@ -179,6 +185,8 @@ public class MyCustomView extends View implements GameControler {
 
         }
 
+        // If the number of enemies has not reached the maximum and is not generating enemies, continue to generate enemies and the game does not start
+        // The maximum number of enemies
         // 如果敌人未到达最大数量，并且不在生成敌人，继续生成敌人,并且游戏未开始
         // 敌人的最大数量
         int maxEnemyNum = 6;
@@ -193,8 +201,10 @@ public class MyCustomView extends View implements GameControler {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Calculate the angle between the horizontal axis and the line connected to the center of the cannon and the clicked position, and ignore this change for the time being.
         // 计算水平轴与 大炮中心和点击的位置连成的直线 之间的夹角,暂时不考虑此变化。
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            // Fort rotation direction
             // 炮台旋转方向
             float currentRotate;
             if ((event.getY() > artilleryObj.getCenterY()) & (event.getX() > artilleryObj.getCenterX()) || (event.getY() > artilleryObj.getCenterY()) & (artilleryObj.getCenterX() > event.getX())) {
@@ -204,7 +214,7 @@ public class MyCustomView extends View implements GameControler {
             } else {
                 currentRotate = (float) Math.toDegrees(Math.atan((artilleryObj.getCenterY() - event.getY()) / (event.getX() - artilleryObj.getCenterX())));
             }
-
+            // Add the clicked position to the set of points. It is not controlled temporarily. It is a bug function.
             // 将点击的位置放入点的集合中,暂时不控制，作为bug功能
             if (!isRefresh) {
                 bulletPoints.add(new MyPoint(artilleryObj.getCenterX(), artilleryObj.getCenterY(), Math.toRadians(currentRotate)));
@@ -214,6 +224,7 @@ public class MyCustomView extends View implements GameControler {
         return true;
     }
 
+    // Generating a missile
     // 生成导弹 instantiateEnemy
     private void instantiateEnemy() {
         if (!isRefresh) {
@@ -227,6 +238,8 @@ public class MyCustomView extends View implements GameControler {
     }
 
     /**
+     * This is the control flag switch that controls whether to continue drawing on the game interface.
+     **
      * 此处为控制游戏界面是否继续绘制的控制标识开关。
      */
     @Override
@@ -241,6 +254,7 @@ public class MyCustomView extends View implements GameControler {
 
     @Override
     public void setAbscissa(int dpX) {
+        // Set the position coordinates of the fort left and right
         // 设置炮台左右的位置坐标
         artilleryObj.setCenterX(artilleryObj.getCenterX() + dpX);
     }
@@ -264,9 +278,12 @@ public class MyCustomView extends View implements GameControler {
             beatEnemyListener.gameEnd(Constant.MODE_ONE);
     }
 
+    // Designing surveillance when hitting an enemy
     // 设计击中敌人时的监听
     public interface BeatEnemyListener {
         /**
+         * @param showMode  This value is used to determine whether to terminate the game. Currently, the number of targets is temporarily destroyed.
+         **
          * @param showMode 后续通过这个数值进行判断是否终止游戏，目前暂时定为消灭目标数量
          */
         void onBeatEnemy(int showMode);

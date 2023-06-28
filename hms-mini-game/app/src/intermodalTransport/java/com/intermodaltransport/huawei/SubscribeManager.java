@@ -49,6 +49,12 @@ public class SubscribeManager {
     }
 
     /**
+     * Check whether the subscription takes effect.
+     * @param obtainScoreLayout  Obtain the bonus point layout
+     * @param activity           Activity object
+     * @param currentId          Current player ID
+     * @param callback           Purchase data callback, which can be customized to process data.
+     **
      * 检查订阅是否生效
      *
      * @param obtainScoreLayout 获取积分布局
@@ -57,13 +63,17 @@ public class SubscribeManager {
      * @param callback         购买数据回调，可以自定义处理数据
      */
     public void checkSubIsValidAndRefreshView(View obtainScoreLayout, Activity activity, String currentId, Callback callback) {
+        // Construct a PurchaseIntentReq object.
         // 构造一个OwnedPurchasesReq对象
         OwnedPurchasesReq ownedPurchasesReq = new OwnedPurchasesReq();
+        // priceType: 2: subscription product
         // priceType: 2：订阅型商品
         ownedPurchasesReq.setPriceType(Constant.PurchasesPriceType.PRICE_TYPE_SUBSCRIBING_OFFERING);
+        // Invoke the obtainOwnedPurchases interface
         // 调用obtainOwnedPurchases接口
         Task<OwnedPurchasesResult> task = Iap.getIapClient(activity).obtainOwnedPurchases(ownedPurchasesReq);
         task.addOnSuccessListener(result -> {
+            // Obtain the interface request result.
             // 获取接口请求结果
             if (result == null
                     || result.getInAppPurchaseDataList() == null
@@ -83,6 +93,7 @@ public class SubscribeManager {
                 int returnCode = apiException.getStatusCode();
                 HMSLogHelper.getSingletonInstance().debug(TAG, "returnCode: " + returnCode);
             } else {
+                // Other External Errors
                 // 其他外部错误
                 HMSLogHelper.getSingletonInstance().debug(TAG, "other error");
             }
@@ -90,6 +101,7 @@ public class SubscribeManager {
     }
 
     /**
+     * The button for obtaining bonus points is updated based on the obtained subscription result.
      * 根据获取的生效的订阅结果刷新获取积分按钮
      *
      * @param obtainScoreLayout   获取积分布局
@@ -103,6 +115,8 @@ public class SubscribeManager {
         }
         for (int i = 0; i < result.getInAppPurchaseDataList().size(); i++) {
             String inAppPurchaseData = result.getInAppPurchaseDataList().get(i);
+            // You need to use your app's IAP public key to verify the signature of inAppPurchaseData.
+            // If the verification is successful, check the payment status and subscription status.
             // 您需要使用您的应用的IAP公钥验证inAppPurchaseData的签名
             // 如果验签成功，请检查支付状态和订阅状态
             try {
@@ -126,7 +140,8 @@ public class SubscribeManager {
     }
 
     /**
-     *
+     * Call back the obtained purchase data.
+     **
      * 回调获取的购买数据
      */
     public interface Callback {

@@ -101,6 +101,7 @@ public class UserInfoActivity extends Activity {
                 onlineTimes.setText(checkAndConversionNumbers(gamePlayerStatistics.getOnlineTimes()) + getString(R.string.userinfo_times));
                 payAmountRange.setText(convertTotalPaymentRange(gamePlayerStatistics.getTotalPurchasesAmountRange()));
             } else {
+                // If the value of gamePlayerStatistics is null, all data is updated to 0 by default.
                 // 当gamePlayerStatistics获取为null时，界面默认刷新所有数据为0。
                 int defaultNumber = 0;
                 averageOnLineMinutes.setText("" + defaultNumber + getString(R.string.userinfo_minute));
@@ -117,6 +118,7 @@ public class UserInfoActivity extends Activity {
         });
     }
 
+    // When - 1 is returned, it is converted to 0.
     // 当返回-1时，转换成0
     private String checkAndConversionNumbers(float data) {
         if (String.valueOf(data).equals("-1.0")) {
@@ -125,6 +127,7 @@ public class UserInfoActivity extends Activity {
         return String.valueOf(data);
     }
 
+    // When - 1 is returned, it is converted to 0.
     // 当返回-1时，转换成0
     private String checkAndConversionNumbers(int data) {
         if (String.valueOf(data).equals("-1")) {
@@ -134,27 +137,36 @@ public class UserInfoActivity extends Activity {
     }
 
     /**
+     * @param totalPurchasesAmountRange  Use a number from 1 to 6.
+     * @return  Total payment amount range of the current player within 12 months, in dollars.
+     **
      * @param totalPurchasesAmountRange 使用1到6的数字表示。
      * @return 当前玩家12个月内总付费额度的区间，以美元为单位。
      */
     private String convertTotalPaymentRange(int totalPurchasesAmountRange) {
         switch (totalPurchasesAmountRange) {
+            // Under $10
             // 10美元以下
             case 2:
                 return "<10$";
-            // 10美元以上（含10美元），50美元以下。
+                // $10+ (inclusive) and under $50.
+                // 10美元以上（含10美元），50美元以下。
             case 3:
                 return ">=10$" + getString(R.string.and) + "<50$";
-            // 50美元以上（含50美元），300美元以下。
+                // $50+ (inclusive) and under $300.
+                // 50美元以上（含50美元），300美元以下。
             case 4:
                 return ">=50$" + getString(R.string.and) + "<300$";
-            // 300美元以上（含300美元），1000美元以下。
+                // $300+ (inclusive) and under $1000.
+                // 300美元以上（含300美元），1000美元以下。
             case 5:
                 return ">=300$" + getString(R.string.and) + "<1000$";
-            // 1000美元以上。
+                // Over $ 1,000.
+                // 1000美元以上。
             case 6:
                 return ">=1000$";
-            // 无消费。
+                // No consumption.
+                // 无消费。
             default:
                 return getString(R.string.no_consumption);
         }
@@ -173,6 +185,7 @@ public class UserInfoActivity extends Activity {
     }
 
     private void startIapActivity() {
+        // Create a StartIapActivityReq object.
         // 创建一个StartIapActivityReq对象
         StartIapActivityReq req = new StartIapActivityReq();
         req.setType(StartIapActivityReq.TYPE_SUBSCRIBE_MANAGER_ACTIVITY);
@@ -180,6 +193,7 @@ public class UserInfoActivity extends Activity {
         Task<StartIapActivityResult> task = mClient.startIapActivity(req);
         task.addOnSuccessListener(result -> {
             HMSLogHelper.getSingletonInstance().debug(TAG, "onSuccess");
+            // If the request is successful, the page returned by the IAP needs to be started.
             // 请求成功，需拉起IAP返回的页面
             if (result != null) {
                 result.startActivity(UserInfoActivity.this);

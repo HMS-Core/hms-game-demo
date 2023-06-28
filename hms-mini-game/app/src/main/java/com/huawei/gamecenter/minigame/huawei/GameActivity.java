@@ -81,8 +81,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Set this parameter to Untitled (delete the Android title bar). (The full-screen function is irrelevant to this function.)
         // 设置为无标题(去掉Android自带的标题栏)，(全屏功能与此无关)
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // Set to full screen mode
         // 设置为全屏模式
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -197,6 +199,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
+     * @param s  Pop-up prompt, long prompt!
+     **
      * @param s 弹窗提示，长提示语！
      */
     private void showToast(String s) {
@@ -204,6 +208,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
+     * @param clickMode  Click the event distribution flag
+     **
      * @param clickMode 点击事件分发标识
      */
     private void showAlertDialog(int clickMode) {
@@ -219,11 +225,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 gameDrawView.setEmSpd(Constant.MODE_THREE, currentLevel);
                 gameDrawView.gameSwitch(false);
                 updateScoreAndLevel();
+                // Start the timer.
                 // 开启定时器
                 initTimeCount(timeSecond);
                 alertDialog.dismiss();
             });
         }
+        // Bonus points are used up. Are you sure you want to purchase bonus points?
         // 积分消耗完毕 是否购买积分
         if (clickMode == Constant.MODE_ONE) {
             alertDialog = new AlertDialog.Builder(this, R.style.simpleDialogStyle)
@@ -239,9 +247,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 //                gameScoreSetting(currentScore);
 //                gameDrawView.gameSwitch(false);
 //                updateScoreAndLevel();
+                  // Start the timer.
 //                // 开启定时器
 //                initTimeCount(timeSecond);
                 alertDialog.dismiss();
+                // Switch to the payment page.
                 // 跳转开启支付界面
                 Intent intent = new Intent(GameActivity.this, ShoppingActivity.class);
                 Bundle bundle = new Bundle();
@@ -262,13 +272,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             alertDialog.findViewById(R.id.btn_startAgain).setOnClickListener(v1 -> {
                 gameDrawView.gameSwitch(false);
                 gameDrawView.setEmSpd(Constant.M0DE_TWO, currentLevel);
+                // Start the timer.
                 // 开启定时器
                 initTimeCount(timeSecond);
+                // Cache data, start over
                 // 缓存数据，重新开始
                 updateScoreAndLevel();
                 alertDialog.dismiss();
             });
         }
+        // Game clearance all, choose to restart or exit the game.
         // 游戏通关全部，选择重新开始还是  退出游戏
         if (clickMode == Constant.MODE_FOUR) {
             alertDialog = new AlertDialog.Builder(this, R.style.simpleDialogStyle)
@@ -284,12 +297,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 gameLevelSetting(currentLevel);
                 gameDrawView.setEmSpd(Constant.MODE_THREE, currentLevel);
                 gameDrawView.gameSwitch(false);
+                // Start the timer.
                 // 开启定时器
                 initTimeCount(timeSecond);
                 alertDialog.dismiss();
             });
+            // Game Exit
             // 游戏退出
             alertDialog.findViewById(R.id.game_exit).setOnClickListener(v13 -> {
+                // Return to the upper-layer interface. Close the interface first.
                 // 返回上层界面,此处先关闭界面
                 GameActivity.this.finish();
                 alertDialog.dismiss();
@@ -330,6 +346,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
+     * @param levelNumber    Game level setting display
+     **
      * @param levelNumber 游戏关卡设置显示
      */
     private void gameLevelSetting(int levelNumber) {
@@ -342,6 +360,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
+     *  @param score    Game Bonus Point Change Settings
+     *                 The storage logic can be added in the following method.
+     **
      * @param score 游戏积分变化设置
      *              后续此处方法可增加存储逻辑
      */
@@ -351,6 +372,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
+     * @param timeSecond   Game Remaining Time Settings
+     **
      * @param timeSecond 游戏剩余时间设置
      */
     @SuppressLint("SetTextI18n")

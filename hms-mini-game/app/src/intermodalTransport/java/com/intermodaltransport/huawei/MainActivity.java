@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Initializes all controls.
-     * *
+     **
      * 初始化所有控件。
      */
     private void initView() {
@@ -101,8 +101,10 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.visitors_login).setOnClickListener(new MyClickListener());
         findViewById(R.id.unauthorized_login).setOnClickListener(new MyClickListener());
         dialog = new LoadingDialog(MainActivity.this);
+        // Click External only and cannot be canceled.
         // 仅点击外部不可取消
         dialog.setCanceledOnTouchOutside(false);
+        // Click the back key or external cannot be canceled.
         // 点击返回键和外部都不可取消
         dialog.setCancelable(false);
     }
@@ -122,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Initialization of SDK, this method should be called while the main page of your application starting.
      * Then you can use functions of Game Setvice SDK and notice will show(if there is a notice).
-     * *
+     **
      * SDK初始化，需要在应用首页启动时调用, 调用后才能正常使用SDK其他功能和展示公告。
      */
     public void init() {
@@ -147,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         initTask.addOnSuccessListener(aVoid -> {
             HMSLogHelper.getSingletonInstance().debug(TAG, "init success");
             hasInit = true;
-            //  Make sure that the interface of showFloatWindow() is successfully called once after the game has been initialized successfully
+            // Make sure that the interface of showFloatWindow() is successfully called once after the game has been initialized successfully
             // 游戏初始化成功后务必成功调用过一次浮标显示接口
             showFloatWindowNewWay();
             checkUpdate();
@@ -382,6 +384,7 @@ public class MainActivity extends AppCompatActivity {
                 // Return the error code.
                 // 返回错误码
                 int rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, -99);
+                // Return failure information.
                 // 返回失败信息
                 String rtnMessage = intent.getStringExtra(UpdateKey.FAIL_REASON);
                 if (status == NO_UPGRADE_INFO) {
@@ -389,15 +392,18 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(MainActivity.this, getString(R.string.update_des) + status, Toast.LENGTH_LONG).show();
                 }
+                // Check whether the user clicks the Exit button after a dialog box is displayed during forcible application update.
                 // 强制更新应用时，弹出对话框后用户是否点击“退出应用”按钮
                 boolean isExit = intent.getBooleanExtra(UpdateKey.MUST_UPDATE, false);
                 HMSLogHelper.getSingletonInstance().debug(TAG, "rtnCode = " + rtnCode + "rtnMessage = " + rtnMessage);
 
                 Serializable info = intent.getSerializableExtra(UpdateKey.INFO);
+                // If the info type is ApkUpgradeInfo, the update dialog box is displayed.
                 // 如果info属于ApkUpgradeInfo类型，则拉起更新弹框
                 if (info instanceof ApkUpgradeInfo) {
                     Context context = mContextWeakReference.get();
                     if (context != null) {
+                        // Different values of the last field in the showUpdateDialog interface bring different user experience. For details, see the scenario description in this document. The following uses false as an example.
                         // showUpdateDialog接口中最后一个字段传入不同取值会带来不同的用户体验，具体请参考本文档的场景描述，此处以false为例
                         JosApps.getAppUpdateClient(context).showUpdateDialog(context,(ApkUpgradeInfo) info,false);
                     }
@@ -405,6 +411,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 HMSLogHelper.getSingletonInstance().debug(TAG, "check update isExit=" + isExit);
                 if (isExit) {
+                    // Forcibly update the application. The user chooses to exit the application in the displayed upgrade dialog box. The processing logic is controlled by you. The following is only an example.
                     // 是强制更新应用，用户在弹出的升级提示框中选择了“退出应用”，处理逻辑由您自行控制，这里只是个例子
                     System.exit(0);
                 }
@@ -435,6 +442,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Implement all page control click events.
+     **
      * 实现所有页面控件点击事件
      */
     private class MyClickListener implements View.OnClickListener {

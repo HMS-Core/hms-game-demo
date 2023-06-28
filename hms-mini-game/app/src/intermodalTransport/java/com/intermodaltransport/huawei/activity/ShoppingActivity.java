@@ -92,20 +92,26 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
     @SuppressLint("DefaultLocale")
     private void showProductInfo() {
         List<String> productIdList = new ArrayList<>();
+        // The product to be queried must be configured on the AppGallery Connect website.
         // 查询的商品必须是您在AppGallery Connect网站配置的商品
         productIdList.add("20points");
         productIdList.add("100points");
         ProductInfoReq req = new ProductInfoReq();
+        // priceType: 0 :consumable product 1: non-consumable product; 2: subscription product
         // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
         req.setPriceType(Constant.PurchasesPriceType.PRICE_TYPE_CONSUMABLE_GOODS);
         req.setProductIds(productIdList);
+        // Obtain the Activity object that invokes the interface.
         // 获取调用接口的Activity对象
         final Activity activity = ShoppingActivity.this;
+        // Invoke the obtainProductInfo interface to obtain offering details configured on the AppGallery Connect website.
         // 调用obtainProductInfo接口获取AppGallery Connect网站配置的商品的详情信息
         Task<ProductInfoResult> task = Iap.getIapClient(activity).obtainProductInfo(req);
         task.addOnSuccessListener(result -> {
+            // Obtain the product's details returned when the interface request is successful.
             // 获取接口请求成功时返回的商品详情信息
             mProductList = result.getProductInfoList();
+            // After the offering list is obtained, it needs to be updated. Currently, only two offering display effects are set in this demo. Multiple offering lists can be displayed cyclically in the list view.
             // 商品列表查询成功获取之后，需要进行刷新,此demo当前只设置了两个商品展示效果，对于多个商品列表展示可以采用循环配合listView展示。
             setProductInfo(mProductList);
         }).addOnFailureListener(e -> {
@@ -200,27 +206,38 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
 
 
     /**
+     * Initiate a payment purchase
+     **
      * 启动支付购买
      */
     private void startPay(String productId) {
         currentProductId = productId;
+        // Construct a PurchaseIntentReq object.
         // 构造一个PurchaseIntentReq对象
         PurchaseIntentReq req = new PurchaseIntentReq();
+        // The offerings to be purchased through the createPurchaseIntent interface must be those configured on the AppGallery Connect website.
         // 通过createPurchaseIntent接口购买的商品必须是您在AppGallery Connect网站配置的商品。
         req.setProductId(productId);
+        // priceType: 0 :consumable product 1: non-consumable product; 2: subscription product
         // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
         req.setPriceType(Constant.PurchasesPriceType.PRICE_TYPE_CONSUMABLE_GOODS);
+        // developerPayload:User-defined field, which is generally used to carry the remarks of the current payment order. After the payment is successful, the value of this field is returned in the payment callback.
         // developerPayload:自定义字段，一般用于携带本次支付订单的备注信息，支付成功之后在支付回调中会原样返回该字段信息。
         req.setDeveloperPayload("test miniGame product pay.");
+        // Obtain the Activity object that invokes the interface.
         // 获取调用接口的Activity对象
         final Activity activity = ShoppingActivity.this;
+        // Invoke the createPurchaseIntent interface to create a hosting offering order.
         // 调用createPurchaseIntent接口创建托管商品订单
         Task<PurchaseIntentResult> task = Iap.getIapClient(activity).createPurchaseIntent(req);
         task.addOnSuccessListener(result -> {
+            // Obtain the order creation result.
             // 获取创建订单的结果
             Status status = result.getStatus();
             if (status.hasResolution()) {
                 try {
+                    // 6666 is your custom constant
+                    // Launch the cashier page returned by the IAP
                     // 6666是您自定义的常量
                     // 启动IAP返回的收银台页面
                     HMSLogHelper.getSingletonInstance().debug(TAG, "onSuccess:" + result.getReturnCode());
@@ -246,23 +263,29 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
             return;
         }
         if (requestCode == Constant.START_RESOLUTION_REQUEST_CODE) {
+            // Invoke the parsePurchaseResultInfoFromIntent method to parse the payment result data.
             // 调用parsePurchaseResultInfoFromIntent方法解析支付结果数据
             PurchaseResultInfo purchaseResultInfo = Iap.getIapClient(this).parsePurchaseResultInfoFromIntent(data);
             switch (purchaseResultInfo.getReturnCode()) {
                 case OrderStatusCode.ORDER_STATE_CANCEL:
+                    // User cancel
                     // 用户取消
-
                     break;
                 case OrderStatusCode.ORDER_STATE_FAILED:
                 case OrderStatusCode.ORDER_STATE_DEFAULT_CODE:
                 case OrderStatusCode.ORDER_PRODUCT_OWNED:
+                    // Check whether there are unshipped products.
                     // 检查是否存在未发货商品
                     HMSLogHelper.getSingletonInstance().debug(TAG, "product is owned !");
                     obtainOwnedProduct();
                     break;
                 case OrderStatusCode.ORDER_STATE_SUCCESS:
+                    // The payment is successful.
                     // 支付成功
                     String inAppPurchaseData = purchaseResultInfo.getInAppPurchaseData();
+                    // Verify signatures using your application's IAP public key
+                    // If the acceptance is successful, ship the goods.
+                    // If the purchased product is a consumable product, you need to invoke the consumeOwnedPurchase interface to consume the product after the delivery is successful.
                     // 使用您应用的IAP公钥验证签名
                     // 若验签成功，则进行发货
                     // 若用户购买商品为消耗型商品，您需要在发货成功后调用consumeOwnedPurchase接口进行消耗
@@ -283,9 +306,12 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
         }
 
         if (requestCode == Constant.START_IS_ENV_READY_REQUEST_CODE) {
+            // Callback for redirecting to the isEnvReady interface
+            // Invoke the parseRespCodeFromIntent method to obtain the interface request result
             // isEnvReady 接口跳转回调
             // 使用parseRespCodeFromIntent方法获取接口请求结果
             int returnCode = IapClientHelper.parseRespCodeFromIntent(data);
+            // Invoke the parseCarrierIdFromIntent method to obtain the carrier ID returned by the interface.
             // 使用parseCarrierIdFromIntent方法获取接口返回的运营商ID
             String carrierId = IapClientHelper.parseCarrierIdFromIntent(data);
             HMSLogHelper.getSingletonInstance().debug(TAG, String.format("parseRespCodeFromIntent return code is :%d", returnCode));
@@ -302,19 +328,26 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
     }
 
     private void obtainOwnedProduct() {
+        // Construct a OwnedPurchasesReq object.
         // 构造一个OwnedPurchasesReq对象
         OwnedPurchasesReq ownedPurchasesReq = new OwnedPurchasesReq();
+        // priceType: 0 :consumable product 1: non-consumable product; 2: subscription product
         // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
         ownedPurchasesReq.setPriceType(Constant.PurchasesPriceType.PRICE_TYPE_CONSUMABLE_GOODS);
+        // Obtain the Activity object that invokes the interface.
         // 获取调用接口的Activity对象
         final Activity activity = ShoppingActivity.this;
+        // Invoke the obtainOwnedPurchases interface to obtain the purchase information of all purchased but not delivered consumables.
         // 调用obtainOwnedPurchases接口获取所有已购但未发货的消耗型商品的购买信息
         Task<OwnedPurchasesResult> task = Iap.getIapClient(activity).obtainOwnedPurchases(ownedPurchasesReq);
         task.addOnSuccessListener(result -> {
+            // Obtain the interface request success result.
             // 获取接口请求成功的结果
             if (result != null && result.getInAppPurchaseDataList() != null) {
                 for (int i = 0; i < result.getInAppPurchaseDataList().size(); i++) {
                     String inAppPurchaseData = result.getInAppPurchaseDataList().get(i);
+                    // Use the IAP public key of the application to verify the signature data of inAppPurchaseData.
+                    // If the verification is successful, check the purchase status of each product. After confirming that the goods have been paid, check whether the goods have been shipped before. If the goods have not been shipped, ship the goods. Perform the consumption operation after the shipment is successful.
                     // 使用应用的IAP公钥验证inAppPurchaseData的签名数据
                     // 如果验签成功，确认每个商品的购买状态。确认商品已支付后，检查此前是否已发过货，未发货则进行发货操作。发货成功后执行消耗操作
                     try {
@@ -332,6 +365,7 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
                 int returnCode = apiException.getStatusCode();
                 HMSLogHelper.getSingletonInstance().debug(TAG, String.format("IAP API obtainOwnedPurchases return code : %d", returnCode));
             } else {
+                // Other External Errors
                 // 其他外部错误
                 HMSLogHelper.getSingletonInstance().debug(TAG, "IAP API obtainOwnedPurchases others error.");
             }
@@ -340,14 +374,18 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
 
 
     private void consumeGood(String purchaseToken) {
+        // Construct a ConsumeOwnedPurchasesReq object.
         // 构造一个ConsumeOwnedPurchaseReq对象
         ConsumeOwnedPurchaseReq req = new ConsumeOwnedPurchaseReq();
         req.setPurchaseToken(purchaseToken);
+        // Obtain the Activity object that invokes the interface.
         // 获取调用接口的Activity对象
         final Activity activity = ShoppingActivity.this;
+        // Invoke the consumeOwnedPurchase interface.
         // 调用consumeOwnedPurchase接口
         Task<ConsumeOwnedPurchaseResult> task = Iap.getIapClient(activity).consumeOwnedPurchase(req);
         task.addOnSuccessListener(result -> {
+            // Obtain the result information when the interface request is successful.
             // 获取接口请求成功时的结果信息
             HMSLogHelper.getSingletonInstance().debug(TAG, "ConsumeOwnedPurchase onSuccess: " + result.getReturnCode());
         }).addOnFailureListener(e -> {
@@ -360,13 +398,17 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
     }
 
     /**
+     * checkIapEnv   Check whether the current payment environment meets requirements. For example, check whether the Huawei account has logged in to the HMS Core background.
+     **
      * checkIapEnv   检查当前支付环境是否满足要求，例如HMS Core后台华为账号是否是已登录状态
      */
     private void checkIapEnv() {
+        // Obtain the Activity object that invokes the interface.
         // 获取调用接口的Activity对象
         final Activity activity = ShoppingActivity.this;
         Task<IsEnvReadyResult> task = Iap.getIapClient(activity).isEnvReady();
         task.addOnSuccessListener(result -> {
+            // Displaying Offering Information
             // 展示商品信息
             showProductInfo();
         });
@@ -375,9 +417,11 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
                 IapApiException apiException = (IapApiException) e;
                 Status status = apiException.getStatus();
                 if (status.getStatusCode() == OrderStatusCode.ORDER_HWID_NOT_LOGIN) {
+                    // You have not logged in to the account.
                     // 未登录帐号
                     if (status.hasResolution()) {
                         try {
+                            // Login page returned when IAP is started
                             // 启动IAP返回的登录页面
                             status.startResolutionForResult(activity, Constant.START_IS_ENV_READY_REQUEST_CODE);
                         } catch (IntentSender.SendIntentException exp) {
@@ -385,10 +429,12 @@ public class ShoppingActivity extends Activity implements View.OnClickListener {
                         }
                     }
                 } else if (status.getStatusCode() == OrderStatusCode.ORDER_ACCOUNT_AREA_NOT_SUPPORTED) {
+                    // The service location of the user's current HUAWEI ID is not in the country/region where Huawei IAP supports settlement.
                     // 用户当前登录的华为帐号所在的服务地不在华为IAP支持结算的国家/地区中
                     HMSLogHelper.getSingletonInstance().debug(TAG, "Not in support area.");
                 }
             } else {
+                // Other External Errors
                 // 其他外部错误
                 HMSLogHelper.getSingletonInstance().debug(TAG, "other error");
             }
