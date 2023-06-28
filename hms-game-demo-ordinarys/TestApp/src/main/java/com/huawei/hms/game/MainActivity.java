@@ -75,6 +75,7 @@ public class MainActivity extends BaseActivity {
         init();
 
         // you can call these method orderly to check update when your app starting up
+        // 在应用程序启动时按调用检查更新接口
         // checkUpdate();
     }
 
@@ -140,6 +141,7 @@ public class MainActivity extends BaseActivity {
             // Make sure that the interface of showFloatWindow() is successfully called once after the game has been initialized successfully
             // 游戏初始化成功后务必成功调用过一次浮标显示接口
             showFloatWindowNewWay();
+            // The login interface can be invoked only after the init operation is successful.
             // 一定要在init成功后，才可以调用登录接口
             // signIn();
         }).addOnFailureListener(
@@ -157,11 +159,11 @@ public class MainActivity extends BaseActivity {
                             // Error code 7002 indicates network error
                             // 错误码7002表示网络异常
                             showLog("network error");
+                            // // You can ask the player to check the network. Do not invoke the init interface repeatedly. Otherwise, the phone may consume a lot of power if the network is disconnected.
                             // 此处您可提示玩家检查网络，请不要重复调用init接口，否则断网情况下可能会造成手机高耗电。
-                            // You can ask the player to check the network. Do not invoke the init interface repeatedly. Otherwise, the phone may consume a lot of power if the network is disconnected.
                         } else if (statusCode == 907135003) {
-                            // 907135003表示玩家取消HMS Core升级或组件升级
                             // 907135003 indicates that user rejected the installation or upgrade of HMS Core.
+                            // 907135003表示玩家取消HMS Core升级或组件升级
                             showLog("init statusCode=" + statusCode);
                             init();
                         } else {
@@ -182,8 +184,8 @@ public class MainActivity extends BaseActivity {
     @OnClick(R.id.btn_sign_in)
     public void signIn() {
         showLog("begin login and current hasInit=" + hasInit);
+        // Be sure to call the signIn API after the init is successful
         // 一定要在init成功后，才可以调用登录接口
-        // Be sure to call the login API after the init is successful
         Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getHuaweiIdParams()).silentSignIn();
         authAccountTask
                 .addOnSuccessListener(
@@ -211,12 +213,15 @@ public class MainActivity extends BaseActivity {
      */
     @OnClick(R.id.btn_unauthorized_login)
     public void unauthorizedLogin() {
+        // Be sure to call the signIn API after the init is successful
         // 必须在init成功后，才可以实现登录功能
         Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getUnauthorizedAccountAuthParams()).silentSignIn();
         authAccountTask.addOnSuccessListener(
                 authAccount -> {
                     showLog("signIn success");
-                    getGamePlayer();   // 获取玩家信息
+                    getGamePlayer();
+                    // To get player information
+                    // 获取玩家信息
                 })
                 .addOnFailureListener(
                         e -> {
@@ -224,6 +229,7 @@ public class MainActivity extends BaseActivity {
                                 ApiException apiException = (ApiException) e;
                                 showLog("signIn failed:" + apiException.getStatusCode());
                                 showLog("start getSignInIntent");
+                                // Call the signInIntent API here
                                 // 在此处实现显式登录
                                 signInNewWay(getUnauthorizedAccountAuthParams());
                             }
@@ -351,6 +357,7 @@ public class MainActivity extends BaseActivity {
      */
     private void showFloatWindowNewWay() {
         if (hasInit) {
+            // Be sure to call the floatWindow API after the init is successful
             // 请务必在init成功后，调用浮标接口
             Games.getBuoyClient(this).showFloatWindow();
         }
@@ -397,21 +404,26 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onUpdateInfo(Intent intent) {
             if (intent != null) {
+                // Update status information
                 // 更新状态信息
                 int status = intent.getIntExtra(UpdateKey.STATUS, -99);
                 Log.i(TAG, "check update status is:" + status);
+                // Return the error code.
                 // 返回错误码
                 int rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, -99);
+                // Return failure information.
                 // 返回失败信息
                 String rtnMessage = intent.getStringExtra(UpdateKey.FAIL_REASON);
-                // 强制更新应用时，弹出对话框后用户是否点击“退出应用”按钮
                 // Check whether the user clicks the “exit” button after the dialog box is displayed when the application is forcibly updated.
+                // 强制更新应用时，弹出对话框后用户是否点击“退出应用”按钮
                 boolean isExit = intent.getBooleanExtra(UpdateKey.MUST_UPDATE, false);
                 Log.i(TAG, "rtnCode = " + rtnCode + "rtnMessage = " + rtnMessage);
 
                 Serializable info = intent.getSerializableExtra(UpdateKey.INFO);
+                // If the info type is ApkUpgradeInfo, the update dialog box is displayed.
                 // 如果info属于ApkUpgradeInfo类型，则拉起更新弹框
                 if (info instanceof ApkUpgradeInfo) {
+                    // If the info type is ApkUpgradeInfo, the update dialog box is displayed.
                     // 如果info属于ApkUpgradeInfo类型，则拉起更新弹框
                     Context context = mContextWeakReference.get();
                     if (context != null) {
@@ -421,6 +433,7 @@ public class MainActivity extends BaseActivity {
                 }
                 Log.i(TAG, "check update isExit=" + isExit);
                 if (isExit) {
+                    // Forcibly update the application. If the user chooses to exit the application in the displayed upgrade dialog box, the processing logic is controlled by you. The following is only an example.
                     // 是强制更新应用，用户在弹出的升级提示框中选择了“退出应用”，处理逻辑由您自行控制，这里只是个例子
                     // System.exit(0);
                 }

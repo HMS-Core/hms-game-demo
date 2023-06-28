@@ -92,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Initializes all controls.
+     * *
      * 初始化所有控件。
      */
     private void initView() {
@@ -117,6 +119,12 @@ public class MainActivity extends AppCompatActivity {
         showFloatWindowNewWay();
     }
 
+    /**
+     * Initialization of SDK, this method should be called while the main page of your application starting.
+     * Then you can use functions of Game Setvice SDK and notice will show(if there is a notice).
+     * *
+     * SDK初始化，需要在应用首页启动时调用, 调用后才能正常使用SDK其他功能和展示公告。
+     */
     public void init() {
         AccountAuthParams params = AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME;
         JosAppsClient appsClient = JosApps.getJosAppsClient(this);
@@ -170,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showFloatWindowNewWay() {
         if (hasInit) {
+            // Be sure to call the floatWindow API after the init is successful
             // 请务必在init成功后，调用浮标接口
             Games.getBuoyClient(this).showFloatWindow();
         }
@@ -200,8 +209,8 @@ public class MainActivity extends AppCompatActivity {
      * 登录，返回已登录此应用的华为帐号登录信息(或者错误信息)，在此过程中不会展现授权界面给华为帐号用户。
      */
     public void signIn() {
+        // Be sure to call the signIn API after the init is successful
         // 一定要在init成功后，才可以调用登录接口
-        // Be sure to call the login API after the init is successful
         Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getAuthParams()).silentSignIn();
         authAccountTask
                 .addOnSuccessListener(
@@ -227,8 +236,8 @@ public class MainActivity extends AppCompatActivity {
      * 快捷登录
      */
     public void unauthorizedLogin() {
+        // Be sure to call the signIn API after the init is successful
         // 一定要在init成功后，才可以调用登录接口
-        // Be sure to call the login API after the init is successful
         Task<AuthAccount> authAccountTask = AccountAuthManager.getService(this, getUnauthorizedLoginParams()).silentSignIn();
         authAccountTask
                 .addOnSuccessListener(
@@ -276,6 +285,7 @@ public class MainActivity extends AppCompatActivity {
                     HMSLogHelper.getSingletonInstance().debug(TAG, player.getDisplayName());
 
                     dismissDialog();
+                    // After the login verification is successful, enter the game, save the data to the local host, and set the global user ID variable.
                     // 登录检验成功之后，进入游戏，把数据存入本地,设置全局的用户ID变量。
                     Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                     Bundle bundle = new Bundle();
@@ -290,6 +300,7 @@ public class MainActivity extends AppCompatActivity {
                             if (e instanceof ApiException) {
                                 String result = "rtnCode:" + ((ApiException) e).getStatusCode();
                                 dismissDialog();
+                                // After the login verification is successful, enter the game, save the data to the local host, and set the global user ID variable.
                                 // 登录检验成功之后，进入游戏，把数据存入本地,设置全局的用户ID变量。
                                 HMSLogHelper.getSingletonInstance().debug(TAG, result);
                                 if (((ApiException) e).getStatusCode() == 7400 || ((ApiException) e).getStatusCode() == 7018) {
@@ -364,9 +375,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onUpdateInfo(Intent intent) {
             if (intent != null) {
+                // Update status information
                 // 更新状态信息
                 int status = intent.getIntExtra(UpdateKey.STATUS, -99);
                 HMSLogHelper.getSingletonInstance().debug(TAG, "check update status is:" + status);
+                // Return the error code.
                 // 返回错误码
                 int rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, -99);
                 // 返回失败信息

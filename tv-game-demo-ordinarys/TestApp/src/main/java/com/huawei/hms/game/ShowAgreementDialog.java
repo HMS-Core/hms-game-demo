@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import com.huawei.hms.R;
 
+// Customize the protocol pop-up window, including the highlighted text effect of the selected protocol and the click event. This is only an example.
 // 自定义协议弹窗，包含选中协议高亮文本效果以及点击事件，这里只做演示
 public class ShowAgreementDialog extends AlertDialog {
     private final Context context;
@@ -61,8 +62,10 @@ public class ShowAgreementDialog extends AlertDialog {
 
     private void initView() {
         TextView agreeTv = findViewById(R.id.user_arg_tv);
+        // Highlight the selected text content
         // 高亮选中的文本内容
         String serviceAgreement = context.getResources().getString(R.string.service_agreement);
+        // Privacy agreement text, which can be replaced and must contain the highlighted text above.
         // 隐私协议文本，可替换，需要包含上面的高亮文本
         String agreementContent = context.getResources().getString(R.string.user_agr_content);
         int START_AG = agreementContent.indexOf(serviceAgreement);
@@ -72,6 +75,7 @@ public class ShowAgreementDialog extends AlertDialog {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(@NonNull View widget) {
+                // Highlighted text click event
                 // 高亮文本点击事件
                 listener.onClick(AGREE_TEXT_CLICK);
             }
@@ -83,6 +87,7 @@ public class ShowAgreementDialog extends AlertDialog {
             }
         };
 
+        // For details about the selection effect of the Agree and Disagree buttons, see the selector_btn.xml file.
         // 同意和不同意按钮的选中效果，参见selector_btn.xml文件
         findViewById(R.id.notAgreeBtn).setOnClickListener(v -> listener.onClick(NOT_AGREE_BTN_CLICK));
         findViewById(R.id.agreeBtn).setOnClickListener(v -> listener.onClick(AGREE_BTN_CLICK));

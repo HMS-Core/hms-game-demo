@@ -36,6 +36,7 @@ public class WebViewActivity extends AppCompatActivity {
         settings.setBlockNetworkImage(false);
         settings.setAppCacheEnabled(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        // Replace the URL with the privacy protocol URL of the developer.
         // 这里的url替换成开发者自己的隐私协议url
         webView.loadUrl("*******");
     }
