@@ -17,12 +17,16 @@
 package com.huawei.gamecenter.minigame.huawei.Until;
 
 public class Constant {
+    // Touch the cordon
     // 触碰警戒线
     public static final int MODE_ONE = 10001;
+    // The bonus point consumption is 0.
     // 积分消耗为0
     public static final int M0DE_TWO = 10002;
+    // Event ID of the game entering the next level
     // 游戏进入下一关事件标识
     public static final int MODE_THREE = 10003;
+    // Game clearance event flag
     // 游戏通关事件标识
     public static final int MODE_FOUR = 10004;
     public static final int START_RESOLUTION_REQUEST_CODE = 6666;
